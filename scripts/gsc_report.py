@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
-"""Google Search Console - roz ka kaam (GitHub Actions me chalta hai)"""
+"""
+Google Search Console - roz ka kaam (GitHub Actions me chalta hai)
+
+  sitemap  -> sitemap dobara submit
+  report   -> kaunse page index NAHI hue, uski list Telegram par
+              (har URL ke saath GSC ka seedha link - ek tap me Request Indexing)
+
+Google me "auto request indexing" ka koi legitimate API hai hi nahi.
+Indexing API sirf JobPosting/BroadcastEvent ke liye hai - usse calculator page
+bhejna policy ka ullanghan hai, isliye ye script wo NAHI karti.
+"""
 import os, re, sys, json, time, datetime, urllib.parse, urllib.request
 
 SITE   = "https://sabhisaab.com"
@@ -75,11 +85,13 @@ def cmd_report():
     for u in batch:
         try:
             r = s.urlInspection().index().inspect(body={
-                "inspectionUrl": u, "siteUrl": PROP, "languageCode": "hi-Latn"}).execute()
+                "inspectionUrl": u, "siteUrl": PROP, "languageCode": "en"}).execute()
             idx = r["inspectionResult"]["indexStatusResult"]
             v = idx.get("coverageState", "?")
-            res[u] = {"state": v, "checked": datetime.date.today().isoformat()}
-            if "indexed" not in v.lower() or "not indexed" in v.lower():
+            # verdict PASS = Google ne index kar liya. Ye bhasha par nirbhar nahi.
+            ok = idx.get("verdict") == "PASS"
+            res[u] = {"state": v, "ok": ok, "checked": datetime.date.today().isoformat()}
+            if not ok:
                 notidx.append((u, v))
         except Exception as e:
             errs += 1
@@ -89,8 +101,7 @@ def cmd_report():
     st["status"] = res
     save(st)
 
-    done = sum(1 for v in res.values()
-               if "indexed" in str(v["state"]).lower() and "not indexed" not in str(v["state"]).lower())
+    done = sum(1 for v in res.values() if v.get("ok"))
     lines = ["<b>Sab Hisaab - indexing report</b>  %s" % datetime.date.today().strftime("%d %b %Y"),
              "",
              "Site par URL : <b>%d</b>" % len(all_u),
