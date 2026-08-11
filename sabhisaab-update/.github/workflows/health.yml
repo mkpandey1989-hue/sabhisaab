@@ -1,0 +1,79 @@
+name: Hafte ki jaanch
+
+on:
+  schedule:
+    - cron: '30 1 * * 0'      # har Sunday 7:00 AM IST
+  workflow_dispatch:
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sab kuch theek hai ya nahi
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
+          GSA: ${{ secrets.GOOGLE_SA_JSON }}
+          TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          REPO: ${{ github.repository }}
+        run: |
+          pip install -q google-auth google-auth-httplib2 google-api-python-client
+          python3 - <<'PY'
+          import os, json, urllib.request, urllib.error
+          out, bad = [], 0
+          def get(u, h):
+              try:
+                  r = urllib.request.urlopen(urllib.request.Request(u, headers=h), timeout=25)
+                  return r.status, json.load(r)
+              except urllib.error.HTTPError as e: return e.code, None
+              except Exception: return 0, None
+
+          c, d = get("https://api.cloudflare.com/client/v4/accounts/%s/pages/projects" % os.environ["CF_ACCT"],
+                     {"Authorization": "Bearer " + os.environ["CF_TOKEN"]})
+          ok = c == 200 and d and d.get("success")
+          out.append(("✅" if ok else "❌") + " Cloudflare token" + ("" if ok else " — naya banana padega"))
+          bad += 0 if ok else 1
+
+          c, _ = get("https://api.github.com/repos/%s" % os.environ["REPO"],
+                     {"Authorization": "Bearer " + os.environ["GH_TOKEN"], "User-Agent": "sh"})
+          out.append(("✅" if c == 200 else "❌") + " GitHub token" + ("" if c == 200 else " — %s" % c))
+          bad += 0 if c == 200 else 1
+
+          try:
+              from google.oauth2 import service_account
+              from googleapiclient.discovery import build
+              cr = service_account.Credentials.from_service_account_info(
+                  json.loads(os.environ["GSA"]), scopes=["https://www.googleapis.com/auth/webmasters"])
+              build("searchconsole", "v1", credentials=cr, cache_discovery=False)\
+                  .sites().list().execute()
+              out.append("✅ Google Search Console key")
+          except Exception as e:
+              out.append("❌ Google Search Console key — %s" % str(e)[:80]); bad += 1
+
+          c, _ = get("https://api.telegram.org/bot%s/getMe" % os.environ["TG_TOKEN"], {})
+          out.append(("✅" if c == 200 else "❌") + " Telegram token")
+          bad += 0 if c == 200 else 1
+
+          try:
+              r = urllib.request.urlopen(urllib.request.Request(
+                  "https://sabhisaab.com/sitemap.xml",
+                  headers={"User-Agent": "Mozilla/5.0 (compatible; SabHisaabBot/1.0)"}), timeout=25)
+              n = r.read().decode().count("<loc>")
+              out.append("✅ Live site — %d URL" % n)
+          except Exception:
+              out.append("⚠️ Live site — bot ko block kiya (normal hai)")
+
+          head = "<b>Hafte ki jaanch</b>\n\n" if bad == 0 else "<b>⚠️ DHYAN DEIN — %d cheez tooti hai</b>\n\n" % bad
+          msg = head + "\n".join(out)
+          if bad: msg += "\n\n<i>Jo ❌ hai uska naya token banakar GitHub secret me daalna hoga.</i>"
+          body = json.dumps({"chat_id": os.environ["TG_CHAT"], "text": msg,
+                             "parse_mode": "HTML", "disable_web_page_preview": True}).encode()
+          urllib.request.urlopen(urllib.request.Request(
+              "https://api.telegram.org/bot%s/sendMessage" % os.environ["TG_TOKEN"],
+              data=body, headers={"Content-Type": "application/json"})).read()
+          print(msg)
+          PY
