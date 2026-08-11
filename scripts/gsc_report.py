@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Google Search Console - roz ka kaam (GitHub Actions me chalta hai)"""
-import os, sys, json, time, datetime, urllib.parse, urllib.request
+import os, re, sys, json, time, datetime, urllib.parse, urllib.request
 
 SITE   = "https://sabhisaab.com"
 PROP   = os.environ.get("GSC_PROPERTY", "sc-domain:sabhisaab.com")
@@ -31,8 +31,14 @@ def tg(text):
         except Exception as e: print("telegram fail:", e)
 
 def urls():
-    import re
-    sm = urllib.request.urlopen(SITE + "/sitemap.xml", timeout=30).read().decode()
+    """Sitemap repo se hi padho - Cloudflare bot ko rok deta hai."""
+    for p in ("site/sitemap.xml", "sitemap.xml"):
+        if os.path.exists(p):
+            sm = open(p, encoding="utf-8").read()
+            return re.findall(r"<loc>([^<]+)</loc>", sm)
+    req = urllib.request.Request(SITE + "/sitemap.xml",
+          headers={"User-Agent": "Mozilla/5.0 (compatible; SabHisaabBot/1.0)"})
+    sm = urllib.request.urlopen(req, timeout=30).read().decode()
     return re.findall(r"<loc>([^<]+)</loc>", sm)
 
 def load():
@@ -58,6 +64,7 @@ def cmd_sitemap():
 
 def cmd_report():
     all_u = urls()
+    print("sitemap me URL:", len(all_u))
     st = load()
     s = svc()
     cur = st.get("cursor", 0) % max(len(all_u), 1)
