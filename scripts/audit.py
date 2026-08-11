@@ -5,7 +5,28 @@ Har check ka jawab ZERO aana chahiye. Exit code 0 = pass, 1 = fail.
 Usage:  python3 scripts/audit.py            (poori site)
         python3 scripts/audit.py page.html  (sirf ek page)
 """
-import re, os, sys, json, glob, html as H, difflib, collections
+import re, os, sys, json, glob, html as H, difflib, collections, subprocess
+
+TYPOS = {
+    "kholha": "khola", "tootа": "toota", "bharне": "bharne",
+    "hotaa": "hota", "kartaa": "karta", "jaataa": "jaata",
+    "ki liye": "ke liye", "ka liye": "ke liye", "se pahle": "se pehle",
+    "chahiaye": "chahiye", "chaiye": "chahiye", "aapko ko": "aapko",
+    "bahut zyada zyada": "bahut zyada",
+}
+TYPOS_CASE = {"jhelI": "jheli", "kुछ": "kuch", "kई": "kai", "औसat": "ausat"}
+ALLPARA = {}
+# template ka text — ye har page par ek jaisa hona hi chahiye
+BOILER = (
+    "is page ke number aur niyam in sarkari",
+    "ye website cookies ka istemaal karti hai",
+    "hum sebi-registered advisor",
+    "jin tools par apna page",
+    "sirf shaikshanik aur aam jaankari",
+)
+
+def p_slugsafe(x):
+    return re.sub(r"[^a-z0-9]+", "_", x.lower())
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lib import cfg, site_dir, read, log
 
@@ -146,6 +167,45 @@ def main(only=None):
                     bad("Content: khatarnak daava", (f, word))
         if not re.search(r"<table", body) and p not in LEGAL: warn("Content: koi table nahi (featured snippet ka mauka)", f)
 
+
+        # ---- 30.7 Bhasha aur code ki safai (naya) ----
+        plain = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", body))
+        # 1. ek hi shabd do baar — sirf ek hi vaakya ke andar, tag ke aar-paar nahi
+        for node in re.split(r"<[^>]+>", body):
+            node = re.sub(r"\s+", " ", node)
+            for m in re.finditer(r"\b([A-Za-z]{3,})\s+\1\b", node):
+                if m.group(1).lower() not in ("bahut", "bilkul"):
+                    bad("Bhasha: shabd do baar", (f, m.group(0)))
+        # 2. jaani-pehchani spelling galtiyan
+        for wrong, right in TYPOS.items():
+            if re.search(r"\b%s\b" % re.escape(wrong), plain, re.I):
+                bad("Bhasha: spelling", (f, "%s -> %s" % (wrong, right)))
+        for wrong, right in TYPOS_CASE.items():
+            if wrong in s:
+                bad("Bhasha: spelling", (f, "%s -> %s" % (wrong, right)))
+        # 3. do space, space se pehle comma/purnviram
+        if re.search(r"[a-z] {2,}[a-z]", plain): warn("Bhasha: do space", f)
+        # 4. inline JavaScript ka syntax
+        for i, m in enumerate(re.finditer(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", s, re.S)):
+            js = m.group(1)
+            if not js.strip() or '"@context"' in js: continue
+            fn = "/tmp/_js_%s_%d.js" % (p_slugsafe(f), i)
+            open(fn, "w", encoding="utf-8").write(js)
+            r = subprocess.run(["node", "--check", fn], capture_output=True, text=True)
+            if r.returncode != 0:
+                bad("Code: JavaScript toota hai", (f, r.stderr.strip().split("\n")[0][:90]))
+        # 5. paragraph ka dohraav isi page par
+        paras = [re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", x)).strip().lower()
+                 for x in re.findall(r"<p[^>]*>(.*?)</p>", body, re.S)]
+        paras = [x for x in paras if len(x) > 120]
+        for i in range(len(paras)):
+            for j2 in range(i + 1, len(paras)):
+                if difflib.SequenceMatcher(None, paras[i], paras[j2]).ratio() >= 0.80:
+                    bad("Content: paragraph dobara likha", (f, paras[i][:70]))
+        for x in paras:
+            if any(k in x for k in BOILER): continue
+            ALLPARA.setdefault(x, []).append(f)
+
         # ---- 30.5 Performance / mobile ----
         fp = len(re.findall(r'rel="preload"[^>]*fonts', s)); fa = s.count("this.media='all'")
         if not (fp == 1 and fa == 1 and "<noscript>" in s): bad("Perf: font tag 1+1+1 nahi", (f, fp, fa))
@@ -179,6 +239,8 @@ def main(only=None):
             if len(v) > 1: bad("SEO: duplicate description", (k[:40], v))
         for k, v in qa.items():
             if len(v) > 1: bad("Content: same FAQ do page par", (k[0][:50], v))
+        for k, v in ALLPARA.items():
+            if len(set(v)) > 1: bad("Content: same paragraph do page par", (k[:60], sorted(set(v))))
 
     tot = sum(len(v) for v in P.values())
     wt = sum(len(v) for v in W.values())
