@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="hi-Latn"><head><meta charset="UTF-8">
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});
+try{var _c=localStorage.getItem('sh_consent');if(_c==='all'){gtag('consent','update',{ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted',analytics_storage:'granted'});}}catch(e){}
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QX5MWV42TR"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-QX5MWV42TR");</script>
+<meta name="theme-color" content="#0F766E">
+<meta name="color-scheme" content="light">
+<meta property="og:site_name" content="Sab Hisaab">
+<meta property="og:locale" content="hi_IN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lumpsum Calculator — Future Value | Sab Hisaab">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20100%20100%27%3E%3Crect%20width=%27100%27%20height=%27100%27%20rx=%2722%27%20fill=%27%230F766E%27/%3E%3Ctext%20x=%2750%27%20y=%2772%27%20font-size=%2762%27%20text-anchor=%27middle%27%20fill=%27white%27%20font-family=%27Arial%27%20font-weight=%27bold%27%3E%E2%82%B9%3C/text%3E%3C/svg%3E">
+<title>Lumpsum Calculator — Future Value | Sab Hisaab</title>
+<meta name="description" content="Free lumpsum calculator: ek baar lagaye paise par return ka hisaab. Mutual fund, FD ya kisi bhi nivesh ke liye.">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<link rel="canonical" href="https://sabhisaab.com/lumpsum-calculator">
+<meta name="author" content="Manoj Kumar Pandey">
+<meta property="og:title" content="Lumpsum Calculator — Ek Baar Ke Nivesh Ka Future Value"><meta property="og:description" content="Free lumpsum calculator: ek baar lagaye paise par return ka hisaab. Mutual fund, FD ya kisi bhi nivesh ke liye.">
+<meta property="og:image" content="https://sabhisaab.com/lumpsum-calculator-result.webp"><meta property="og:image:width" content="1288"><meta property="og:image:height" content="952">
+<meta property="og:type" content="website"><meta property="og:url" content="https://sabhisaab.com/lumpsum-calculator">
+<link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"></noscript>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#0F766E;--accent:#D97706;--ink:#0F1720;--muted:#4F5D64;--bg:#F6F8F9;--line:#E3E9EC}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.hrow{max-width:820px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.15rem;color:var(--ink);text-decoration:none}
+.logo span{color:var(--brand)}
+.hnav a{color:var(--muted);text-decoration:none;font-size:.86rem;font-weight:600;margin-left:15px}
+.hnav a:hover{color:var(--brand)}
+main{max-width:820px;margin:0 auto;padding:22px 18px 50px}
+.crumb{font-size:.78rem;color:var(--muted);margin-bottom:12px}
+.crumb a{color:var(--brand);text-decoration:none}
+h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.75rem;line-height:1.25;margin-bottom:8px}
+h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.2rem;margin:26px 0 9px}
+p{margin-bottom:13px}
+ul,ol{margin:0 0 13px 20px}
+li{margin-bottom:6px}
+.meta{font-size:.78rem;color:var(--muted);margin-bottom:18px}
+.calcbox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 8px 30px rgba(15,23,32,.06);margin:16px 0 8px}
+.f{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin:13px 0 5px}
+.calcbox input,.calcbox select,.calcbox textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-size:1rem;font-family:inherit;background:#fff;color:var(--ink)}
+.calcbox input:focus,.calcbox select:focus{outline:none;border-color:var(--brand)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.go{width:100%;margin-top:16px;padding:14px;background:var(--brand);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer}
+.go:hover{background:#0d635c}
+#res{margin-top:16px}
+.lbl{font-size:.8rem;color:var(--muted);font-weight:600}
+.big{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.9rem;color:var(--brand);word-break:break-word}
+.rrow{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:.9rem;margin-top:8px}
+.rrow:first-of-type{border:none;margin-top:12px}
+.hint{font-size:.75rem;color:var(--muted);margin-top:11px;line-height:1.5}
+.box{background:#fff;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:13px 15px;margin:15px 0;font-size:.92rem}
+.faq details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin-bottom:9px}
+.faq summary{font-weight:600;cursor:pointer;font-size:.94rem}
+.faq p{margin:9px 0 0;font-size:.9rem;color:var(--muted)}
+.rel{margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
+.rel a{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;margin:0 7px 8px 0;font-size:.82rem;color:var(--brand);text-decoration:none;font-weight:600}
+.rel a:hover{border-color:var(--brand)}
+.disc{font-size:.75rem;color:var(--muted);margin-top:20px;padding:11px 13px;background:#FFF7ED;border:1px solid #FDE4C4;border-radius:10px;line-height:1.5}
+.disc a{color:var(--brand)}
+footer{background:#fff;border-top:1px solid var(--line);padding:22px 18px;text-align:center;font-size:.82rem;color:var(--muted)}
+footer a{color:var(--muted);text-decoration:none;margin:0 7px}
+footer a:hover{color:var(--brand)}
+@media(max-width:520px){h1{font-size:1.45rem}.row3{grid-template-columns:1fr}.big{font-size:1.6rem}}
+.hubbar{margin:0 0 12px;font-size:.82rem;line-height:2}.hubbar a{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}.hubbar a:hover{opacity:.7}.shbtn{display:inline-block;background:#fff;border:1px solid var(--line,#D8E0E2);border-radius:22px;padding:8px 15px;font-size:.86rem;font-weight:600;color:var(--brand,#0F766E);text-decoration:none;cursor:pointer;font-family:inherit}.shbtn:hover{background:var(--brand,#0F766E);color:#fff;border-color:var(--brand,#0F766E)}.gshare{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.gshare a,.gshare button{background:#fff;border:1px solid var(--line,#D8E0E2);border-radius:22px;padding:7px 14px;font-size:.84rem;font-weight:600;color:var(--brand,#0F766E);text-decoration:none;cursor:pointer;font-family:inherit}.gshare a:hover,.gshare button:hover{background:var(--brand,#0F766E);color:#fff}.srcbox{background:#F6FAF9;border:1px solid #CFE3DF;border-radius:10px;padding:14px 16px;margin:22px 0;font-size:.93rem}.srcbox ul{margin:0;padding-left:20px}.srcbox b{display:block;margin-bottom:6px}</style>
+<style>
+.tocbox{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:18px 0}
+.tocbox b{font-size:.95rem}.tocbox ol{margin:8px 0 0;padding-left:20px}.tocbox li{margin:3px 0;font-size:.95rem}
+figure{margin:22px 0}figure img{width:100%;height:auto;border-radius:14px;border:1px solid var(--line);display:block;background:#f6f8f9}
+figcaption{font-size:.86rem;color:var(--mut);margin-top:7px;text-align:center;line-height:1.5}
+.shots{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.shots{grid-template-columns:1fr}}
+.diagwrap{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin:20px 0}
+.shbar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
+.shbar a,.shbar button{font:inherit;font-size:.85rem;padding:7px 13px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink);text-decoration:none;cursor:pointer}
+.shbar a:hover,.shbar button:hover{border-color:var(--brand);color:var(--brand)}
+
+.prog{position:fixed;top:0;left:0;height:3px;background:var(--brand);width:0;z-index:99}
+
+/* CLS: result box ki jagah pehle se tay */
+#res,.result{min-height:96px}
+
+/* Mobile: number keypad, iOS auto-zoom se bachaav */
+input[type="number"],input[type="text"],select,textarea{font-size:16px}
+/* Table mobile par toote nahi */
+table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:normal}
+@media(min-width:600px){table{display:table}}
+/* Keyboard se chalane walon ke liye saaf focus */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #0F766E;outline-offset:2px;border-radius:6px}
+/* Print/PDF: sirf kaam ki cheez chhape */
+@media print{
+ header,footer,.gshare,#shBar,#shConsent,.nextread,.hubbar,.tocbox{display:none!important}
+ body{background:#fff;color:#000;font-size:12pt}
+ main{max-width:100%;padding:0}
+ .calc{box-shadow:none;border:1px solid #999}
+ a[href^="/"]:after{content:" (sabhisaab.com" attr(href) ")";font-size:9pt;color:#555}
+ .faq details{page-break-inside:avoid}
+}
+</style>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Lumpsum Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "url": "https://sabhisaab.com/lumpsum-calculator", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "INR"}, "inLanguage": "hi-Latn", "isAccessibleForFree": true, "author": {"@type": "Person", "name": "Manoj Kumar Pandey"}, "publisher": {"@type": "Organization", "@id": "https://sabhisaab.com/#org", "name": "Sab Hisaab", "url": "https://sabhisaab.com/", "logo": {"@type": "ImageObject", "url": "https://sabhisaab.com/icon-512.png"}}, "datePublished": "2026-07-21", "dateModified": "2026-08-11"}
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Lumpsum aur SIP me kaunsa behtar hai?", "acceptedAnswer": {"@type": "Answer", "text": "Ek saath bada paisa ho to lumpsum, har mahine bachat ho to SIP. Bahut se log dono chalate hain."}}, {"@type": "Question", "name": "Kitna return maan kar chalna chahiye?", "acceptedAnswer": {"@type": "Answer", "text": "Equity ke liye 10-12% ka andaaza aam hai. Isse zyada maan kar plan banana khatarnak hai."}}, {"@type": "Question", "name": "Kya lumpsum me nuksan ho sakta hai?", "acceptedAnswer": {"@type": "Answer", "text": "Haan. Market gir gaya to value kam ho sakti hai. Isliye lamba samay dena zaroori hai."}}, {"@type": "Question", "name": "Beech me paisa nikal sakte hain?", "acceptedAnswer": {"@type": "Answer", "text": "Open-ended fund me haan. ELSS jaise fund me lock-in hota hai."}}, {"@type": "Question", "name": "Kya ye calculator tax ke baad ka number deta hai?", "acceptedAnswer": {"@type": "Answer", "text": "Nahi, ye tax se pehle ka anuman hai. Apne slab ke hisaab se tax ghata kar dekhein."}}, {"@type": "Question", "name": "Ekmusht (lumpsum) calculator kya batata hai?", "acceptedAnswer": {"@type": "Answer", "text": "Ek baar me lagaye gaye paise ki bhavishya value — rakam, anuman return aur saal daalne par. Har mahine lagane wale nivesh ke liye SIP calculator sahi hai."}}, {"@type": "Question", "name": "Paisa ek saath lagana chahiye ya thoda-thoda?", "acceptedAnswer": {"@type": "Answer", "text": "Debt aur FD me ek saath theek hai. Equity me STP behtar rehta hai — paisa liquid ya debt fund me daal kar har mahine equity me transfer karte rahiye, taaki bazaar ka utaar-chadhav bat jaye."}}, {"@type": "Question", "name": "1 lakh ka lumpsum 10 saal me kitna banega?", "acceptedAnswer": {"@type": "Answer", "text": "12% ke anuman se lagbhag ₹3.1 lakh. Ye waada nahi hai — return upar-neeche hota hai aur beech me nikaalne par natija kaafi kam ho jaata hai."}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sabhisaab.com/"}, {"@type": "ListItem", "position": 2, "name": "Nivesh", "item": "https://sabhisaab.com/nivesh-calculators"}, {"@type": "ListItem", "position": 3, "name": "Lumpsum Calculator", "item": "https://sabhisaab.com/lumpsum-calculator"}]}</script>
+
+<meta name="twitter:description" content="Free lumpsum calculator: ek baar lagaye paise par return ka hisaab. Mutual fund, FD ya kisi bhi nivesh ke liye.">
+<meta name="twitter:image" content="https://sabhisaab.com/lumpsum-calculator-result.webp">
+</head>
+<body>
+<div class="prog" id="prog"></div>
+<header><div class="hrow"><a href="/" class="logo">Sab<span>Hisaab</span></a>
+<nav class="hnav"><a href="/">Tools</a><a href="/about">About</a><a href="/author">Author</a><a href="/services">Services</a><a href="/contact">Contact</a></nav></div></header>
+<main>
+<div class="crumb"><a href="/">Home</a> &rsaquo; <a href="/nivesh-calculators">Nivesh</a></div>
+<h1>Lumpsum Calculator</h1>
+<div class="meta">Lekhak: <a href="/author" style="color:inherit">Manoj Kumar Pandey</a> &middot; Update: <time datetime="2026-08-11">August 2026</time> &middot; Padhne me ~4 minute</div>
+<div class="gshare" id="gShare"><a class="wa" target="_blank" rel="noopener">🟢 WhatsApp par share</a><button type="button" class="cp">🔗 Link copy karein</button></div>
+<p>Bonus mila, PF nikla, ya zameen bech kar ek saath paisa aaya — ab sawaal ye ki agle kuch saal me wo kitna ban sakta hai. Ye calculator ek baar lagaye gaye paise ka future value nikaal deta hai, aur alag karke dikhata hai ki usme munafa kitna hai.</p>
+<div class="tocbox"><b>Is page me kya milega</b><ol><li><a href="#s1">Apna number daaliye</a></li><li><a href="#s2">Hisaab ke peeche ki baat</a></li><li><a href="#s3">Teen asli misaal</a></li><li><a href="#s4">Log kya galti karte hain</a></li><li><a href="#s5">Yahan ki khaas baatein</a></li><li><a href="#s6">Related tools</a></li><li><a href="#s7">Sawaal-jawab</a></li></ol></div>
+<h2 id="s1">Apna number daaliye</h2>
+<div class="calcbox">
+<label class="f">Amount (₹)</label><input id="a" type="number" inputmode="numeric" value="100000"><div class="row2"><div><label class="f">Return %</label><input id="r" type="number" inputmode="decimal" value="12" step="0.1"></div><div><label class="f">Saal</label><input id="y" type="number" inputmode="numeric" value="10"></div></div>
+<button class="go" id="go">Hisaab lagao</button>
+<div id="res"></div>
+</div>
+<div class="shbar"><button id="cpy" type="button">Result copy karein</button><a id="wa" href="#" rel="nofollow noopener" target="_blank">WhatsApp par bhejein</a><a href="/">Baaki 152 tools</a></div>
+<div class="shots">
+<figure><img src="/lumpsum-calculator-form.webp" width="1288" height="952" loading="lazy" decoding="async" alt="Lumpsum Calculator ka khaali form — Sab Hisaab par"><figcaption>Lumpsum Calculator ka form — sirf apne number bhariye.</figcaption></figure>
+<figure><img src="/lumpsum-calculator-result.webp" width="1288" height="952" loading="lazy" decoding="async" alt="Lumpsum Calculator ka result — asli number ke saath"><figcaption>Result aise dikhta hai — poora hisaab ek nazar me.</figcaption></figure>
+</div>
+<h2 id="s2">Hisaab ke peeche ki baat</h2>
+<p>Lumpsum me poora paisa pehle hi din se kaam karna shuru kar deta hai. Isliye compounding ka poora fayda milta hai. Har saal ka return agle saal ke mool me jud jaata hai, aur wahi badhi hui rakam aage return kamati hai. SIP me har kist alag samay se shuru hoti hai, isliye ek hi rakam par lumpsum ka nateeja aam taur par thoda oopar rehta hai — badle me timing ka risk zyada hota hai.</p>
+<div class="box"><b>Formula:</b> A = P &times; (1 + r)<sup>n</sup><br>P = lagaya gaya paisa, r = saalana return (decimal me), n = saal</div>
+<figure class="diagwrap"><svg viewBox="0 0 760 214" width="100%" height="auto" role="img" aria-label="₹4.5 lakh · 11% · 5 saal" xmlns="http://www.w3.org/2000/svg"><rect width="760" height="214" fill="#fff"/><text x="14" y="30" font-size="16" font-weight="700" fill="#0F1720" font-family="Inter,sans-serif">₹4.5 lakh · 11% · 5 saal</text><line x1="14" y1="44" x2="746" y2="44" stroke="#E4E9EC"/><text x="14" y="86" font-size="15" fill="#5B6B78" font-family="Inter,sans-serif">Lagaya</text><rect x="14" y="94" width="560" height="24" rx="6" fill="#0F766E"/><text x="586" y="112" font-size="15" font-weight="600" fill="#0F1720" font-family="Inter,sans-serif">₹450,000</text><text x="14" y="148" font-size="15" fill="#5B6B78" font-family="Inter,sans-serif">Munafa</text><rect x="14" y="156" width="383" height="24" rx="6" fill="#E07A5F"/><text x="409" y="174" font-size="15" font-weight="600" fill="#0F1720" font-family="Inter,sans-serif">₹308,276</text></svg><figcaption>₹4.5 lakh · 11% · 5 saal — Sab Hisaab ka apna diagram.</figcaption></figure>
+<h2 id="s3">Teen sthitiyan, teen jawab</h2>
+<p><b>Misaal 1 — mid-term nivesh.</b> ₹4,50,000 ek baar lagaye, 11% saalana return, 5 saal. Value lagbhag <b>₹7,58,276</b> banti hai — yaani ₹3,08,276 munafa.</p>
+<p><b>Misaal 2 — lamba samay.</b> ₹1,00,000, 12% return, 20 saal. Value lagbhag ₹9,65,000. Sirf ek baar ka paisa, par 20 saal me kareeb 9.6 guna.</p>
+<p><b>Misaal 3 — dar ka asar.</b> Wahi ₹1 lakh 20 saal ke liye — 8% par ₹4,66,000, 12% par ₹9,65,000. Sirf 4% ka farak, par nateeja dugne se bhi zyada. Lambe samay me chhota sa farak bahut bada ho jaata hai.</p>
+<h2 id="s4">Kahan log chook jaate hain</h2><ol>
+<li><b>Past return ko pakka maan lena.</b> Kisi fund ne pichhle 5 saal me 15% diya, iska matlab ye nahi ki aage bhi dega. Andaaza lagate waqt thoda kam number rakhna zyada surakshit hai.</li>
+<li><b>Mehngai bhool jaana.</b> Aaj ke ₹10 lakh aur 20 saal baad ke ₹10 lakh ek jaise nahi hain. 6% mehngai par aaj ke ₹10 lakh ki taakat 20 saal baad lagbhag ₹3.1 lakh reh jaati hai.</li>
+<li><b>Ek hi din me poora paisa daal dena.</b> Market oopar chal raha ho to poora lumpsum ek saath daalne ka risk hota hai. Bada paisa ho to use kuch mahino me baant kar daalna (STP) risk kam karta hai.</li>
+<li><b>Tax na ginna.</b> Equity me ek saal se pehle bechne par short-term tax lagta hai, baad me long-term. Debt aur FD ka return slab ke hisaab se judta hai. Haath me aane wala number hamesha kam hota hai.</li>
+<li><b>Emergency fund ka paisa lagana.</b> Lumpsum wahi paisa hona chahiye jiski agle 3-5 saal zaroorat na ho. Warna galat waqt par nikalna pad jaata hai.</li>
+</ol>
+<h2 id="s5">Yahan ki khaas baatein</h2><ul>
+<li><b>Equity tax:</b> 12 mahine baad bechne par long-term capital gain, usse pehle short-term. Dar samay-samay par badalti hai — filing se pehle official site par dekh lein.</li>
+<li><b>ELSS:</b> Old Regime me 80C ki chhoot deta hai, par 3 saal ka lock-in hota hai.</li>
+<li><b>Debt fund:</b> Ab zyadatar debt fund ka gain slab ke hisaab se juda jaata hai, isliye FD se tulna karte waqt dono par tax ke baad ka return dekhein.</li>
+<li><b>KYC:</b> Mutual fund me ek baar KYC ho jaaye to sab jagah chalti hai.</li>
+<li><b>Nominee:</b> Har folio me nominee bharna ab zaroori jaisa hai — chhod diya to baad me dikkat hoti hai.</li>
+</ul>
+<h2 id="s6">Milte-julte tools</h2><ul><li><a href="/sip-goal-guide">Goal Ke Liye Kitni SIP Chahiye? Poori Guide</a></li>
+<li><a href="/sip-calculator">SIP Calculator</a></li>
+<li><a href="/sip-guide">SIP Guide</a></li>
+<li><a href="/cagr-calculator">CAGR Calculator</a></li>
+<li><a href="/mutual-fund-vs-fd-guide">Mutual Fund vs FD</a></li>
+<li><a href="/compound-interest-calculator">Compound Interest</a></li>
+</ul>
+
+<h2>Ek musht nivesh — log kya dhoondhte hain</h2>
+<p>Ise kai naamon se dhoondha jaata hai &mdash; lumpsum, ek musht, one-time investment, ya <b>&#2319;&#2325;&#2350;&#2369;&#2358;&#2381;&#2340; &#2325;&#2376;&#2354;&#2325;&#2369;&#2354;&#2375;&#2335;&#2352;</b>. Sab ek hi cheez hai: ek baar paisa lagaya aur chhod diya, har mahine kuch nahi daala.</p>
+<p>Ye tab kaam aata hai jab ek saath rakam aaye &mdash; bonus, gratuity, property bikri, bima ka claim, ya gaon ki zameen ka paisa.</p>
+<table><tr><th>Ek baar lagaya</th><th>10 saal me</th><th>15 saal me</th><th>20 saal me</th></tr>
+<tr><td>&#8377;1 lakh</td><td>~&#8377;3.1 lakh</td><td>~&#8377;5.5 lakh</td><td>~&#8377;9.6 lakh</td></tr>
+<tr><td>&#8377;5 lakh</td><td>~&#8377;15.5 lakh</td><td>~&#8377;27 lakh</td><td>~&#8377;48 lakh</td></tr>
+<tr><td>&#8377;10 lakh</td><td>~&#8377;31 lakh</td><td>~&#8377;55 lakh</td><td>~&#8377;96 lakh</td></tr></table>
+<p><small>12% saalana ke anuman par. Ye waada nahi hai &mdash; asli return har saal upar-neeche hota hai.</small></p>
+<div class="fbox">Ek zaroori baat: ye number tabhi sach ke paas rehte hain jab paisa poore samay laga rahe. Beech me nikaalne par compounding ki chain tootti hai aur natija bahut kam ho jaata hai.</div>
+<p>Bade amount ko equity me ek saath daalne ke bajay <b>STP</b> (paisa pehle debt fund me, phir har mahine thoda-thoda equity me) zyada samajhdaari hoti hai &mdash; poora tarika <a href="/goal-lumpsum-calculator">Goal Lumpsum Calculator</a> me hai.</p>
+<h2 id="s7">Aksar pooche jaane wale sawaal</h2><div class="faq">
+<details><summary>Lumpsum aur SIP me kaunsa behtar hai?</summary><p>Ek saath bada paisa ho to lumpsum, har mahine bachat ho to SIP. Bahut se log dono chalate hain.</p></details>
+<details><summary>Kitna return maan kar chalna chahiye?</summary><p>Equity ke liye 10-12% ka andaaza aam hai. Isse zyada maan kar plan banana khatarnak hai.</p></details>
+<details><summary>Kya lumpsum me nuksan ho sakta hai?</summary><p>Haan. Market gir gaya to value kam ho sakti hai. Isliye lamba samay dena zaroori hai.</p></details>
+<details><summary>Beech me paisa nikal sakte hain?</summary><p>Open-ended fund me haan. ELSS jaise fund me lock-in hota hai.</p></details>
+<details><summary>Kya ye calculator tax ke baad ka number deta hai?</summary><p>Nahi, ye tax se pehle ka anuman hai. Apne slab ke hisaab se tax ghata kar dekhein.</p></details>
+<details><summary>Ekmusht (lumpsum) calculator kya batata hai?</summary><p>Ek baar me lagaye gaye paise ki bhavishya value — rakam, anuman return aur saal daalne par. Har mahine lagane wale nivesh ke liye SIP calculator sahi hai.</p></details>
+<details><summary>Paisa ek saath lagana chahiye ya thoda-thoda?</summary><p>Debt aur FD me ek saath theek hai. Equity me STP behtar rehta hai — paisa liquid ya debt fund me daal kar har mahine equity me transfer karte rahiye, taaki bazaar ka utaar-chadhav bat jaye.</p></details>
+<details><summary>1 lakh ka lumpsum 10 saal me kitna banega?</summary><p>12% ke anuman se lagbhag ₹3.1 lakh. Ye waada nahi hai — return upar-neeche hota hai aur beech me nikaalne par natija kaafi kam ho jaata hai.</p></details>
+</div>
+<div class="box" style="margin-top:22px"><b>Zaroori baat:</b> Ye calculator sirf jaankari ke liye hai. Ye SEBI-registered nivesh salah nahi hai. Byaj dar, tax slab aur sarkari niyam samay-samay par badalte hain — bade faisle se pehle official website ya apne salahkaar se ek baar zaroor confirm kar lein.</div>
+<div class="srcbox"><b>Official source &mdash; yahin se confirm karein</b><p style="margin:0 0 6px">Is page ke number aur niyam in sarkari/official jagah se liye gaye hain. Dar aur rules badalte rehte hain, isliye kisi bhi bade faisle se pehle seedha yahan ek baar dekh lein:</p><ul><li><a href="https://investor.sebi.gov.in" rel="nofollow noopener" target="_blank">SEBI Investor Portal — nivesh aur mutual fund ki jaankari</a></li></ul></div>
+</main>
+<footer>
+<div class="hubbar"><b>Categories:</b> <a href="/nivesh-calculators">Nivesh</a> &middot; <a href="/loan-tax-calculators">Loan &amp; Tax</a> &middot; <a href="/trading-calculators">Trading</a> &middot; <a href="/sehat-calculators">Sehat</a> &middot; <a href="/converter-tools">Converter</a> &middot; <a href="/rozana-calculators">Rozana</a> &middot; <a href="/utility-tools">Utility</a> &middot; <a href="/guides">Guides</a> &middot; <a href="/articles">Articles</a> &middot; <a href="/">Saare 152 Tools</a></div>
+<a href="/">Home</a>&middot;<a href="/about">About</a>&middot;<a href="/author">Author</a>&middot;<a href="/services">Services</a>&middot;<a href="/contact">Contact</a>&middot;<a href="/privacy">Privacy</a>&middot;<a href="/terms">Terms</a>&middot;<a href="/disclaimer">Disclaimer</a>
+
+
+<div style="margin-top:10px;opacity:.92">&copy; 2026 Sab Hisaab</div>
+</footer>
+<script>const v=id=>document.getElementById(id).value;const RS=n=>'\u20B9'+Math.round(n).toLocaleString('en-IN');
+const DISC='<div class="hint" style="margin-top:10px">\u26A0\uFE0F Ye anuman hai, sirf jaankari ke liye. Not SEBI registered. Nivesh/tax faisle se pehle salahkaar se milein.</div>';
+function CALC(){let P=+v('a'),A=P*Math.pow(1+ +v('r')/100,+v('y'));return `<div class="lbl">Total value</div><div class="big">${RS(A)}</div><div class="rrow"><span>Munafa</span><b>${RS(A-P)}</b></div>${DISC}`;}
+function run(){ document.getElementById('res').innerHTML=CALC(); }
+document.getElementById('go').addEventListener('click',run);
+document.querySelectorAll('.calcbox input,.calcbox select').forEach(function(el){el.addEventListener('keydown',function(e){if(e.key==='Enter')run();});});
+run();
+document.getElementById('cpy').addEventListener('click',function(){
+  var e=document.getElementById('res'); if(!e)return;
+  var t=e.innerText.replace(/\n{2,}/g,'\n')+'\n\u2014 sabhisaab.com/lumpsum-calculator';
+  if(navigator.clipboard)navigator.clipboard.writeText(t);
+  this.textContent='Copy ho gaya';var b=this;setTimeout(function(){b.textContent='Result copy karein';},1800);});
+document.getElementById('wa').addEventListener('click',function(){
+  var e=document.getElementById('res'); var t=(e?e.innerText.replace(/\n{2,}/g,'\n'):'')+'\n\nLumpsum Calculator: https://sabhisaab.com/lumpsum-calculator';
+  this.href='https://wa.me/?text='+encodeURIComponent(t);});
+window.addEventListener('scroll',function(){
+  var h=document.documentElement,p=h.scrollTop/((h.scrollHeight-h.clientHeight)||1);
+  document.getElementById('prog').style.width=(p*100)+'%';},{passive:true});
+</script>
+
+<script>
+(function(){
+  function txt(){var r=document.getElementById('res');if(!r)return '';var t=r.innerText||r.textContent||'';return t.replace(/\s+\n/g,'\n').trim();}
+  function ensure(){
+    var res=document.getElementById('res');if(!res)return;
+    if(document.getElementById('shBar'))return;
+    var bar=document.createElement('div');bar.id='shBar';bar.style.cssText='display:none;gap:8px;flex-wrap:wrap;margin:12px 0 4px';
+    bar.innerHTML='<button type="button" id="shCopy" class="shbtn">📋 Copy result</button>'
+      +'<a id="shWa" class="shbtn" target="_blank" rel="noopener">🟢 WhatsApp par bhejein</a>';
+    res.parentNode.insertBefore(bar,res.nextSibling);
+    document.getElementById('shCopy').addEventListener('click',function(){
+      var t=txt()+'\n\n'+document.title.split('|')[0].trim()+'\n'+location.href;
+      if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){var b=document.getElementById('shCopy');b.textContent='✅ Copy ho gaya';setTimeout(function(){b.textContent='📋 Copy result';},1600);});}
+    });
+  }
+  function upd(){
+    var bar=document.getElementById('shBar');if(!bar)return;
+    var t=txt();
+    if(t.length>3){bar.style.display='flex';
+      var msg=encodeURIComponent(t+'\n\n'+document.title.split('|')[0].trim()+'\n'+location.href);
+      document.getElementById('shWa').href='https://wa.me/?text='+msg;
+    } else {bar.style.display='none';}
+  }
+  function boot(){ensure();upd();
+    var res=document.getElementById('res');if(res&&window.MutationObserver){new MutationObserver(upd).observe(res,{childList:true,subtree:true,characterData:true});}
+  }
+  if(document.readyState!=='loading')boot();else document.addEventListener('DOMContentLoaded',boot);
+})();
+</script>
+
+<script>
+(function(){var b=document.getElementById('gShare');if(!b)return;
+var u=location.href,t=document.title.split('|')[0].trim();
+var w=b.querySelector('.wa');if(w)w.href='https://wa.me/?text='+encodeURIComponent(t+'\n'+u);
+var c=b.querySelector('.cp');if(c)c.addEventListener('click',function(){if(navigator.clipboard){navigator.clipboard.writeText(u).then(function(){c.textContent='\u2705 Link copy ho gaya';setTimeout(function(){c.textContent='\ud83d\udd17 Link copy karein';},1600);});}});
+})();
+</script><div id="shConsent" style="display:none;position:fixed;contain:layout style;will-change:transform;left:0;right:0;bottom:0;z-index:9999;background:#fff;border-top:2px solid #0F766E;box-shadow:0 -6px 24px rgba(15,23,32,.14);padding:16px 18px;font-family:'Inter',system-ui,sans-serif">
+<div style="max-width:900px;margin:0 auto">
+<p style="margin:0 0 10px;font-size:.88rem;line-height:1.6;color:#0F1720">Ye website cookies ka istemaal karti hai &mdash; site chalane ke liye, aur aage <b>vigyapan (ads) ko personalize karne</b>, ads ka asar naapne aur traffic samajhne ke liye. Google aur uske partners is data ka istemaal kar sakte hain. Aap chahein to sirf zaroori cookies rakh sakte hain. <a href="/privacy" style="color:#0F766E;font-weight:600">Privacy Policy</a> &middot; <a href="/terms" style="color:#0F766E;font-weight:600">Terms</a></p>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<button id="shAccept" style="flex:1;min-width:150px;padding:11px 16px;border:none;border-radius:10px;background:#0F766E;color:#fff;font-weight:700;font-size:.9rem;font-family:inherit;cursor:pointer">Sab cookies theek hain</button>
+<button id="shReject" style="flex:1;min-width:150px;padding:11px 16px;border:1px solid #E3E9EC;border-radius:10px;background:#fff;color:#0F1720;font-weight:600;font-size:.9rem;font-family:inherit;cursor:pointer">Sirf zaroori cookies</button>
+</div>
+</div></div>
+<script>
+(function(){var b=document.getElementById('shConsent');if(!b)return;
+function set(v){try{localStorage.setItem('sh_consent',v);}catch(e){}
+ var g=(v==='all')?'granted':'denied';
+ if(typeof gtag==='function'){gtag('consent','update',{ad_storage:g,ad_user_data:g,ad_personalization:g,analytics_storage:g});}
+ b.style.display='none';}
+var c=null;try{c=localStorage.getItem('sh_consent');}catch(e){}
+if(!c){b.style.display='block';}
+var a=document.getElementById('shAccept'),r=document.getElementById('shReject');
+if(a)a.addEventListener('click',function(){set('all');});
+if(r)r.addEventListener('click',function(){set('essential');});
+})();
+</script>
+<script src="/install-app.js" defer></script>
+<script>
+/* Mobile: calculate dabane par result apne aap dikhe */
+(function(){var b=document.getElementById('go'),r=document.getElementById('res');if(!b||!r)return;
+b.addEventListener('click',function(){setTimeout(function(){
+ if(window.innerWidth<760&&r.getBoundingClientRect().top>window.innerHeight-120){
+  r.scrollIntoView({behavior:'smooth',block:'center'});}},60);});})();
+</script>
+</body></html>

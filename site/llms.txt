@@ -1,0 +1,38 @@
+# Sab Hisaab
+
+> Bharat ke liye Hinglish (Roman-script Hindi) me bane free online calculator aur guides. SIP, EMI, PPF, NPS, income tax, GST, F&O brokerage, BMI, aur zameen ki maap (bigha, nali-mutthi) — sab bina login, bina app, aur bina kisi shulk ke.
+
+Sab Hisaab ka maksad ek hi hai: paison ka hisaab us bhasha me samjhana jisme Bharat ke log sochte hain. Har page par ek chalta hua calculator hai aur uske neeche saaf bhasha me samjhaaya gaya hai ki number ka matlab kya hai, kya galtiyan aam hain, aur faisla kaise lena chahiye.
+
+Site ke lekhak Manoj Kumar Pandey hain, jinke apne anubhav — naukri, kheti, ITR-3 filing, F&O trading aur sarkari form bharna — content ka aadhaar hain.
+
+Zaroori baat: ye site jaankari deti hai, salah nahi. Hum SEBI-registered investment advisor, CA ya vakeel nahi hain. Har page par yahi likha hai, aur sarkari niyam ke liye official source ka link diya gaya hai.
+
+## Mukhya hisse
+
+- [Saare tools](https://sabhisaab.com/): 152 calculator, category ke hisaab se
+- [Nivesh calculators](https://sabhisaab.com/nivesh-calculators): 39 tools — SIP, lumpsum, PPF, NPS, FD, RD, retirement
+- [Loan aur Tax](https://sabhisaab.com/loan-tax-calculators): 32 tools — EMI, prepayment, income tax, GST, HRA, TDS
+- [Trading](https://sabhisaab.com/trading-calculators): 9 tools — intraday P&L, position size, brokerage, risk-reward
+- [Sehat](https://sabhisaab.com/sehat-calculators): 11 tools — BMI, BMR, TDEE, body fat, ideal weight
+- [Converter](https://sabhisaab.com/converter-tools): 9 tools — bigha, nali-mutthi, hectare, unit, temperature
+- [Rozana](https://sabhisaab.com/rozana-calculators): 27 tools — bijli bill, fuel cost, bill split, tile, paint
+- [Utility](https://sabhisaab.com/utility-tools): 25 tools — word counter, password, QR code, number to words
+- [Guides](https://sabhisaab.com/guides): 38 vistaar se likhi gayi guides
+- [Articles](https://sabhisaab.com/articles): 24 lekh, asli sawaalon par
+
+## Khaas jaankari jo kahin aur kam milti hai
+
+- [Nali, Mutthi aur Bisi](https://sabhisaab.com/nali-mutthi-square-feet): Uttarakhand ki paramparik zameen maap
+- [Bigha kitna hota hai](https://sabhisaab.com/bigha-kitna-hota-hai): rajya ke hisaab se bigha ka alag naap
+- [AgriStack aur Farmer ID](https://sabhisaab.com/agristack-guide): kisan registry ka poora tarika
+- [F&O loss ITR-3 me kaise dikhayein](https://sabhisaab.com/fno-loss-itr3-kaise-dikhaye)
+- [Doodh ka rate — Fat aur SNF](https://sabhisaab.com/doodh-rate-fat-snf-calculator)
+
+## Site ke baare me
+
+- [About](https://sabhisaab.com/about)
+- [Lekhak](https://sabhisaab.com/author)
+- [Sampark](https://sabhisaab.com/contact)
+- [Privacy Policy](https://sabhisaab.com/privacy)
+- [Disclaimer](https://sabhisaab.com/disclaimer)

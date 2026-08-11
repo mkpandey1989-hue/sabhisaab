@@ -1,0 +1,240 @@
+<!doctype html><html lang="hi-Latn"><head>
+<meta charset="utf-8">
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});
+try{var _c=localStorage.getItem('sh_consent');if(_c==='all'){gtag('consent','update',{ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted',analytics_storage:'granted'});}}catch(e){}
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QX5MWV42TR"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-QX5MWV42TR");</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stopwatch Online — Lap Time Ke Saath | Sab Hisaab</title>
+<meta name="description" content="Bina app ke online stopwatch, lap time ke saath. Space se start-stop, L se lap. Padhai, daud aur kaam ka samay naapne ka sahi tarika.">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<link rel="canonical" href="https://sabhisaab.com/stopwatch-online"><meta name="author" content="Manoj Kumar Pandey">
+<meta property="og:title" content="Stopwatch Online — Lap Ke Saath"><meta property="og:description" content="Bina app ke online stopwatch, lap time ke saath. Space se start-stop, L se lap. Padhai, daud aur kaam ka samay naapne ka sahi tarika.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://sabhisaab.com/stopwatch-online">
+<meta property="og:site_name" content="Sab Hisaab"><meta property="og:locale" content="hi_IN">
+<meta property="og:image" content="https://sabhisaab.com/sab-hisaab-og.png"><meta property="og:image:width" content="1204"><meta property="og:image:height" content="644">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Stopwatch Online — Lap Ke Saath"><meta name="twitter:description" content="Bina app ke online stopwatch, lap time ke saath. Space se start-stop, L se lap. Padhai, daud aur kaam ka samay naapne ka sahi tarika."><meta name="twitter:image" content="https://sabhisaab.com/sab-hisaab-og.png">
+<meta name="theme-color" content="#0F766E"><meta name="color-scheme" content="light">
+<link rel="manifest" href="/manifest.json"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"></noscript>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#0F766E;--accent:#D97706;--ink:#0F1720;--muted:#4F5D64;--bg:#F6F8F9;--line:#E3E9EC}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.hrow{max-width:820px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.15rem;color:var(--ink);text-decoration:none}
+.logo span{color:var(--brand)}
+.hnav a{color:var(--muted);text-decoration:none;font-size:.86rem;font-weight:600;margin-left:15px}
+.hnav a:hover{color:var(--brand)}
+main{max-width:820px;margin:0 auto;padding:22px 18px 50px}
+.crumb{font-size:.78rem;color:var(--muted);margin-bottom:12px}
+.crumb a{color:var(--brand);text-decoration:none}
+h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.75rem;line-height:1.25;margin-bottom:8px}
+h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.2rem;margin:26px 0 9px}
+h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.02rem;margin:18px 0 6px}
+p{margin-bottom:13px}
+ul,ol{margin:0 0 13px 20px}
+li{margin-bottom:6px}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.9rem;background:#fff}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left}
+th{background:#F0F5F5;font-weight:600}
+.meta{font-size:.78rem;color:var(--muted);margin-bottom:16px}
+.meta a{color:inherit}
+.calc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 8px 30px rgba(15,23,32,.06);margin:16px 0 8px}
+.calc .row,.calc .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label.f{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin:13px 0 5px}
+.calc input,.calc select,.calc textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-size:1rem;font-family:inherit;background:#fff;color:var(--ink)}
+.calc input:focus,.calc select:focus,.calc textarea:focus{outline:none;border-color:var(--brand)}
+.go{width:100%;margin-top:16px;padding:14px;background:var(--brand);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer}
+.go:hover{background:#0d635c}
+.result{margin-top:14px}
+.lbl{font-size:.8rem;color:var(--muted);font-weight:600}
+.big{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.9rem;color:var(--brand);word-break:break-word}
+.rrow{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:.9rem;margin-top:8px}
+.hint{font-size:.75rem;color:var(--muted);margin-top:11px;line-height:1.5}
+.box{background:#fff;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:13px 15px;margin:15px 0;font-size:.92rem}
+.fbox{background:#F4F7F8;border-left:3px solid var(--brand);border-radius:10px;padding:13px 16px;margin:14px 0;font-size:.93rem;font-weight:600;line-height:1.75}
+.tocbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:18px 0;font-size:.9rem}
+.tocbox b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--brand);margin-bottom:6px}
+.tocbox ol{margin:0 0 0 18px}.tocbox li{margin-bottom:3px}
+.tocbox a{color:var(--brand);text-decoration:none}.tocbox a:hover{text-decoration:underline}
+.faq details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin-bottom:9px}
+.faq summary{font-weight:600;cursor:pointer;font-size:.94rem}
+.faq p{margin:9px 0 0;font-size:.9rem;color:var(--muted)}
+.nextread{margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
+.nextread .nt{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--brand);margin-bottom:8px}
+.nextread a{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;margin:0 7px 8px 0;font-size:.82rem;color:var(--brand);text-decoration:none;font-weight:600}
+.nextread a:hover{border-color:var(--brand)}
+footer{background:#fff;border-top:1px solid var(--line);padding:22px 18px;text-align:center;font-size:.82rem;color:var(--muted)}
+footer a{color:var(--muted);text-decoration:none;margin:0 7px}
+footer a:hover{color:var(--brand)}
+.hubbar{margin:0 0 12px;font-size:.8rem;line-height:2}
+.hubbar a{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}
+.gshare{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.gshare a,.gshare button{background:#fff;border:1px solid var(--line);border-radius:22px;padding:7px 14px;font-size:.84rem;font-weight:600;color:var(--brand);text-decoration:none;cursor:pointer;font-family:inherit}
+.gshare a:hover,.gshare button:hover{background:var(--brand);color:#fff}
+.shbtn{background:#fff;border:1px solid var(--line);border-radius:22px;padding:8px 15px;font-size:.86rem;font-weight:600;color:var(--brand);text-decoration:none;cursor:pointer;font-family:inherit}
+.shbtn:hover{background:var(--brand);color:#fff}
+@media(max-width:520px){h1{font-size:1.45rem}.calc .row,.calc .row2{grid-template-columns:1fr}.big{font-size:1.6rem}}
+
+/* Mobile: number keypad, iOS auto-zoom se bachaav */
+input[type="number"],input[type="text"],select,textarea{font-size:16px}
+/* Table mobile par toote nahi */
+table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:normal}
+@media(min-width:600px){table{display:table}}
+/* Keyboard se chalane walon ke liye saaf focus */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #0F766E;outline-offset:2px;border-radius:6px}
+/* Print/PDF: sirf kaam ki cheez chhape */
+@media print{
+ header,footer,.gshare,#shBar,#shConsent,.nextread,.hubbar,.tocbox{display:none!important}
+ body{background:#fff;color:#000;font-size:12pt}
+ main{max-width:100%;padding:0}
+ .calc{box-shadow:none;border:1px solid #999}
+ a[href^="/"]:after{content:" (sabhisaab.com" attr(href) ")";font-size:9pt;color:#555}
+ .faq details{page-break-inside:avoid}
+}
+#res,.result{min-height:96px}</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Stopwatch Online — Lap Ke Saath", "url": "https://sabhisaab.com/stopwatch-online", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "browserRequirements": "JavaScript zaroori hai", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "INR"}, "inLanguage": "hi-Latn", "isAccessibleForFree": true, "author": {"@type": "Person", "name": "Manoj Kumar Pandey", "url": "https://sabhisaab.com/author"}, "publisher": {"@type": "Organization", "@id": "https://sabhisaab.com/#org", "name": "Sab Hisaab", "url": "https://sabhisaab.com/", "logo": {"@type": "ImageObject", "url": "https://sabhisaab.com/icon-512.png"}}, "datePublished": "2026-08-08", "dateModified": "2026-08-11"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Lap aur split time me kya farak hai?", "acceptedAnswer": {"@type": "Answer", "text": "Lap time pichhle lap se ab tak ka samay batata hai, split shuruaat se ab tak ka kul samay. Sudhaar dekhna ho to lap dekhiye, lakshya se tulna karni ho to split."}}, {"@type": "Question", "name": "Keyboard se chala sakte hain?", "acceptedAnswer": {"@type": "Answer", "text": "Haan — Space se start aur stop, L se lap, R se reset. Isse baar-baar mouse tak haath le jaane ki zaroorat nahi padti."}}, {"@type": "Question", "name": "Page refresh karne par samay bachta hai?", "acceptedAnswer": {"@type": "Answer", "text": "Nahi, reset ho jaata hai. Ye stopwatch browser me chalta hai aur kahin save nahi hota."}}, {"@type": "Question", "name": "Ghanton ka samay naapne ke liye theek hai?", "acceptedAnswer": {"@type": "Answer", "text": "Chhote samay ke liye bilkul theek hai. Par bahut lambe samay ke liye phone ki apni stopwatch app behtar hai, kyunki screen band hone par kuch browser ise dheema kar dete hain."}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sabhisaab.com/"}, {"@type": "ListItem", "position": 2, "name": "Utility", "item": "https://sabhisaab.com/utility-tools"}, {"@type": "ListItem", "position": 3, "name": "Stopwatch Online — Lap Ke Saath", "item": "https://sabhisaab.com/stopwatch-online"}]}</script>
+</head><body>
+<header><div class="hrow"><a href="/" class="logo">Sab<span>Hisaab</span></a>
+<nav class="hnav"><a href="/">Tools</a><a href="/about">About</a><a href="/author">Author</a><a href="/services">Services</a><a href="/contact">Contact</a></nav></div></header>
+<main>
+<div class="crumb"><a href="/">Home</a> &rsaquo; <a href="/utility-tools">Utility</a></div>
+<h1>Stopwatch Online — Lap Ke Saath</h1>
+<div class="meta">Lekhak: <a href="/author">Manoj Kumar Pandey</a> &middot; Update: <time datetime="2026-08-11">August 2026</time> &middot; Padhne me ~5 minute</div>
+<div class="gshare" id="gShare"><a class="wa" target="_blank" rel="noopener">&#128994; WhatsApp par share</a><button type="button" class="cp">&#128279; Link copy karein</button></div>
+<p>Bina app download kiye, bina login ke. <b>Space dabaiye</b> — chalu ho jayega. <b>L</b> se lap, <b>R</b> se reset. Aapka samay kahin bheja nahi jaata, sirf browser me chalta hai.</p>
+<div class="calc">
+<div style="text-align:center;padding:8px 0">
+<div id="swd" style="font-family:'Bricolage Grotesque',monospace;font-weight:800;font-size:2.8rem;letter-spacing:.02em;color:#0F766E">00:00.00</div>
+</div>
+<div class="row"><button type="button" class="go" id="swgo" style="margin-top:6px">Chalu karein</button>
+<button type="button" class="go" id="swlap" style="margin-top:6px;background:#fff;color:#0F766E;border:1px solid #E3E9EC">Lap</button></div>
+<button type="button" class="go" id="swreset" style="margin-top:10px;background:#fff;color:#4F5D64;border:1px solid #E3E9EC">Reset</button>
+<div id="swlaps" class="result"></div>
+
+</div>
+<div id="shBar" style="display:none;gap:8px;flex-wrap:wrap;margin:12px 0 4px"><button type="button" id="shCopy" class="shbtn">&#128203; Copy result</button><a id="shWa" class="shbtn" target="_blank" rel="noopener">&#128994; WhatsApp par bhejein</a></div>
+<div class="tocbox"><b>Is page me kya milega</b><ol><li><a href="#s1">Lap aur split — ye antar bahut kaam ka hai</a></li><li><a href="#s2">Padhai me stopwatch ka sahi istemaal</a></li><li><a href="#s3">Daud, gym aur khel me</a></li><li><a href="#s4">Kaam aur ghar me — jahan sabse zyada faayda hai</a></li><li><a href="#faq">Sawaal-jawab</a></li></ol></div>
+
+<h2 id="s1">Lap aur split — ye antar bahut kaam ka hai</h2>
+<p>Lap button dabane par yahan <b>do number</b> dikhte hain, aur inka matlab alag hai:</p>
+<ul>
+<li><b>Lap time</b> — pichhle lap se ab tak ka samay. Yaani sirf us ek chakkar ka.</li>
+<li><b>Split time</b> (koshtak me) — shuruaat se ab tak ka kul samay.</li>
+</ul>
+<div class="fbox">Misaal: 400 meter ke 4 chakkar. Lap batayega har chakkar alag-alag kitne me hua (75s, 78s, 81s, 79s). Split batayega ki 3 chakkar tak kul kitna samay ho chuka tha. <b>Sudhaar dekhna ho to lap dekhiye, lakshya se tulna karni ho to split.</b></div>
+<p>Zyadatar log sirf kul samay dekhte hain aur asli baat chhoot jaati hai. Agar aapka chautha chakkar pehle se dheema hai, to problem stamina ki hai. Agar pehla chakkar hi sabse tez hai, to aap shuru me zyada tez bhaag rahe hain — aur yahi sabse aam galti hai.</p>
+
+<h2 id="s2">Padhai me stopwatch ka sahi istemaal</h2>
+<p>Exam ki taiyaari me stopwatch ka asli faayda samay naapna nahi, <b>apni raftaar jaanna</b> hai.</p>
+<ul>
+<li><b>Ek sawaal me kitna samay lagta hai</b> — 20 sawaal hal kariye aur ausat nikaaliye. Ab aap jaante hain ki 3 ghante ke paper me kitne sawaal ban sakte hain.</li>
+<li><b>Kaunsa chapter dheema hai</b> — alag-alag topic ka samay naapiye. Jahan sabse zyada samay lag raha hai, wahan abhyaas chahiye.</li>
+<li><b>Pomodoro tarika</b> — 25 minute padhai, 5 minute aaram. Ye dhyaan lagane ka sabse aajmaya hua tarika hai. (Iske liye <a href="/">timer</a> zyada theek rehta hai, jo ulta ginta hai.)</li>
+</ul>
+<div class="fbox">Ek baat jo taiyaari karne walon ko pata honi chahiye — <b>ghar par sawaal hamesha tez hote hain.</b> Exam hall me dabaav, nayi jagah aur OMR bharne ka samay milkar 15-20% zyada samay le lete hain. Isliye ghar par abhyaas karte waqt apne aap ko <b>thoda kam samay</b> dijiye, taaki asli paper me jagah bache.</div>
+
+<h2 id="s3">Daud, gym aur khel me</h2>
+<ul>
+<li><b>400/800 meter ke lap</b> — har chakkar ka samay alag dekhiye. Achhi daud wo hai jisme aakhri chakkar pehle se dheema na ho.</li>
+<li><b>Interval training</b> — 1 minute tez, 2 minute dheema, dohraiye. Stopwatch se ye ginti aasaan ho jaati hai.</li>
+<li><b>Rest ka samay</b> — gym me set ke beech ka aaram naapna zaroori hai. Taakat ke liye 2-3 minute, dhaanche ke liye 60-90 second. Log aksar phone dekhte-dekhte 5 minute nikaal dete hain aur uska seedha asar natije par padta hai.</li>
+<li><b>Plank ya hold</b> — jahan sirf samay hi paimana hai.</li>
+</ul>
+<div class="fbox">Ek zaroori chetavni: apne samay ki tulna doosron se mat kijiye. Har shareer alag hai, aur zyadatar chot tab lagti hai jab log kisi aur ke number tak pahunchne ki jaldi karte hain. Apne pichhle hafte ke number se tulna kijiye — bas wahi mayne rakhta hai. Daud ka pace nikaalne ke liye <a href="/running-pace-calculator">Running Pace Calculator</a> dekhiye.</div>
+
+<h2 id="s4">Kaam aur ghar me — jahan sabse zyada faayda hai</h2>
+<p>Ye wo istemaal hain jo kam log sochte hain par sabse zyada kaam ke hain:</p>
+<ul>
+<li><b>Freelance ka bill banana</b> — kaam ka asli samay naapiye. Zyadatar freelancer andaze se bill banate hain aur hamesha kam bataate hain. Samay pata ho to rate bhi sahi tay hota hai — <a href="/salary-per-hour-calculator">Salary Per Hour Calculator</a> me dekhiye.</li>
+<li><b>Bhaashan ya presentation ka abhyaas</b> — bolkar samay naapiye, mann me padhkar nahi. Mann me hamesha kam samay lagta hai. <a href="/reading-time-calculator">Reading Time Calculator</a> me shabdon se anuman mil jaata hai.</li>
+<li><b>Meeting ke liye</b> — har vyakti ko barabar samay. Ye ek chhota kadam meeting ko chhota kar deta hai.</li>
+<li><b>Khaana banate waqt</b> — dahi jamana, aata gundhkar rakhna, doodh ubalna. Jahan "10 minute" ka matlab sach me 10 minute ho.</li>
+<li><b>Bacchon ke saath</b> — homework, brush karna, ya khel. Ginti chalti dikhe to bacche zyada mann se karte hain.</li>
+</ul>
+<div class="fbox"><b>Ek zaroori baat:</b> ye stopwatch aapke browser me chalta hai. Page band karne ya refresh karne par samay reset ho jaata hai, aur mobile me screen band hone par kuch browser ise dheema kar dete hain. Bahut lambe samay (ghanton) ke liye phone ki apni stopwatch app zyada bharosemand hai.</div>
+
+
+<h2 id="faq">Aksar pooche jaane wale sawaal</h2>
+<div class="faq">
+<details><summary>Lap aur split time me kya farak hai?</summary><p>Lap time pichhle lap se ab tak ka samay batata hai, split shuruaat se ab tak ka kul samay. Sudhaar dekhna ho to lap dekhiye, lakshya se tulna karni ho to split.</p></details>
+<details><summary>Keyboard se chala sakte hain?</summary><p>Haan — Space se start aur stop, L se lap, R se reset. Isse baar-baar mouse tak haath le jaane ki zaroorat nahi padti.</p></details>
+<details><summary>Page refresh karne par samay bachta hai?</summary><p>Nahi, reset ho jaata hai. Ye stopwatch browser me chalta hai aur kahin save nahi hota.</p></details>
+<details><summary>Ghanton ka samay naapne ke liye theek hai?</summary><p>Chhote samay ke liye bilkul theek hai. Par bahut lambe samay ke liye phone ki apni stopwatch app behtar hai, kyunki screen band hone par kuch browser ise dheema kar dete hain.</p></details>
+</div>
+<div class="nextread"><b class="nt">Ye tools bhi dekhein</b><a href="/running-pace-calculator">Running Pace</a><a href="/time-duration-calculator">Time Duration</a><a href="/typing-speed-calculator">Typing Speed</a><a href="/reading-time-calculator">Reading Time</a><a href="/utility-tools">Saare Utility tools</a><a href="/">Saare 152 tools</a></div>
+<div class="box" style="margin-top:22px"><b>Zaroori baat:</b> Ye tool sirf aam jaankari ke liye hai aur natija ek anuman hai. Hum SEBI-registered advisor, CA ya vakeel nahi hain. Niyam aur dar badalte rehte hain — bade faisle se pehle official source ya salahkaar se confirm karein. <a href="/disclaimer">Poora disclaimer</a>.</div>
+</main>
+<footer>
+<div class="hubbar"><b>Categories:</b> <a href="/nivesh-calculators">Nivesh</a> &middot; <a href="/loan-tax-calculators">Loan &amp; Tax</a> &middot; <a href="/trading-calculators">Trading</a> &middot; <a href="/sehat-calculators">Sehat</a> &middot; <a href="/converter-tools">Converter</a> &middot; <a href="/rozana-calculators">Rozana</a> &middot; <a href="/utility-tools">Utility</a> &middot; <a href="/guides">Guides</a> &middot; <a href="/articles">Articles</a> &middot; <a href="/">Saare 152 Tools</a></div>
+<a href="/">Home</a>&middot;<a href="/about">About</a>&middot;<a href="/author">Author</a>&middot;<a href="/services">Services</a>&middot;<a href="/contact">Contact</a>&middot;<a href="/privacy">Privacy</a>&middot;<a href="/terms">Terms</a>&middot;<a href="/disclaimer">Disclaimer</a>
+<div style="margin-top:10px;opacity:.92">&copy; 2026 Sab Hisaab</div>
+</footer>
+<script>
+function v(id){var e=document.getElementById(id);return e?e.value:'';}
+var RS=function(n){return '\u20b9'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:0});};
+var RS2=function(n){return '\u20b9'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});};
+var MEDDISC='<div style="margin-top:14px;padding:11px 13px;background:#FEF6ED;border-left:3px solid #D97706;border-radius:9px;font-size:.83rem;line-height:1.6;color:#4F5D64"><b>Sehat ki chetavni:</b> ye sirf aam jaankari ke liye anuman hai, doctor ki salah nahi. Umar, bimari, dawa, garbhavastha ya khilaadi jaisi sthiti me number alag hota hai. Koi bhi badlaav se pehle doctor se baat karein.</div>';
+(function(){
+var t0=0,acc=0,run=false,tick=null,laps=[];
+var d=document.getElementById('swd'),lb=document.getElementById('swlaps');
+function fmt(ms){var m=Math.floor(ms/60000),s=Math.floor(ms%60000/1000),c=Math.floor(ms%1000/10);
+ return (m<10?'0':'')+m+':'+(s<10?'0':'')+s+'.'+(c<10?'0':'')+c;}
+function paint(){d.textContent=fmt(acc+(run?Date.now()-t0:0));}
+function start(){if(run)return;run=true;t0=Date.now();tick=setInterval(paint,31);
+ document.getElementById('swgo').textContent='Rokein';}
+function stop(){if(!run)return;acc+=Date.now()-t0;run=false;clearInterval(tick);paint();
+ document.getElementById('swgo').textContent='Chalu karein';}
+document.getElementById('swgo').addEventListener('click',function(){run?stop():start();});
+document.getElementById('swlap').addEventListener('click',function(){
+ var now=acc+(run?Date.now()-t0:0);var prev=laps.length?laps[laps.length-1]:0;laps.push(now);
+ var row=document.createElement('div');row.className='rrow';
+ row.innerHTML='<span>Lap '+laps.length+'</span><b>'+fmt(now-prev)+'  <span style="opacity:.6;font-weight:400">('+fmt(now)+')</span></b>';
+ lb.insertBefore(row,lb.firstChild);});
+document.getElementById('swreset').addEventListener('click',function(){
+ stop();acc=0;laps=[];lb.innerHTML='';paint();});
+document.addEventListener('keydown',function(e){
+ if(e.target.tagName==='INPUT')return;
+ if(e.code==='Space'){e.preventDefault();run?stop():start();}
+ if(e.key==='l'||e.key==='L')document.getElementById('swlap').click();
+ if(e.key==='r'||e.key==='R')document.getElementById('swreset').click();});
+paint();})();
+</script>
+<script>
+(function(){function txt(){var r=document.getElementById('res');if(!r)return '';return (r.innerText||r.textContent||'').trim();}
+function boot(){var res=document.getElementById('res'),bar=document.getElementById('shBar');if(!res||!bar)return;
+function upd(){var t=txt();if(t.length>3){bar.style.display='flex';document.getElementById('shWa').href='https://wa.me/?text='+encodeURIComponent(t+'\n\n'+document.title.split('|')[0].trim()+'\n'+location.href);}else{bar.style.display='none';}}
+document.getElementById('shCopy').addEventListener('click',function(){var t=txt()+'\n\n'+document.title.split('|')[0].trim()+'\n'+location.href;if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){var b=document.getElementById('shCopy');b.textContent='\u2705 Copy ho gaya';setTimeout(function(){b.textContent='\ud83d\udccb Copy result';},1600);});}});
+upd();if(window.MutationObserver)new MutationObserver(upd).observe(res,{childList:true,subtree:true,characterData:true});}
+if(document.readyState!=='loading')boot();else document.addEventListener('DOMContentLoaded',boot);})();
+(function(){var b=document.getElementById('gShare');if(!b)return;var u=location.href,t=document.title.split('|')[0].trim();
+var w=b.querySelector('.wa');if(w)w.href='https://wa.me/?text='+encodeURIComponent(t+'\n'+u);
+var c=b.querySelector('.cp');if(c)c.addEventListener('click',function(){if(navigator.clipboard){navigator.clipboard.writeText(u).then(function(){c.textContent='\u2705 Link copy ho gaya';setTimeout(function(){c.textContent='\ud83d\udd17 Link copy karein';},1600);});}});})();
+</script>
+<div id="shConsent" style="display:none;position:fixed;contain:layout style;will-change:transform;left:0;right:0;bottom:0;z-index:9999;background:#fff;border-top:2px solid #0F766E;box-shadow:0 -6px 24px rgba(15,23,32,.14);padding:16px 18px;font-family:'Inter',system-ui,sans-serif">
+<div style="max-width:900px;margin:0 auto">
+<p style="margin:0 0 10px;font-size:.88rem;line-height:1.6;color:#0F1720">Ye website cookies ka istemaal karti hai &mdash; site chalane ke liye, aur aage <b>vigyapan (ads) ko personalize karne</b>, ads ka asar naapne aur traffic samajhne ke liye. Google aur uske partners is data ka istemaal kar sakte hain. Aap chahein to sirf zaroori cookies rakh sakte hain. <a href="/privacy" style="color:#0F766E;font-weight:600">Privacy Policy</a> &middot; <a href="/terms" style="color:#0F766E;font-weight:600">Terms</a></p>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<button id="shAccept" style="flex:1;min-width:150px;padding:11px 16px;border:none;border-radius:10px;background:#0F766E;color:#fff;font-weight:700;font-size:.9rem;font-family:inherit;cursor:pointer">Sab cookies theek hain</button>
+<button id="shReject" style="flex:1;min-width:150px;padding:11px 16px;border:1px solid #E3E9EC;border-radius:10px;background:#fff;color:#0F1720;font-weight:600;font-size:.9rem;font-family:inherit;cursor:pointer">Sirf zaroori cookies</button>
+</div></div></div>
+<script>
+(function(){var b=document.getElementById('shConsent');if(!b)return;
+function set(v){try{localStorage.setItem('sh_consent',v);}catch(e){}
+ var g=(v==='all')?'granted':'denied';
+ if(typeof gtag==='function'){gtag('consent','update',{ad_storage:g,ad_user_data:g,ad_personalization:g,analytics_storage:g});}
+ b.style.display='none';}
+var c=null;try{c=localStorage.getItem('sh_consent');}catch(e){}
+if(!c){b.style.display='block';}
+var a=document.getElementById('shAccept'),r=document.getElementById('shReject');
+if(a)a.addEventListener('click',function(){set('all');});
+if(r)r.addEventListener('click',function(){set('essential');});})();
+</script>
+</body></html>

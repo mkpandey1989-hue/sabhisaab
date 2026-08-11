@@ -1,0 +1,215 @@
+#!/usr/bin/env python3
+"""
+Sab Hisaab — Roadmap Section 30 ka poora audit.
+Har check ka jawab ZERO aana chahiye. Exit code 0 = pass, 1 = fail.
+Usage:  python3 scripts/audit.py            (poori site)
+        python3 scripts/audit.py page.html  (sirf ek page)
+"""
+import re, os, sys, json, glob, html as H, difflib, collections
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from lib import cfg, site_dir, read, log
+
+SKIP_ALL = {"googleb9a1fd91a1579ee6.html"}
+SKIP_SEO = {"404.html"}
+LEGAL = {"about", "contact", "privacy", "terms", "disclaimer", "services", "author", "index"}
+ENT = re.compile(r"&(?:[a-zA-Z][a-zA-Z0-9]{1,31};|#\d{1,7};|#[xX][0-9a-fA-F]{1,6};)")
+
+P = collections.OrderedDict()   # ERROR — deploy rok deta hai
+W = collections.OrderedDict()   # WARNING — sirf report me
+def bad(k, v):
+    P.setdefault(k, []).append(v)
+def warn(k, v):
+    W.setdefault(k, []).append(v)
+
+def strip_code(s):
+    s = re.sub(r"<script\b.*?</script>", "", s, flags=re.S)
+    return re.sub(r"<style\b.*?</style>", "", s, flags=re.S)
+
+def text_of(s):
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", s)).strip()
+
+def main(only=None):
+    d = site_dir()
+    C = cfg()
+    base = C["site_url"].rstrip("/")
+    files = sorted(os.path.basename(f) for f in glob.glob(os.path.join(d, "*.html")))
+    pages = {f[:-5] for f in files}
+    targets = [only] if only else files
+    inb = collections.Counter()
+    titles, descs, qa = {}, {}, collections.defaultdict(list)
+
+    for f in files:                      # link graph poori site se banta hai
+        s = strip_code(read(os.path.join(d, f)))
+        body = s[s.find("</head>"):]
+        for href in re.findall(r'href="(/[a-z0-9\-]*)"', body):
+            t = href.strip("/") or "index"
+            if t in pages and t != f[:-5]:
+                inb[t] += 1
+            elif t not in pages:
+                bad("SEO: dead internal link", (f, href))
+
+    for f in targets:
+        p = f[:-5]
+        s = read(os.path.join(d, f))
+        nos = re.sub(r"<script\b.*?</script>", "", s, flags=re.S)
+        body = re.sub(r"<style\b.*?</style>", "", nos, flags=re.S)
+        body = body[body.find("</head>"):]
+
+        # ---- 30.1 HTML validity ----
+        if s.count("</html>") != 1: bad("HTML: </html> ek baar nahi", f)
+        if s.count("</body>") != 1: bad("HTML: </body> ek baar nahi", f)
+        if "<style" in s[s.find("</head>"):]: bad("HTML: <style> body ke andar", f)
+        if re.search(r'href="data:image[^"]* ', s): bad("HTML: favicon data URI me space", f)
+        for m in re.finditer(r"&", strip_code(s)):
+            if not ENT.match(strip_code(s), m.start()):
+                bad("HTML: bina &amp; wala &", f); break
+        for tag in ("p", "div", "ul", "ol", "table", "li", "main"):
+            o = len(re.findall(r"<%s\b" % tag, body)); c = len(re.findall(r"</%s>" % tag, body))
+            if o != c: bad("HTML: <%s> balance galat" % tag, (f, o, c))
+        ids = re.findall(r'\sid="([^"]+)"', nos)
+        dup = [k for k, v in collections.Counter(ids).items() if v > 1]
+        if dup: bad("HTML: duplicate id", (f, dup))
+        if f in SKIP_ALL or f in SKIP_SEO: continue
+
+        # ---- 30.2 SEO ----
+        t = re.search(r"<title>(.*?)</title>", s, re.S)
+        t = text_of(t.group(1)) if t else ""
+        titles.setdefault(t, []).append(f)
+        if len(t) > 60: bad("SEO: title 60 se lamba", (f, len(t)))
+        dm = re.search(r'<meta name="description" content="([^"]*)"', s)
+        dsc = dm.group(1) if dm else ""
+        descs.setdefault(dsc, []).append(f)
+        if not 95 <= len(dsc) <= 165: bad("SEO: description 95-165 se bahar", (f, len(dsc)))
+        if len(re.findall(r"<h1[^>]*>", s)) != 1: bad("SEO: H1 exactly 1 nahi", f)
+        want = base + "/" + ("" if p == "index" else p)
+        cm = re.search(r'rel="canonical" href="([^"]+)"', s)
+        if not cm or cm.group(1) != want: bad("SEO: canonical galat", (f, cm.group(1) if cm else None))
+        om = re.search(r'property="og:url" content="([^"]+)"', s)
+        if not om or om.group(1) != want: bad("SEO: og:url != canonical", f)
+        if re.search(r'href="(?:%s)?/[a-z0-9\-]+\.html"' % re.escape(base), body): bad("SEO: .html internal link", f)
+        if "?t=" in body: bad("SEO: ?t= link", f)
+        if "/img/" in s: bad("SEO: purana /img/ path", f)
+        if "max-image-preview:large" not in s: bad("SEO: robots meta adhoora", f)
+
+        # ---- 30.3 Schema ----
+        tys = []
+        for m in re.finditer(r'<script type="application/ld\+json">(.*?)</script>', s, re.S):
+            try: j = json.loads(m.group(1))
+            except Exception as e: bad("Schema: JSON-LD invalid", (f, str(e)[:40])); continue
+            tys.append(j.get("@type"))
+            if "aggregateRating" in m.group(1): bad("Schema: aggregateRating (NEVER)", f)
+            if j.get("@type") == "BreadcrumbList":
+                for it in j["itemListElement"]:
+                    if it["position"] > 1 and it["item"] == base + "/": bad("Schema: crumb home par", f)
+                    if it.get("name") in ("Page", "Guide", "Calculator"): bad("Schema: crumb generic naam", f)
+                    if "?t=" in it["item"] or it["item"].endswith(".html"): bad("Schema: crumb URL ganda", f)
+            if j.get("@type") == "FAQPage":
+                qs = [q["name"] for q in j["mainEntity"]]
+                pg = [H.unescape(text_of(q)) for q, _ in
+                      re.findall(r"<details[^>]*><summary>(.*?)</summary>(.*?)</details>", s, re.S)]
+                if qs != pg: bad("Schema: FAQ schema != page ke FAQ", f)
+        if p != "index" and "BreadcrumbList" not in tys: bad("Schema: BreadcrumbList nahi", f)
+        if "<details" in body and "FAQPage" not in tys: bad("Schema: FAQPage nahi", f)
+        for need in ("dateModified", "datePublished", '"author"'):
+            if need not in s: bad("Schema: %s nahi" % need.strip('"'), f)
+
+        # ---- 30.4 Content ----
+        w = len(re.sub(r"<[^>]+>", " ", body).split())
+        if p not in LEGAL and w < 800: bad("Content: 800 se kam shabd", (f, w))
+        elif p not in LEGAL and w < 1000: warn("Content: 1000 se kam shabd (roadmap ka naya target)", (f, w))
+        if re.search(r"[A-Za-z][\u0900-\u097F]|[\u0900-\u097F][A-Za-z]", s): bad("Content: mixed script", f)
+        if "Hindi me:" in s: bad("Content: Devanagari keyword block (stuffing)", f)
+        h2 = [text_of(x) for x in re.findall(r"<h2[^>]*>(.*?)</h2>", body, re.S)]
+        for i in range(len(h2)):
+            for j2 in range(i + 1, len(h2)):
+                a_, b_ = h2[i].lower(), h2[j2].lower()
+                r_ = difflib.SequenceMatcher(None, a_, b_).ratio()
+                if a_ == b_ or (r_ >= 0.85 and min(len(a_), len(b_)) > 24 and
+                                set(a_.split()) - set(b_.split()) == set()):
+                    bad("Content: duplicate H2", (f, h2[i]))
+                elif r_ >= 0.85:
+                    warn("Content: milta-julta H2 (dekh lein)", (f, h2[i], h2[j2]))
+        pairs = re.findall(r"<details[^>]*><summary>(.*?)</summary>(.*?)</details>", body, re.S)
+        qs = [H.unescape(text_of(q)) for q, _ in pairs]
+        if pairs and len(pairs) < 4: bad("Content: 4 se kam FAQ", (f, len(pairs)))
+        for i in range(len(qs)):
+            for j2 in range(i + 1, len(qs)):
+                if difflib.SequenceMatcher(None, qs[i].lower(), qs[j2].lower()).ratio() >= 0.85:
+                    bad("Content: milta-julta FAQ ek hi page par", (f, qs[i]))
+        for q, a in pairs:
+            qa[(text_of(q).lower(), text_of(a).lower())].append(f)
+        low = re.sub(r"<[^>]+>", " ", body).lower()
+        for word in ("guaranteed return", "pakka munafa", "risk-free"):
+            if word in low:
+                i = low.find(word); ctx = low[max(0, i - 140):i + 40]
+                if not any(k in ctx for k in ("nahi", "jaal", "daava nahi", "sifarish nahi")):
+                    bad("Content: khatarnak daava", (f, word))
+        if not re.search(r"<table", body) and p not in LEGAL: warn("Content: koi table nahi (featured snippet ka mauka)", f)
+
+        # ---- 30.5 Performance / mobile ----
+        fp = len(re.findall(r'rel="preload"[^>]*fonts', s)); fa = s.count("this.media='all'")
+        if not (fp == 1 and fa == 1 and "<noscript>" in s): bad("Perf: font tag 1+1+1 nahi", (f, fp, fa))
+        if s.count("<noscript><noscript>"): bad("Perf: nested <noscript> (font marr gaya)", f)
+        for m in re.finditer(r'<input\b[^>]*type="number"[^>]*>', body):
+            if "inputmode" not in m.group(0): bad("Perf: inputmode nahi", f)
+        for m in re.finditer(r"<img\b[^>]*>", body):
+            for at in ("alt=", "width=", "height=", "loading=", "decoding="):
+                if at not in m.group(0): bad("Perf: img me %s nahi" % at.strip("="), f)
+        if "@media print" not in s: bad("Perf: print CSS nahi", f)
+        if ":focus-visible" not in s: bad("A11y: focus-visible nahi", f)
+        if "<table" in body and "overflow-x" not in s: bad("Perf: table overflow-x nahi", f)
+        if (re.search(r'id="res"', s) or re.search(r'class="result', s)) and "min-height" not in s:
+            bad("Perf: CLS min-height nahi", f)
+
+        # ---- 30.6 Policy / AdSense ----
+        if "shConsent" not in s: bad("Policy: consent banner nahi", f)
+        if C["ga4_id"] not in s: bad("Policy: GA4 nahi", f)
+        if "adsbygoogle" in s and not C.get("adsense_approved"): bad("Policy: adsense code (approval se pehle)", f)
+        if "disclaimer" not in s.lower(): bad("Policy: disclaimer nahi", f)
+        for a in re.findall(r'<a\b[^>]*href="https?://(?!%s)[^"]*"[^>]*>' % re.escape(base.split("//")[1]), body):
+            if "noopener" not in a: bad("Policy: rel=noopener nahi", (f, a[:60]))
+
+    if not only:
+        for p in sorted(pages):
+            if p in ("404", "googleb9a1fd91a1579ee6"): continue
+            if inb.get(p, 0) < 3: bad("SEO: inbound link 3 se kam", (p, inb.get(p, 0)))
+        for k, v in titles.items():
+            if len(v) > 1: bad("SEO: duplicate title", (k[:40], v))
+        for k, v in descs.items():
+            if len(v) > 1: bad("SEO: duplicate description", (k[:40], v))
+        for k, v in qa.items():
+            if len(v) > 1: bad("Content: same FAQ do page par", (k[0][:50], v))
+
+    tot = sum(len(v) for v in P.values())
+    wt = sum(len(v) for v in W.values())
+    print("=" * 66)
+    print("  SAB HISAAB AUDIT — %d page check kiye" % len(targets))
+    print("=" * 66)
+    if tot == 0:
+        print("  SAB CHECK PASS. Kul issue: 0")
+    else:
+        for k in sorted(P):
+            print("  %-44s %4d" % (k, len(P[k])))
+            for x in P[k][:5]:
+                print("        - %s" % (str(x)[:110]))
+    if wt:
+        print("  --- WARNING (deploy nahi rukega, par sudhaarne layak) ---")
+        for k in sorted(W):
+            print("  %-44s %4d" % (k, len(W[k])))
+            for x in W[k][:3]:
+                print("        - %s" % (str(x)[:110]))
+    print("=" * 66)
+    print("  ERROR: %d   |   WARNING: %d" % (tot, wt))
+    try:
+        with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                               "audit_result.json"), "w", encoding="utf-8") as fh:
+            json.dump({"errors": tot, "warnings": wt,
+                       "detail": {k: [str(x) for x in v[:20]] for k, v in P.items()},
+                       "warn_detail": {k: [str(x) for x in v[:20]] for k, v in W.items()}},
+                      fh, indent=1, ensure_ascii=False)
+    except Exception:
+        pass
+    return 0 if tot == 0 else 1
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else None))

@@ -1,0 +1,38 @@
+# Sab Hisaab — https://sabhisaab.com
+# Har page crawl ke liye khula hai. Sirf homepage ke purane ?t= modal URLs band hain,
+# kyunki har tool ka apna saaf URL maujood hai (jaise /sip-calculator).
+
+User-agent: *
+Allow: /
+Disallow: /*?t=
+Disallow: /*?source=pwa
+Disallow: /googleb9a1fd91a1579ee6.html
+
+# AI / dataset crawlers — content padhne ki ijaazat hai, wahi niyam laagu
+User-agent: GPTBot
+Allow: /
+Disallow: /*?t=
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /*?t=
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /*?t=
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /*?t=
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /*?t=
+
+User-agent: CCBot
+Allow: /
+Disallow: /*?t=
+
+# AI agents ke liye site ka saaransh: https://sabhisaab.com/llms.txt
+
+Sitemap: https://sabhisaab.com/sitemap.xml

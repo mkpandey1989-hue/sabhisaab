@@ -1,0 +1,20 @@
+name: Sab Hisaab audit
+on: [push, pull_request]
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Audit chalao
+        run: |
+          cat > config.json <<'EOF'
+          {"site_url":"https://sabhisaab.com","site_dir":".","incoming_dir":"/tmp",
+           "gsc_property":"sc-domain:sabhisaab.com","ga4_id":"G-QX5MWV42TR",
+           "adsense_approved":false,"git_branch":"main","indexnow_key":"x",
+           "bing_api_key":"x","bing_enabled":false,"google_sa_json":"/tmp/x.json",
+           "gsc_enabled":false,"gsc_daily_budget":150,
+           "telegram_token":"x","telegram_chat_id":"x","telegram_enabled":false}
+          EOF
+          python3 scripts/audit.py

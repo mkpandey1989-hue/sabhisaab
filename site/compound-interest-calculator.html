@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="hi-Latn"><head><meta charset="UTF-8">
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});
+try{var _c=localStorage.getItem('sh_consent');if(_c==='all'){gtag('consent','update',{ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted',analytics_storage:'granted'});}}catch(e){}
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QX5MWV42TR"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-QX5MWV42TR");</script>
+<meta name="theme-color" content="#0F766E">
+<meta name="color-scheme" content="light">
+<meta property="og:site_name" content="Sab Hisaab">
+<meta property="og:locale" content="hi_IN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Compound Interest Calculator — Chakravriddhi Byaj">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20100%20100%27%3E%3Crect%20width=%27100%27%20height=%27100%27%20rx=%2722%27%20fill=%27%230F766E%27/%3E%3Ctext%20x=%2750%27%20y=%2772%27%20font-size=%2762%27%20text-anchor=%27middle%27%20fill=%27white%27%20font-family=%27Arial%27%20font-weight=%27bold%27%3E%E2%82%B9%3C/text%3E%3C/svg%3E">
+<title>Compound Interest Calculator — Chakravriddhi Byaj</title>
+<meta name="description" content="Free compound interest calculator: chakravriddhi byaj se paisa kitna badhega, saal aur dar ke hisaab se turant hisaab.">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<link rel="canonical" href="https://sabhisaab.com/compound-interest-calculator">
+<meta name="author" content="Manoj Kumar Pandey">
+<meta property="og:title" content="Compound Interest Calculator — Chakravriddhi Byaj Ka Hisaab"><meta property="og:description" content="Free compound interest calculator: chakravriddhi byaj se paisa kitna badhega, saal aur dar ke hisaab se turant hisaab.">
+<meta property="og:image" content="https://sabhisaab.com/sab-hisaab-og.png">
+<meta property="og:image:width" content="1204">
+<meta property="og:image:height" content="644">
+<meta property="og:type" content="website"><meta property="og:url" content="https://sabhisaab.com/compound-interest-calculator">
+<link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"></noscript>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#0F766E;--accent:#D97706;--ink:#0F1720;--muted:#4F5D64;--bg:#F6F8F9;--line:#E3E9EC}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.hrow{max-width:820px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.15rem;color:var(--ink);text-decoration:none}
+.logo span{color:var(--brand)}
+.hnav a{color:var(--muted);text-decoration:none;font-size:.86rem;font-weight:600;margin-left:15px}
+.hnav a:hover{color:var(--brand)}
+main{max-width:820px;margin:0 auto;padding:22px 18px 50px}
+.crumb{font-size:.78rem;color:var(--muted);margin-bottom:12px}
+.crumb a{color:var(--brand);text-decoration:none}
+h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.75rem;line-height:1.25;margin-bottom:8px}
+h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.2rem;margin:26px 0 9px}
+p{margin-bottom:13px}
+ul,ol{margin:0 0 13px 20px}
+li{margin-bottom:6px}
+.meta{font-size:.78rem;color:var(--muted);margin-bottom:18px}
+.calcbox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 8px 30px rgba(15,23,32,.06);margin:16px 0 8px}
+.f{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin:13px 0 5px}
+.calcbox input,.calcbox select,.calcbox textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-size:1rem;font-family:inherit;background:#fff;color:var(--ink)}
+.calcbox input:focus,.calcbox select:focus{outline:none;border-color:var(--brand)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.go{width:100%;margin-top:16px;padding:14px;background:var(--brand);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer}
+.go:hover{background:#0d635c}
+#res{margin-top:16px}
+.lbl{font-size:.8rem;color:var(--muted);font-weight:600}
+.big{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.9rem;color:var(--brand);word-break:break-word}
+.rrow{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:.9rem;margin-top:8px}
+.rrow:first-of-type{border:none;margin-top:12px}
+.hint{font-size:.75rem;color:var(--muted);margin-top:11px;line-height:1.5}
+.box{background:#fff;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:13px 15px;margin:15px 0;font-size:.92rem}
+.faq details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin-bottom:9px}
+.faq summary{font-weight:600;cursor:pointer;font-size:.94rem}
+.faq p{margin:9px 0 0;font-size:.9rem;color:var(--muted)}
+.rel{margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
+.rel a{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;margin:0 7px 8px 0;font-size:.82rem;color:var(--brand);text-decoration:none;font-weight:600}
+.rel a:hover{border-color:var(--brand)}
+.disc{font-size:.75rem;color:var(--muted);margin-top:20px;padding:11px 13px;background:#FFF7ED;border:1px solid #FDE4C4;border-radius:10px;line-height:1.5}
+.disc a{color:var(--brand)}
+footer{background:#fff;border-top:1px solid var(--line);padding:22px 18px;text-align:center;font-size:.82rem;color:var(--muted)}
+footer a{color:var(--muted);text-decoration:none;margin:0 7px}
+footer a:hover{color:var(--brand)}
+@media(max-width:520px){h1{font-size:1.45rem}.row3{grid-template-columns:1fr}.big{font-size:1.6rem}}
+.hubbar{margin:0 0 12px;font-size:.82rem;line-height:2}.hubbar a{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}.hubbar a:hover{opacity:.7}.morelinks{background:#F4F7F8;border-radius:12px;padding:13px 16px;margin:18px 0;font-size:.9rem}.morelinks b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#0F766E;margin-bottom:6px}.morelinks a{color:#0F766E;font-weight:600;text-decoration:none}.shbtn{display:inline-block;background:#fff;border:1px solid var(--line,#D8E0E2);border-radius:22px;padding:8px 15px;font-size:.86rem;font-weight:600;color:var(--brand,#0F766E);text-decoration:none;cursor:pointer;font-family:inherit}.shbtn:hover{background:var(--brand,#0F766E);color:#fff;border-color:var(--brand,#0F766E)}.gshare{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.gshare a,.gshare button{background:#fff;border:1px solid var(--line,#D8E0E2);border-radius:22px;padding:7px 14px;font-size:.84rem;font-weight:600;color:var(--brand,#0F766E);text-decoration:none;cursor:pointer;font-family:inherit}.gshare a:hover,.gshare button:hover{background:var(--brand,#0F766E);color:#fff}.calcshot{margin:20px 0;display:grid;grid-template-columns:1fr 1fr;gap:12px}.calcshot figure{margin:0}.calcshot img{width:100%;height:auto;border:1px solid var(--line,#D8E0E2);border-radius:10px;display:block}.calcshot figcaption{font-size:.8rem;color:#4F5D64;margin-top:5px;text-align:center}@media(max-width:560px){.calcshot{grid-template-columns:1fr}}.artread{background:#E7F3F1;border-radius:12px;padding:13px 16px;margin:18px 0;font-size:.9rem}.artread b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:#0F766E;margin-bottom:6px}.artread a{color:#0F766E;font-weight:600;text-decoration:none}
+/* CLS: result box ki jagah pehle se tay */
+#res,.result{min-height:96px}
+
+/* Mobile: number keypad, iOS auto-zoom se bachaav */
+input[type="number"],input[type="text"],select,textarea{font-size:16px}
+/* Table mobile par toote nahi */
+table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:normal}
+@media(min-width:600px){table{display:table}}
+/* Keyboard se chalane walon ke liye saaf focus */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #0F766E;outline-offset:2px;border-radius:6px}
+/* Print/PDF: sirf kaam ki cheez chhape */
+@media print{
+ header,footer,.gshare,#shBar,#shConsent,.nextread,.hubbar,.tocbox{display:none!important}
+ body{background:#fff;color:#000;font-size:12pt}
+ main{max-width:100%;padding:0}
+ .calc{box-shadow:none;border:1px solid #999}
+ a[href^="/"]:after{content:" (sabhisaab.com" attr(href) ")";font-size:9pt;color:#555}
+ .faq details{page-break-inside:avoid}
+}
+.srcbox{background:#F6FAF9;border:1px solid #CFE3DF;border-radius:10px;padding:14px 16px;margin:22px 0;font-size:.93rem}.srcbox ul{margin:0;padding-left:20px}.srcbox b{display:block;margin-bottom:6px}</style>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "WebApplication", "name": "Compound Interest Calculator", "url": "https://sabhisaab.com/compound-interest-calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "inLanguage": "hi-Latn", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "INR"}, "description": "Free compound interest calculator: chakravriddhi byaj se paisa kitna badhega, saal aur dar ke hisaab se turant hisaab.", "author": {"@type": "Person", "name": "Manoj Kumar Pandey"}, "publisher": {"@type": "Organization", "name": "Sab Hisaab"}, "datePublished": "2026-07-21", "dateModified": "2026-08-11"}
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Compound interest kya hai?", "acceptedAnswer": {"@type": "Answer", "text": "Byaj par bhi byaj. Har saal ka byaj mool rakam me jud jaata hai, aur agle saal badi rakam par byaj lagta hai."}}, {"@type": "Question", "name": "Simple aur compound me kitna farak padta hai?", "acceptedAnswer": {"@type": "Answer", "text": "Lambe samay me bahut. ₹1 lakh, 10%, 20 saal — simple se ₹3 lakh, compound se lagbhag ₹6.7 lakh."}}, {"@type": "Question", "name": "Rule of 72 kya hai?", "acceptedAnswer": {"@type": "Answer", "text": "72 ko byaj dar se bhaag do — utne saal me paisa dugna ho jaata hai. 12% par 6 saal."}}, {"@type": "Question", "name": "Compounding kitni baar honi chahiye?", "acceptedAnswer": {"@type": "Answer", "text": "Jitni zyada baar (monthly > quarterly > yearly), utna behtar. FD me aam taur par quarterly hoti hai."}}, {"@type": "Question", "name": "Kya compounding nuksan bhi karti hai?", "acceptedAnswer": {"@type": "Answer", "text": "Haan — karze par. Credit card ka bakaya isi wajah se tezi se badhta hai. Isliye mehnge karze pehle chukayein."}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sabhisaab.com/"}, {"@type": "ListItem", "position": 2, "name": "Nivesh", "item": "https://sabhisaab.com/nivesh-calculators"}, {"@type": "ListItem", "position": 3, "name": "Compound Interest Calculator", "item": "https://sabhisaab.com/compound-interest-calculator"}]}</script>
+
+<meta name="twitter:description" content="Free compound interest calculator: chakravriddhi byaj se paisa kitna badhega, saal aur dar ke hisaab se turant hisaab.">
+<meta name="twitter:image" content="https://sabhisaab.com/sab-hisaab-og.png">
+</head>
+<body>
+<header><div class="hrow"><a href="/" class="logo">Sab<span>Hisaab</span></a>
+<nav class="hnav"><a href="/">Tools</a><a href="/about">About</a><a href="/author">Author</a><a href="/services">Services</a><a href="/contact">Contact</a></nav></div></header>
+<main>
+<div class="crumb"><a href="/">Home</a> &rsaquo; <a href="/nivesh-calculators">Nivesh</a></div>
+<h1>Compound Interest Calculator</h1>
+<div class="meta">Lekhak: <a href="/author" style="color:inherit">Manoj Kumar Pandey</a> &middot; Free &middot; Bina login &middot; Aakhri update: <time datetime="2026-08-11">August 2026</time></div>
+<div class="gshare" id="gShare"><a class="wa" target="_blank" rel="noopener">🟢 WhatsApp par share</a><button type="button" class="cp">🔗 Link copy karein</button></div>
+<p>Compound interest yaani <b>chakravriddhi byaj</b> — byaj par bhi byaj. Yahi wo cheez hai jo chhoti bachat ko saalon me badi rakam bana deti hai. Rakam, byaj dar aur saal daalein, aur dekhein aapka paisa kaise badhta hai.</p>
+<div class="calcbox">
+<label class="f">Principal (₹)</label><input id="p" type="number" inputmode="numeric" value="100000"><div class="row3"><div><label class="f">Rate %</label><input id="r" type="number" inputmode="decimal" value="8" step="0.1"></div><div><label class="f">Saal</label><input id="t" type="number" inputmode="numeric" value="5"></div><div><label class="f">Compounding</label><select id="n"><option value="1">Saal</option><option value="4">Quarter</option><option value="12">Mahina</option></select></div></div>
+<button class="go" id="go">Hisaab lagao</button>
+<div id="res"></div>
+</div>
+<h2>Simple aur compound me farak</h2>
+<p>Simple interest me byaj hamesha sirf mool rakam par lagta hai. Compound me byaj mool rakam me jud jaata hai, aur agle saal <b>badi rakam</b> par byaj lagta hai.</p>
+<div class="box"><b>Formula:</b> A = P &times; (1 + r/n)<sup>nt</sup><br>
+P = mool rakam, r = saalana dar (decimal), n = saal me kitni baar compounding, t = saal.</div>
+<p>Misaal: ₹1 lakh, 10% dar, 20 saal. Simple interest se ₹3 lakh banega. Compound se lagbhag ₹6.7 lakh. Farak dugne se bhi zyada — aur ye farak jitne zyada saal, utna hi badhta jaata hai.</p>
+
+<div class="calcshot"><figure><img src="/compound-interest-calculator-form.webp" alt="Compound Interest Calculator form — Sab Hisaab" width="1232" height="980" loading="lazy" decoding="async"><figcaption>Compound Interest Calculator — value daalein</figcaption></figure><figure><img src="/compound-interest-calculator-result.webp" alt="Compound Interest Calculator result — Sab Hisaab" width="1288" height="952" loading="lazy" decoding="async"><figcaption>Result turant milta hai</figcaption></figure></div>
+<h2>Samay sabse bada khilaadi hai</h2>
+<p>Compounding me sabse bada asar <b>byaj dar ka nahi, samay ka</b> hota hai. 25 saal ki umar me ₹1 lakh lagane wala, 35 me lagane wale se lagbhag <b>dugna</b> paisa banata hai — bina ek rupaya zyada lagaye. Isi liye kehte hain ki nivesh me sabse achha din "aaj" hota hai.</p>
+
+<h2>Rule of 72 — mun me hisaab</h2>
+<div class="box"><b>72 &divide; byaj dar = paisa dugna hone ke saal</b><br>
+12% par: 72 &divide; 12 = 6 saal. 8% par: 72 &divide; 8 = 9 saal.</div>
+<p>Ye ek aasaan tarika hai kisi bhi nivesh ko turant taulne ka, bina calculator ke.</p>
+
+<h2>Compounding ulta bhi chalta hai</h2>
+<p>Yahi taakat aapke <b>khilaaf</b> bhi kaam karti hai. Credit card ka bakaya, ya koi mehnga loan — wahan compounding karza ko tezi se badhati hai. Credit card par sirf "minimum due" bharna isi jaal me phansana hai. Isliye niyam simple hai: <b>nivesh me compounding aapki dost, karze me dushman.</b></p>
+
+<h2>Compounding ka poora fayda kaise lein</h2>
+<ul>
+<li>Jaldi shuru karein — ek saal ki deri bhi bada farak karti hai</li>
+<li>Beech me paisa mat nikalein — chain tootne se sabse zyada nuksan hota hai</li>
+<li>Byaj wapas nivesh me jaane dein, kharch mat karein</li>
+<li>Mehnge karze pehle chukayein</li>
+</ul>
+
+<h2>Teen asli misaal — number ke saath</h2>
+<p><b>Misaal 1 — samay ka asar.</b> ₹1,00,000, 10% saalana. 10 saal me ₹2.59 lakh, 20 saal me ₹6.73 lakh, 30 saal me <b>₹17.45 lakh</b>. Dhyan dein — pehle 10 saal me ₹1.59 lakh bana, aakhri 10 saal me ₹10.7 lakh. Growth aakhir me tez hoti hai.</p>
+<p><b>Misaal 2 — compounding ki frequency.</b> ₹1,00,000, 10%, 10 saal. Saalana compounding par ₹2,59,374. Quarterly par lagbhag ₹2,68,500. Monthly par lagbhag ₹2,70,700. Ek hi dar, par jitni baar compounding utna zyada.</p>
+<p><b>Misaal 3 — ulta chalta compounding.</b> Credit card par ₹50,000 bakaya, lagbhag 3.5% maasik byaj. Sirf minimum due bharte rahein to 2 saal me aap ₹35,000-40,000 sirf byaj de chuke honge, aur mool rakam lagbhag utni hi khadi rahegi.</p>
+<div class="box"><b>Ek line me:</b> nivesh me compounding aapki dost hai, karze me dushman. Isi liye pehle mehnga karza chukayein, phir nivesh badhayein.</div>
+
+<h2>Log yahan galti kya karte hain</h2>
+<ol>
+<li><b>Beech me paisa nikaal lena.</b> Compounding ka asli fayda aakhri saalon me aata hai. Log theek us se pehle nikal jaate hain.</li>
+<li><b>Byaj kharch kar dena.</b> Agar aap byaj/dividend nikaal kar kharch kar rahe hain, to compounding ho hi nahi rahi — wo simple interest ban gaya.</li>
+<li><b>Bahut oonchi dar maan lena.</b> Calculator me 20% daalna aasaan hai. Asli planning 10-12% par karein — kam maan kar zyada milna achha hai.</li>
+<li><b>Mehngai bhool jaana.</b> 30 saal baad ka ₹1 crore aaj ke ₹1 crore jaisa nahi hoga. 6% mehngai par uski asli keemat lagbhag ₹17-18 lakh ke barabar rehti hai.</li>
+<li><b>Credit card ka minimum due bharna.</b> Late fee to nahi lagti, par baaki rakam par bhaari byaj chalta rehta hai aur wo agle mahine ke bakaye me jud jaata hai.</li>
+</ol>
+
+<h2>Kaam ke do niyam</h2>
+<ul>
+<li><b>Rule of 72:</b> 72 &divide; byaj dar = paisa dugna hone me kitne saal. 8% par lagbhag 9 saal, 12% par lagbhag 6 saal. Mann hi mann hisaab lagane ka sabse tez tareeka.</li>
+<li><b>Rule of 114:</b> 114 &divide; dar = paisa teen guna hone me kitne saal.</li>
+</ul>
+
+<h2>Bharat me kahan kaunsi compounding</h2>
+<ul>
+<li><b>Saalana:</b> kai sarkari yojanaein (NSC, KVP jaise)</li>
+<li><b>Quarterly:</b> FD, RD aur PPF me sabse aam</li>
+<li><b>Monthly:</b> kuch scheme aur zyadatar loan</li>
+<li><b>Daily:</b> savings account ka byaj</li>
+</ul>
+<p>Isi liye "7% saalana" aur "7% quarterly compounding" me farak hota hai — doosre me asli yield (effective rate) thoda zyada nikalta hai. Tulna karte waqt hamesha effective rate dekhein.</p>
+
+<h2>Ye tools bhi dekh lein</h2>
+<ul>
+<li><a href="/sip-calculator">SIP Calculator</a> · <a href="/ppf-calculator">PPF Calculator</a> · <a href="/fd-calculator">FD Calculator</a></li>
+<li><a href="/rule-of-72-calculator">Rule of 72</a> · <a href="/inflation-impact-calculator">Inflation Impact</a></li>
+<li><a href="/compound-interest-guide">Compound Interest Guide</a></li>
+</ul>
+
+<h2>Aksar pooche jaane wale sawaal</h2>
+<div class="faq">
+<details><summary>Compound interest kya hai?</summary><p>Byaj par bhi byaj. Har saal ka byaj mool rakam me jud jaata hai, aur agle saal badi rakam par byaj lagta hai.</p></details>
+<details><summary>Simple aur compound me kitna farak padta hai?</summary><p>Lambe samay me bahut. ₹1 lakh, 10%, 20 saal — simple se ₹3 lakh, compound se lagbhag ₹6.7 lakh.</p></details>
+<details><summary>Rule of 72 kya hai?</summary><p>72 ko byaj dar se bhaag do — utne saal me paisa dugna ho jaata hai. 12% par 6 saal.</p></details>
+<details><summary>Compounding kitni baar honi chahiye?</summary><p>Jitni zyada baar (monthly > quarterly > yearly), utna behtar. FD me aam taur par quarterly hoti hai.</p></details>
+<details><summary>Kya compounding nuksan bhi karti hai?</summary><p>Haan — karze par. Credit card ka bakaya isi wajah se tezi se badhta hai. Isliye mehnge karze pehle chukayein.</p></details>
+</div>
+<div class="rel"><b style="display:block;margin-bottom:10px;font-family:'Bricolage Grotesque'">Related tools aur guides:</b>
+<a href="/compound-interest-guide">Compound Interest Guide</a><a href="/simple-interest-calculator">Simple Interest</a><a href="/sip-calculator">SIP Calculator</a><a href="/rule-of-72-calculator">Rule of 72</a><a href="/fd-calculator">FD Calculator</a><a href="/credit-score-guide">Credit Score</a></div>
+<div class="disc">&#9888;&#65039; <b>Disclaimer:</b> Ye calculator sirf anuman aur aam jaankari ke liye hai. Hum SEBI-registered advisor ya CA nahi hain. Paise, tax ya kisi bhi bade faisle se pehle apne salahkaar se salah lein. <a href="/disclaimer">Poora disclaimer padhein</a>.</div>
+<div class="morelinks"><b>Ye bhi dekhein</b><a href="/simple-interest-calculator">Simple Interest Calculator</a></div>
+<div class="artread"><b>Ye tools bhi dekhein</b><a href="/rule-of-72-calculator">Rule of 72 Calculator</a> &middot; <a href="/inflation-impact-calculator">Inflation Calculator</a></div>
+<div class="srcbox"><b>Official source &mdash; yahin se confirm karein</b><p style="margin:0 0 6px">Is page ke number aur niyam in sarkari/official jagah se liye gaye hain. Dar aur rules badalte rehte hain, isliye kisi bhi bade faisle se pehle seedha yahan ek baar dekh lein:</p><ul><li><a href="https://www.rbi.org.in" rel="nofollow noopener" target="_blank">RBI — loan, LTV aur byaj se jude niyam</a></li></ul></div>
+</main>
+<footer>
+<div class="hubbar"><b>Categories:</b> <a href="/nivesh-calculators">Nivesh</a> &middot; <a href="/loan-tax-calculators">Loan &amp; Tax</a> &middot; <a href="/trading-calculators">Trading</a> &middot; <a href="/sehat-calculators">Sehat</a> &middot; <a href="/converter-tools">Converter</a> &middot; <a href="/rozana-calculators">Rozana</a> &middot; <a href="/utility-tools">Utility</a> &middot; <a href="/guides">Guides</a> &middot; <a href="/articles">Articles</a> &middot; <a href="/">Saare 152 Tools</a></div>
+<a href="/">Home</a>&middot;<a href="/about">About</a>&middot;<a href="/author">Author</a>&middot;<a href="/services">Services</a>&middot;<a href="/contact">Contact</a>&middot;<a href="/privacy">Privacy</a>&middot;<a href="/terms">Terms</a>&middot;<a href="/disclaimer">Disclaimer</a>
+
+
+<div style="margin-top:10px;opacity:.92">&copy; 2026 Sab Hisaab</div>
+</footer>
+<script>
+const RS=n=>'\u20B9'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:0});
+const RS2=n=>'\u20B9'+Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const NUM=n=>Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
+function v(id){let e=document.getElementById(id);return e?e.value:'';}
+const DISC='<div class="disc">\u26A0\uFE0F Ye anuman hai, sirf jaankari ke liye. Not SEBI registered. Nivesh/tax faisle se pehle salahkaar se milein.</div>';
+const calc=()=>{let p=+v('p'),n=+v('n'),A=p*Math.pow(1+ +v('r')/100/n,n*+v('t'));return `<div class="lbl">Total value</div><div class="big">${RS(A)}</div><div class="rrow"><span>Byaj</span><b>${RS(A-p)}</b></div>`;};
+function run(){try{document.getElementById('res').innerHTML=calc();}catch(e){document.getElementById('res').innerHTML='<div class="hint">Sahi value daalein.</div>';}}
+document.getElementById('go').addEventListener('click',run);
+document.addEventListener('keydown',e=>{if(e.key==='Enter')run();});
+run();
+</script>
+
+<script>
+(function(){
+  function txt(){var r=document.getElementById('res');if(!r)return '';var t=r.innerText||r.textContent||'';return t.replace(/\s+\n/g,'\n').trim();}
+  function ensure(){
+    var res=document.getElementById('res');if(!res)return;
+    if(document.getElementById('shBar'))return;
+    var bar=document.createElement('div');bar.id='shBar';bar.style.cssText='display:none;gap:8px;flex-wrap:wrap;margin:12px 0 4px';
+    bar.innerHTML='<button type="button" id="shCopy" class="shbtn">📋 Copy result</button>'
+      +'<a id="shWa" class="shbtn" target="_blank" rel="noopener">🟢 WhatsApp par bhejein</a>';
+    res.parentNode.insertBefore(bar,res.nextSibling);
+    document.getElementById('shCopy').addEventListener('click',function(){
+      var t=txt()+'\n\n'+document.title.split('|')[0].trim()+'\n'+location.href;
+      if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){var b=document.getElementById('shCopy');b.textContent='✅ Copy ho gaya';setTimeout(function(){b.textContent='📋 Copy result';},1600);});}
+    });
+  }
+  function upd(){
+    var bar=document.getElementById('shBar');if(!bar)return;
+    var t=txt();
+    if(t.length>3){bar.style.display='flex';
+      var msg=encodeURIComponent(t+'\n\n'+document.title.split('|')[0].trim()+'\n'+location.href);
+      document.getElementById('shWa').href='https://wa.me/?text='+msg;
+    } else {bar.style.display='none';}
+  }
+  function boot(){ensure();upd();
+    var res=document.getElementById('res');if(res&&window.MutationObserver){new MutationObserver(upd).observe(res,{childList:true,subtree:true,characterData:true});}
+  }
+  if(document.readyState!=='loading')boot();else document.addEventListener('DOMContentLoaded',boot);
+})();
+</script>
+
+<script>
+(function(){var b=document.getElementById('gShare');if(!b)return;
+var u=location.href,t=document.title.split('|')[0].trim();
+var w=b.querySelector('.wa');if(w)w.href='https://wa.me/?text='+encodeURIComponent(t+'\n'+u);
+var c=b.querySelector('.cp');if(c)c.addEventListener('click',function(){if(navigator.clipboard){navigator.clipboard.writeText(u).then(function(){c.textContent='\u2705 Link copy ho gaya';setTimeout(function(){c.textContent='\ud83d\udd17 Link copy karein';},1600);});}});
+})();
+</script><div id="shConsent" style="display:none;position:fixed;contain:layout style;will-change:transform;left:0;right:0;bottom:0;z-index:9999;background:#fff;border-top:2px solid #0F766E;box-shadow:0 -6px 24px rgba(15,23,32,.14);padding:16px 18px;font-family:'Inter',system-ui,sans-serif">
+<div style="max-width:900px;margin:0 auto">
+<p style="margin:0 0 10px;font-size:.88rem;line-height:1.6;color:#0F1720">Ye website cookies ka istemaal karti hai &mdash; site chalane ke liye, aur aage <b>vigyapan (ads) ko personalize karne</b>, ads ka asar naapne aur traffic samajhne ke liye. Google aur uske partners is data ka istemaal kar sakte hain. Aap chahein to sirf zaroori cookies rakh sakte hain. <a href="/privacy" style="color:#0F766E;font-weight:600">Privacy Policy</a> &middot; <a href="/terms" style="color:#0F766E;font-weight:600">Terms</a></p>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<button id="shAccept" style="flex:1;min-width:150px;padding:11px 16px;border:none;border-radius:10px;background:#0F766E;color:#fff;font-weight:700;font-size:.9rem;font-family:inherit;cursor:pointer">Sab cookies theek hain</button>
+<button id="shReject" style="flex:1;min-width:150px;padding:11px 16px;border:1px solid #E3E9EC;border-radius:10px;background:#fff;color:#0F1720;font-weight:600;font-size:.9rem;font-family:inherit;cursor:pointer">Sirf zaroori cookies</button>
+</div>
+</div></div>
+<script>
+(function(){var b=document.getElementById('shConsent');if(!b)return;
+function set(v){try{localStorage.setItem('sh_consent',v);}catch(e){}
+ var g=(v==='all')?'granted':'denied';
+ if(typeof gtag==='function'){gtag('consent','update',{ad_storage:g,ad_user_data:g,ad_personalization:g,analytics_storage:g});}
+ b.style.display='none';}
+var c=null;try{c=localStorage.getItem('sh_consent');}catch(e){}
+if(!c){b.style.display='block';}
+var a=document.getElementById('shAccept'),r=document.getElementById('shReject');
+if(a)a.addEventListener('click',function(){set('all');});
+if(r)r.addEventListener('click',function(){set('essential');});
+})();
+</script>
+<script src="/install-app.js" defer></script>
+<script>
+/* Mobile: calculate dabane par result apne aap dikhe */
+(function(){var b=document.getElementById('go'),r=document.getElementById('res');if(!b||!r)return;
+b.addEventListener('click',function(){setTimeout(function(){
+ if(window.innerWidth<760&&r.getBoundingClientRect().top>window.innerHeight-120){
+  r.scrollIntoView({behavior:'smooth',block:'center'});}},60);});})();
+</script>
+</body></html>

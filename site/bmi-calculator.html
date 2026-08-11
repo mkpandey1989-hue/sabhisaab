@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="hi-Latn"><head><meta charset="UTF-8">
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});
+try{var _c=localStorage.getItem('sh_consent');if(_c==='all'){gtag('consent','update',{ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted',analytics_storage:'granted'});}}catch(e){}
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QX5MWV42TR"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-QX5MWV42TR");</script>
+<meta name="theme-color" content="#0F766E">
+<meta name="color-scheme" content="light">
+<meta property="og:site_name" content="Sab Hisaab">
+<meta property="og:locale" content="hi_IN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BMI Calculator — Body Mass Index Nikaalein">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20100%20100%27%3E%3Crect%20width=%27100%27%20height=%27100%27%20rx=%2722%27%20fill=%27%230F766E%27/%3E%3Ctext%20x=%2750%27%20y=%2772%27%20font-size=%2762%27%20text-anchor=%27middle%27%20fill=%27white%27%20font-family=%27Arial%27%20font-weight=%27bold%27%3E%E2%82%B9%3C/text%3E%3C/svg%3E">
+<title>BMI Calculator — Body Mass Index Nikaalein</title>
+<meta name="description" content="Free BMI calculator: height aur weight se apna Body Mass Index nikaalein aur jaanein aapka wazan theek hai ya nahi.">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<link rel="canonical" href="https://sabhisaab.com/bmi-calculator">
+<meta name="author" content="Manoj Kumar Pandey">
+<meta property="og:title" content="BMI Calculator — Body Mass Index Kaise Nikaalein"><meta property="og:description" content="Free BMI calculator: height aur weight se apna Body Mass Index nikaalein aur jaanein aapka wazan theek hai ya nahi.">
+<meta property="og:image" content="https://sabhisaab.com/sab-hisaab-og.png">
+<meta property="og:image:width" content="1204">
+<meta property="og:image:height" content="644">
+<meta property="og:type" content="website"><meta property="og:url" content="https://sabhisaab.com/bmi-calculator">
+<link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"></noscript>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#0F766E;--accent:#D97706;--ink:#0F1720;--muted:#4F5D64;--bg:#F6F8F9;--line:#E3E9EC}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.hrow{max-width:820px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.15rem;color:var(--ink);text-decoration:none}
+.logo span{color:var(--brand)}
+.hnav a{color:var(--muted);text-decoration:none;font-size:.86rem;font-weight:600;margin-left:15px}
+.hnav a:hover{color:var(--brand)}
+main{max-width:820px;margin:0 auto;padding:22px 18px 50px}
+.crumb{font-size:.78rem;color:var(--muted);margin-bottom:12px}
+.crumb a{color:var(--brand);text-decoration:none}
+h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.75rem;line-height:1.25;margin-bottom:8px}
+h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.2rem;margin:26px 0 9px}
+p{margin-bottom:13px}
+ul,ol{margin:0 0 13px 20px}
+li{margin-bottom:6px}
+.meta{font-size:.78rem;color:var(--muted);margin-bottom:18px}
+.calcbox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 8px 30px rgba(15,23,32,.06);margin:16px 0 8px}
+.f{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin:13px 0 5px}
+.calcbox input,.calcbox select,.calcbox textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-size:1rem;font-family:inherit;background:#fff;color:var(--ink)}
+.calcbox input:focus,.calcbox select:focus{outline:none;border-color:var(--brand)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.go{width:100%;margin-top:16px;padding:14px;background:var(--brand);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer}
+.go:hover{background:#0d635c}
+#res{margin-top:16px}
+.lbl{font-size:.8rem;color:var(--muted);font-weight:600}
+.big{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.9rem;color:var(--brand);word-break:break-word}
+.rrow{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:.9rem;margin-top:8px}
+.rrow:first-of-type{border:none;margin-top:12px}
+.hint{font-size:.75rem;color:var(--muted);margin-top:11px;line-height:1.5}
+.box{background:#fff;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:13px 15px;margin:15px 0;font-size:.92rem}
+.faq details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin-bottom:9px}
+.faq summary{font-weight:600;cursor:pointer;font-size:.94rem}
+.faq p{margin:9px 0 0;font-size:.9rem;color:var(--muted)}
+.rel{margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
+.rel a{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;margin:0 7px 8px 0;font-size:.82rem;color:var(--brand);text-decoration:none;font-weight:600}
+.rel a:hover{border-color:var(--brand)}
+.disc{font-size:.75rem;color:var(--muted);margin-top:20px;padding:11px 13px;background:#FFF7ED;border:1px solid #FDE4C4;border-radius:10px;line-height:1.5}
+.disc a{color:var(--brand)}
+footer{background:#fff;border-top:1px solid var(--line);padding:22px 18px;text-align:center;font-size:.82rem;color:var(--muted)}
+footer a{color:var(--muted);text-decoration:none;margin:0 7px}
+footer a:hover{color:var(--brand)}
+@media(max-width:520px){h1{font-size:1.45rem}.row3{grid-template-columns:1fr}.big{font-size:1.6rem}}
+.hubbar{margin:0 0 12px;font-size:.82rem;line-height:2}.hubbar a{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}.hubbar a:hover{opacity:.7}.srcbox{background:#fff;border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:10px;padding:13px 15px;margin:18px 0;font-size:.88rem}.srcbox b{display:block;margin-bottom:6px}.srcbox a{color:var(--brand)}.srcbox ul{margin:0 0 0 18px}.shbtn{display:inline-block;background:#fff;border:1px solid var(--line,#D8E0E2);border-radius:22px;padding:8px 15px;font-size:.86rem;font-weight:600;color:var(--brand,#0F766E);text-decoration:none;cursor:pointer;font-family:inherit}.shbtn:hover{background:var(--brand,#0F766E);color:#fff;border-color:var(--brand,#0F766E)}.gshare{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.gshare a,.gshare button{background:#fff;border:1px solid var(--line,#D8E0E2);border-radius:22px;padding:7px 14px;font-size:.84rem;font-weight:600;color:var(--brand,#0F766E);text-decoration:none;cursor:pointer;font-family:inherit}.gshare a:hover,.gshare button:hover{background:var(--brand,#0F766E);color:#fff}.calcshot{margin:20px 0;display:grid;grid-template-columns:1fr 1fr;gap:12px}.calcshot figure{margin:0}.calcshot img{width:100%;height:auto;border:1px solid var(--line,#D8E0E2);border-radius:10px;display:block}.calcshot figcaption{font-size:.8rem;color:#4F5D64;margin-top:5px;text-align:center}@media(max-width:560px){.calcshot{grid-template-columns:1fr}}
+/* CLS: result box ki jagah pehle se tay */
+#res,.result{min-height:96px}
+
+/* Mobile: number keypad, iOS auto-zoom se bachaav */
+input[type="number"],input[type="text"],select,textarea{font-size:16px}
+/* Table mobile par toote nahi */
+table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:normal}
+@media(min-width:600px){table{display:table}}
+/* Keyboard se chalane walon ke liye saaf focus */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #0F766E;outline-offset:2px;border-radius:6px}
+/* Print/PDF: sirf kaam ki cheez chhape */
+@media print{
+ header,footer,.gshare,#shBar,#shConsent,.nextread,.hubbar,.tocbox{display:none!important}
+ body{background:#fff;color:#000;font-size:12pt}
+ main{max-width:100%;padding:0}
+ .calc{box-shadow:none;border:1px solid #999}
+ a[href^="/"]:after{content:" (sabhisaab.com" attr(href) ")";font-size:9pt;color:#555}
+ .faq details{page-break-inside:avoid}
+}
+</style>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "WebApplication", "name": "BMI Calculator", "url": "https://sabhisaab.com/bmi-calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "inLanguage": "hi-Latn", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "INR"}, "description": "Free BMI calculator: height aur weight se apna Body Mass Index nikaalein aur jaanein aapka wazan theek hai ya nahi.", "author": {"@type": "Person", "name": "Manoj Kumar Pandey"}, "publisher": {"@type": "Organization", "name": "Sab Hisaab"}, "datePublished": "2026-07-21", "dateModified": "2026-08-11"}
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Normal BMI kitna hota hai?", "acceptedAnswer": {"@type": "Answer", "text": "Aam taur par 18.5 se 24.9 ke beech normal maana jaata hai. Bharatiya logon ke liye kai visheshagya 23 se upar hi savdhaani ki salah dete hain."}}, {"@type": "Question", "name": "Kya BMI hamesha sahi hota hai?", "acceptedAnswer": {"@type": "Answer", "text": "Nahi. Ye muscle aur charbi me farak nahi karta. Khiladi ka BMI zyada dikh sakta hai jabki charbi kam ho."}}, {"@type": "Question", "name": "BMI ke saath aur kya dekhna chahiye?", "acceptedAnswer": {"@type": "Answer", "text": "Kamar ka naap aur waist-to-height ratio. Ye pet ki charbi ka zyada bharosemand ishara dete hain."}}, {"@type": "Question", "name": "Bachchon ka BMI isse nikal sakte hain?", "acceptedAnswer": {"@type": "Answer", "text": "Nahi. Bachchon aur kishoron ke liye umar aur ling ke hisaab se alag growth chart hota hai."}}, {"@type": "Question", "name": "BMI zyada hai to kya karein?", "acceptedAnswer": {"@type": "Answer", "text": "Ghabrayein nahi. Khaan-paan aur rozana chalne-firne se shuruaat karein, aur ek baar doctor se salah zaroor lein."}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sabhisaab.com/"}, {"@type": "ListItem", "position": 2, "name": "Sehat", "item": "https://sabhisaab.com/sehat-calculators"}, {"@type": "ListItem", "position": 3, "name": "BMI Calculator", "item": "https://sabhisaab.com/bmi-calculator"}]}</script>
+
+<meta name="twitter:description" content="Free BMI calculator: height aur weight se apna Body Mass Index nikaalein aur jaanein aapka wazan theek hai ya nahi.">
+<meta name="twitter:image" content="https://sabhisaab.com/sab-hisaab-og.png">
+</head>
+<body>
+<header><div class="hrow"><a href="/" class="logo">Sab<span>Hisaab</span></a>
+<nav class="hnav"><a href="/">Tools</a><a href="/about">About</a><a href="/author">Author</a><a href="/services">Services</a><a href="/contact">Contact</a></nav></div></header>
+<main>
+<div class="crumb"><a href="/">Home</a> &rsaquo; <a href="/sehat-calculators">Sehat</a></div>
+<h1>BMI Calculator</h1>
+<div class="meta">Lekhak: <a href="/author" style="color:inherit">Manoj Kumar Pandey</a> &middot; Free &middot; Bina login &middot; Aakhri update: <time datetime="2026-08-11">August 2026</time></div>
+<div class="gshare" id="gShare"><a class="wa" target="_blank" rel="noopener">🟢 WhatsApp par share</a><button type="button" class="cp">🔗 Link copy karein</button></div>
+<p>BMI (Body Mass Index) ek aasaan number hai jo aapke <b>kad aur wazan ka anupat</b> batata hai. Isse mota-moti andaaza lagta hai ki wazan kam hai, theek hai, ya zyada. Height aur weight daalein — jawab turant.</p>
+<div class="calcbox">
+<div class="row2"><div><label class="f">Weight (kg)</label><input id="w" type="number" inputmode="numeric" value="70"></div><div><label class="f">Height (cm)</label><input id="h" type="number" inputmode="numeric" value="170"></div></div>
+<button class="go" id="go">Hisaab lagao</button>
+<div id="res"></div>
+</div>
+<h2>BMI ka formula</h2>
+<div class="box"><b>BMI = Wazan (kg) &divide; [Height (meter)]&sup2;</b><br>
+Misaal: 70 kg aur 1.70 meter &rarr; 70 &divide; (1.70 &times; 1.70) = 24.2</div>
+
+<div class="calcshot"><figure><img src="/bmi-calculator-form.webp" alt="BMI Calculator form — Sab Hisaab" width="1232" height="980" loading="lazy" decoding="async"><figcaption>BMI Calculator — value daalein</figcaption></figure><figure><img src="/bmi-calculator-result.webp" alt="BMI Calculator result — Sab Hisaab" width="1316" height="924" loading="lazy" decoding="async"><figcaption>Result turant milta hai</figcaption></figure></div>
+<h2>BMI ki shreniyan</h2>
+<ul>
+<li><b>18.5 se kam</b> — wazan kam (underweight)</li>
+<li><b>18.5 &ndash; 24.9</b> — normal</li>
+<li><b>25 &ndash; 29.9</b> — zyada (overweight)</li>
+<li><b>30 ya upar</b> — motapa (obese)</li>
+</ul>
+<p>Bharatiya logon ke liye kai visheshagya thodi kam limit sujhaate hain — 23 se upar hi savdhaan ho jaane ki salah dete hain, kyunki hamare shareer me charbi ka batwara alag hota hai.</p>
+
+<h2>BMI ki bade kamiyan</h2>
+<p>BMI ek mota andaaza hai, poori sachchai nahi. Ye <b>maans-peshi (muscle) aur charbi me farak nahi karta</b>. Isi liye ek pehalwan ya gym jaane wale ka BMI "overweight" dikha sakta hai jabki uske paas charbi bahut kam hai. Ulta, kam wazan wale vyakti ki pet ki charbi zyada ho sakti hai aur BMI phir bhi normal dikhega.</p>
+<p>Isliye BMI ke saath <b>kamar ka naap</b> bhi dekhein. Waist-to-Height ratio (kamar &divide; height) 0.5 se kam hona aam taur par behtar maana jaata hai, aur wo pet ki charbi ka zyada bharosemand ishara deta hai.</p>
+
+<h2>BMI kis ke liye sahi nahi</h2>
+<ul>
+<li>Khiladi aur bodybuilder — muscle ki wajah se number badha aata hai</li>
+<li>Garbhvati mahilayein</li>
+<li>Bachche aur kishor — unke liye alag chart hota hai</li>
+<li>Bahut bujurg log — umar ke saath shareer badal jaata hai</li>
+</ul>
+<p>Ye tool sirf jaankari ke liye hai. Wazan, khaan-paan ya kisi bhi sehat ke faisle se pehle apne doctor se salah lein.</p>
+
+<h2>Do asli misaal — number ke saath</h2>
+<p><b>Misaal 1.</b> Wazan 70 kg, height 170 cm. BMI = 70 &divide; (1.70)&sup2; = <b>24.2</b> — aam paimane par "normal". Par bharatiya paimane par ye 23 se upar hai, isliye kamar ka naap bhi dekh lena chahiye.</p>
+<p><b>Misaal 2.</b> Wazan 85 kg, height 165 cm. BMI = 85 &divide; (1.65)&sup2; = <b>31.2</b> — "bahut zyada" shreni. Yahan 5-7 kg ghatane se hi BMI 29 ke aas-paas aa jaata hai, aur sehat par asar dikhna shuru ho jaata hai.</p>
+
+<h2>Bharatiya logon ke liye alag paimana</h2>
+<p>Aam BMI paimana (18.5-24.9 normal) paschimi logon par aadharit hai. Kai bharatiya visheshagya kehte hain ki hamare shareer me <b>ek hi BMI par charbi zyada</b> hoti hai — khaaskar pet ke aas-paas. Isi liye bharat me kai jagah 23 se upar ko hi savdhaani ki shreni maana jaata hai, 25 se nahi.</p>
+<div class="box"><b>BMI se behtar signal — kamar ka naap.</b> Waist &divide; Height <b>0.5 se kam</b> hona aam taur par behtar maana jaata hai. Yaani kamar aapki height ke aadhe se kam honi chahiye. Naapne ka sahi tarika: subah khaali pet, saans chhod kar, naabhi ke level par — pet andar kheenchein nahi.</div>
+
+<h2>BMI ki seemayein — ye zaroor jaanein</h2>
+<ol>
+<li><b>Muscle aur charbi me farak nahi karta.</b> Ek athlete ka BMI "zyada" dikh sakta hai jabki uske shareer me charbi bahut kam hoti hai.</li>
+<li><b>Charbi kahan hai, ye nahi batata.</b> Pet ki charbi (visceral fat) sabse khatarnak hoti hai — BMI ise pakad hi nahi paata.</li>
+<li><b>Umar ka farak nahi dekhta.</b> 25 saal aur 65 saal ke vyakti ke liye ek hi paimana lagata hai.</li>
+<li><b>Bachchon par lagu nahi hota.</b> Unke liye alag growth chart hote hain.</li>
+<li><b>Garbhavastha me lagu nahi hota.</b></li>
+</ol>
+
+<h2>BMI zyada hai to — practical baatein</h2>
+<ul>
+<li><b>Crash diet mat karein.</b> Bhookhe rehkar ghataya wazan aam taur par wapas aa jaata hai, aur beech me sehat kharab ho jaati hai.</li>
+<li><b>Roz 30-40 minute chalein.</b> Gym zaroori nahi — tez chalna sabse aasaan aur kaargar shuruaat hai.</li>
+<li><b>Cheeni aur maida kam karein.</b> Meethi chai, biscuit, namkeen, cold drink — sabse zyada calorie inhi se chupke se andar jaati hai.</li>
+<li><b>Protein badhayein.</b> Daal, ande, doodh, paneer, chana — isse bhookh kam lagti hai aur muscle bachi rehti hai.</li>
+<li><b>Neend poori karein.</b> Kam neend se bhookh badhane wale hormone badh jaate hain.</li>
+<li><b>Dheere ghataayein.</b> Hafte me aadha kilo kaafi hai — isse ghataya wazan wapas nahi aata.</li>
+</ul>
+
+<h2>Ye tools bhi dekh lein</h2>
+<ul><li><a href="/weight-loss-basics-guide">Weight Loss Ki Basic Samajh: Calorie, Protein Aur Neend</a></li>
+<li><a href="/calorie-calculator">Calorie (BMR) Calculator</a> · <a href="/waist-to-height-calculator">Waist-to-Height Ratio</a></li>
+<li><a href="/ideal-weight-calculator">Ideal Weight</a> · <a href="/water-intake-calculator">Water Intake</a></li>
+<li><a href="/bmi-guide">BMI Guide</a></li>
+</ul>
+
+<h2>Aksar pooche jaane wale sawaal</h2>
+<div class="faq">
+<details><summary>Normal BMI kitna hota hai?</summary><p>Aam taur par 18.5 se 24.9 ke beech normal maana jaata hai. Bharatiya logon ke liye kai visheshagya 23 se upar hi savdhaani ki salah dete hain.</p></details>
+<details><summary>Kya BMI hamesha sahi hota hai?</summary><p>Nahi. Ye muscle aur charbi me farak nahi karta. Khiladi ka BMI zyada dikh sakta hai jabki charbi kam ho.</p></details>
+<details><summary>BMI ke saath aur kya dekhna chahiye?</summary><p>Kamar ka naap aur waist-to-height ratio. Ye pet ki charbi ka zyada bharosemand ishara dete hain.</p></details>
+<details><summary>Bachchon ka BMI isse nikal sakte hain?</summary><p>Nahi. Bachchon aur kishoron ke liye umar aur ling ke hisaab se alag growth chart hota hai.</p></details>
+<details><summary>BMI zyada hai to kya karein?</summary><p>Ghabrayein nahi. Khaan-paan aur rozana chalne-firne se shuruaat karein, aur ek baar doctor se salah zaroor lein.</p></details>
+</div>
+<div class="disc"><b>Sehat ki chetavni:</b> Ye tool sirf aam jaankari ke liye hai aur ek anuman deta hai. Ye kisi doctor ki jaanch, salah ya ilaaj ki jagah nahi le sakta. Har vyakti ka shareer alag hota hai — umar, bimari, dawaiyan, garbhavastha aur athletic build se nateeja badal jaata hai. Wazan, khaan-paan ya vyayam me koi bhi bada badlaav karne se pehle apne doctor ya registered dietitian se salah zaroor lein. Agar aapko koi bimari hai ya aap kisi dawa par hain, to bina doctor ki salah ke kuch na badlein.</div>
+<div class="rel"><b style="display:block;margin-bottom:10px;font-family:'Bricolage Grotesque'">Related tools aur guides:</b>
+<a href="/bmi-guide">BMI Guide</a><a href="/waist-to-height-calculator">Waist-to-Height</a><a href="/calorie-calculator">Calorie (BMR)</a><a href="/ideal-weight-calculator">Ideal Weight</a><a href="/body-fat-calculator">Body Fat %</a><a href="/water-intake-calculator">Water Intake</a></div>
+<div class="disc">&#9888;&#65039; <b>Sehat ki chetavni:</b> Ye tool sirf aam jaankari ke liye hai aur natija ek anuman hai. Ye kisi doctor ki jaanch, salah ya ilaaj ki jagah nahi le sakta. Umar, bimari, dawaiyan, garbhavastha aur athletic build se nateeja badal jaata hai — khaan-paan, wazan ya vyayam me koi bhi bada badlaav karne se pehle apne doctor ya registered dietitian se salah lein. <a href="/disclaimer">Poora disclaimer padhein</a>.</div>
+<div class="srcbox"><b>Official source &mdash; yahin se confirm karein</b><p style="margin:0 0 6px">Is page ke number aur niyam in sarkari/official jagah se liye gaye hain. Rules badalte rehte hain, isliye bade faisle se pehle seedha yahan ek baar dekh lein:</p><ul><li><a href="https://www.who.int/health-topics/obesity" rel="nofollow noopener" target="_blank">WHO — BMI classification</a></li></ul></div>
+</main>
+<footer>
+<div class="hubbar"><b>Categories:</b> <a href="/nivesh-calculators">Nivesh</a> &middot; <a href="/loan-tax-calculators">Loan &amp; Tax</a> &middot; <a href="/trading-calculators">Trading</a> &middot; <a href="/sehat-calculators">Sehat</a> &middot; <a href="/converter-tools">Converter</a> &middot; <a href="/rozana-calculators">Rozana</a> &middot; <a href="/utility-tools">Utility</a> &middot; <a href="/guides">Guides</a> &middot; <a href="/articles">Articles</a> &middot; <a href="/">Saare 152 Tools</a></div>
+<a href="/">Home</a>&middot;<a href="/about">About</a>&middot;<a href="/author">Author</a>&middot;<a href="/services">Services</a>&middot;<a href="/contact">Contact</a>&middot;<a href="/privacy">Privacy</a>&middot;<a href="/terms">Terms</a>&middot;<a href="/disclaimer">Disclaimer</a>
+
+
+<div style="margin-top:10px;opacity:.92">&copy; 2026 Sab Hisaab</div>
+</footer>
+<script>
+const RS=n=>'\u20B9'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:0});
+const RS2=n=>'\u20B9'+Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const NUM=n=>Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
+function v(id){let e=document.getElementById(id);return e?e.value:'';}
+const DISC='<div class="disc">\u26A0\uFE0F Ye anuman hai, sirf jaankari ke liye. Not SEBI registered. Nivesh/tax faisle se pehle salahkaar se milein.</div>';
+const calc=()=>{let w=+v('w'),h=+v('h')/100,b=w/(h*h),s=b<18.5?'Kam':b<25?'Sahi (normal)':b<30?'Zyada':'Bahut zyada';return `<div class="lbl">BMI</div><div class="big">${b.toFixed(1)}</div><div class="rrow"><span>Sthiti</span><b>${s}</b></div>`;};
+function run(){try{document.getElementById('res').innerHTML=calc();}catch(e){document.getElementById('res').innerHTML='<div class="hint">Sahi value daalein.</div>';}}
+document.getElementById('go').addEventListener('click',run);
+document.addEventListener('keydown',e=>{if(e.key==='Enter')run();});
+run();
+</script>
+
+<script>
+(function(){
+  function txt(){var r=document.getElementById('res');if(!r)return '';var t=r.innerText||r.textContent||'';return t.replace(/\s+\n/g,'\n').trim();}
+  function ensure(){
+    var res=document.getElementById('res');if(!res)return;
+    if(document.getElementById('shBar'))return;
+    var bar=document.createElement('div');bar.id='shBar';bar.style.cssText='display:none;gap:8px;flex-wrap:wrap;margin:12px 0 4px';
+    bar.innerHTML='<button type="button" id="shCopy" class="shbtn">📋 Copy result</button>'
+      +'<a id="shWa" class="shbtn" target="_blank" rel="noopener">🟢 WhatsApp par bhejein</a>';
+    res.parentNode.insertBefore(bar,res.nextSibling);
+    document.getElementById('shCopy').addEventListener('click',function(){
+      var t=txt()+'\n\n'+document.title.split('|')[0].trim()+'\n'+location.href;
+      if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){var b=document.getElementById('shCopy');b.textContent='✅ Copy ho gaya';setTimeout(function(){b.textContent='📋 Copy result';},1600);});}
+    });
+  }
+  function upd(){
+    var bar=document.getElementById('shBar');if(!bar)return;
+    var t=txt();
+    if(t.length>3){bar.style.display='flex';
+      var msg=encodeURIComponent(t+'\n\n'+document.title.split('|')[0].trim()+'\n'+location.href);
+      document.getElementById('shWa').href='https://wa.me/?text='+msg;
+    } else {bar.style.display='none';}
+  }
+  function boot(){ensure();upd();
+    var res=document.getElementById('res');if(res&&window.MutationObserver){new MutationObserver(upd).observe(res,{childList:true,subtree:true,characterData:true});}
+  }
+  if(document.readyState!=='loading')boot();else document.addEventListener('DOMContentLoaded',boot);
+})();
+</script>
+
+<script>
+(function(){var b=document.getElementById('gShare');if(!b)return;
+var u=location.href,t=document.title.split('|')[0].trim();
+var w=b.querySelector('.wa');if(w)w.href='https://wa.me/?text='+encodeURIComponent(t+'\n'+u);
+var c=b.querySelector('.cp');if(c)c.addEventListener('click',function(){if(navigator.clipboard){navigator.clipboard.writeText(u).then(function(){c.textContent='\u2705 Link copy ho gaya';setTimeout(function(){c.textContent='\ud83d\udd17 Link copy karein';},1600);});}});
+})();
+</script><div id="shConsent" style="display:none;position:fixed;contain:layout style;will-change:transform;left:0;right:0;bottom:0;z-index:9999;background:#fff;border-top:2px solid #0F766E;box-shadow:0 -6px 24px rgba(15,23,32,.14);padding:16px 18px;font-family:'Inter',system-ui,sans-serif">
+<div style="max-width:900px;margin:0 auto">
+<p style="margin:0 0 10px;font-size:.88rem;line-height:1.6;color:#0F1720">Ye website cookies ka istemaal karti hai &mdash; site chalane ke liye, aur aage <b>vigyapan (ads) ko personalize karne</b>, ads ka asar naapne aur traffic samajhne ke liye. Google aur uske partners is data ka istemaal kar sakte hain. Aap chahein to sirf zaroori cookies rakh sakte hain. <a href="/privacy" style="color:#0F766E;font-weight:600">Privacy Policy</a> &middot; <a href="/terms" style="color:#0F766E;font-weight:600">Terms</a></p>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<button id="shAccept" style="flex:1;min-width:150px;padding:11px 16px;border:none;border-radius:10px;background:#0F766E;color:#fff;font-weight:700;font-size:.9rem;font-family:inherit;cursor:pointer">Sab cookies theek hain</button>
+<button id="shReject" style="flex:1;min-width:150px;padding:11px 16px;border:1px solid #E3E9EC;border-radius:10px;background:#fff;color:#0F1720;font-weight:600;font-size:.9rem;font-family:inherit;cursor:pointer">Sirf zaroori cookies</button>
+</div>
+</div></div>
+<script>
+(function(){var b=document.getElementById('shConsent');if(!b)return;
+function set(v){try{localStorage.setItem('sh_consent',v);}catch(e){}
+ var g=(v==='all')?'granted':'denied';
+ if(typeof gtag==='function'){gtag('consent','update',{ad_storage:g,ad_user_data:g,ad_personalization:g,analytics_storage:g});}
+ b.style.display='none';}
+var c=null;try{c=localStorage.getItem('sh_consent');}catch(e){}
+if(!c){b.style.display='block';}
+var a=document.getElementById('shAccept'),r=document.getElementById('shReject');
+if(a)a.addEventListener('click',function(){set('all');});
+if(r)r.addEventListener('click',function(){set('essential');});
+})();
+</script>
+<script src="/install-app.js" defer></script>
+<script>
+/* Mobile: calculate dabane par result apne aap dikhe */
+(function(){var b=document.getElementById('go'),r=document.getElementById('res');if(!b||!r)return;
+b.addEventListener('click',function(){setTimeout(function(){
+ if(window.innerWidth<760&&r.getBoundingClientRect().top>window.innerHeight-120){
+  r.scrollIntoView({behavior:'smooth',block:'center'});}},60);});})();
+</script>
+</body></html>
