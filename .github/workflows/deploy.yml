@@ -51,55 +51,70 @@ jobs:
           echo "site/ me files: $N"
           if [ "$N" -lt 300 ]; then echo "BAHUT KAM FILES - ruk rahe hain"; exit 1; fi
 
-      - name: Account ID aur project khud dhundo (token se)
+      - name: Account ID check karo aur project dhundo
         id: cf
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           python3 - <<'PY'
-          import json, os, urllib.request
-          TOK = os.environ["CF_TOKEN"]
+          import json, os, sys, urllib.request, urllib.error
+          TOK = os.environ["CF_TOKEN"].strip()
+          ACC = os.environ["CF_ACCT"].strip()
+
+          print("Token  ki lambai : %d  (40 ya 53 hona normal hai)" % len(TOK))
+          print("Account ki lambai: %d  (THEEK 32 hona chahiye)" % len(ACC))
+          if len(ACC) != 32:
+              print("")
+              print("XXXX  CLOUDFLARE_ACCOUNT_ID galat hai.  XXXX")
+              print("Account ID 32 akshar ka hota hai (sirf a-f aur 0-9).")
+              print("Cloudflare dashboard -> Workers & Pages -> dayein 'Account Details'")
+              print("box me 'Account ID' ke saamne copy icon dabayein.")
+              print("Ya URL me: dash.cloudflare.com/<YAHI-32-AKSHAR>/workers-and-pages")
+              sys.exit(1)
+          bad = [c for c in ACC.lower() if c not in "0123456789abcdef"]
+          if bad:
+              print("Account ID me ajeeb akshar hain:", set(bad)); sys.exit(1)
+
           def api(path):
               req = urllib.request.Request(
                   "https://api.cloudflare.com/client/v4" + path,
                   headers={"Authorization": "Bearer " + TOK})
-              return json.load(urllib.request.urlopen(req))
-
-          accs = api("/accounts")
-          if not accs.get("success"):
-              raise SystemExit("Token se account list nahi mili: %s" % accs.get("errors"))
-          print("Token ko %d account dikhe" % len(accs["result"]))
-
-          found = None
-          for a in accs["result"]:
-              aid = a["id"]
-              print("  Account:", a.get("name"))
               try:
-                  pr = api("/accounts/%s/pages/projects" % aid)
-              except Exception as e:
-                  print("     projects nahi mile:", e); continue
-              if not pr.get("success"):
-                  print("     errors:", pr.get("errors")); continue
-              for p in pr["result"]:
-                  doms = p.get("domains") or []
-                  print("     PROJECT:", p["name"], "| branch:", p.get("production_branch"), "| domains:", doms)
-                  if p["name"] == "sabhisaab" or any("sabhisaab.com" in d for d in doms):
-                      found = (aid, p["name"], p.get("production_branch") or "main")
+                  return json.load(urllib.request.urlopen(req))
+              except urllib.error.HTTPError as ex:
+                  return json.load(ex)
 
+          pr = api("/accounts/%s/pages/projects" % ACC)
+          if not pr.get("success"):
+              print("Pages projects nahi mile. Cloudflare ka jawab:")
+              print("  errors:", pr.get("errors"))
+              print("  -> code 7003 ka matlab: Account ID galat hai")
+              print("  -> code 9109/10000 ka matlab: token ki permission kam hai")
+              sys.exit(1)
+
+          print("")
+          print("Is account me %d Pages project mile:" % len(pr["result"]))
+          found = None
+          for p in pr["result"]:
+              doms = p.get("domains") or []
+              print("   PROJECT:", p["name"], "| branch:", p.get("production_branch"), "| domains:", doms)
+              if p["name"] == "sabhisaab" or any("sabhisaab.com" in d for d in doms):
+                  found = (p["name"], p.get("production_branch") or "main")
           if not found:
-              raise SystemExit("sabhisaab project kahin nahi mila. Upar ki list dekhein.")
+              print("sabhisaab project nahi mila - upar ki list me se sahi naam batayein"); sys.exit(1)
 
-          aid, name, br = found
-          print("::add-mask::" + aid)
-          print("\nMIL GAYA -> project=%s | production_branch=%s" % (name, br))
+          name, br = found
+          print("")
+          print("MIL GAYA -> project=%s | production_branch=%s" % (name, br))
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write("account=%s\nproject=%s\nbranch=%s\n" % (aid, name, br))
+              f.write("project=%s\nbranch=%s\n" % (name, br))
           PY
 
       - name: Cloudflare Pages par deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           npx --yes wrangler@4 pages deploy site \
             --project-name="${{ steps.cf.outputs.project }}" \
