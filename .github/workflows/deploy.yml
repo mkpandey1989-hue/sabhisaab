@@ -42,7 +42,7 @@ jobs:
           }
           EOF
 
-      - name: AUDIT — ek bhi ERROR mila to deploy yahin ruk jaayega
+      - name: AUDIT - ek bhi ERROR mila to deploy yahin ruk jaayega
         run: python3 scripts/audit.py
 
       - name: File ginti check
@@ -53,13 +53,39 @@ jobs:
 
       - name: Cloudflare se production branch pata karo
         id: pb
+        continue-on-error: true
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          PB=$(curl -sS \
-            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/sabhisaab" \
-            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-            | python3 -c "import sys,json;d=json.load(sys.stdin);print(d['result']['production_branch'])")
-          echo "Production branch = $PB"
-          echo "branch=$PB" >> $GITHUB_OUTPUT
+          echo "Token length : ${#CF_TOKEN}"
+          echo "Account length: ${#CF_ACCT}"
+          curl -sS "https://api.cloudflare.com/client/v4/accounts/$CF_ACCT/pages/projects/sabhisaab" \
+            -H "Authorization: Bearer $CF_TOKEN" -o resp.json || true
+          echo "--- Cloudflare ka jawab ---"
+          python3 - <<'PY'
+          import json, os
+          try:
+              d = json.load(open("resp.json"))
+          except Exception as e:
+              print("JSON padha nahi gaya:", e); d = {}
+          print("success :", d.get("success"))
+          print("errors  :", d.get("errors"))
+          r = d.get("result") or {}
+          pb = r.get("production_branch") or "main"
+          print("production_branch :", r.get("production_branch"))
+          print("Jo istemaal karenge :", pb)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("branch=%s\n" % pb)
+          PY
+
+      - name: Branch tay karo
+        id: fin
+        run: |
+          B="${{ steps.pb.outputs.branch }}"
+          if [ -z "$B" ]; then B="main"; fi
+          echo "Deploy branch = $B"
+          echo "branch=$B" >> $GITHUB_OUTPUT
 
       - name: Cloudflare Pages par deploy
         env:
@@ -68,13 +94,13 @@ jobs:
         run: |
           npx --yes wrangler@4 pages deploy site \
             --project-name=sabhisaab \
-            --branch="${{ steps.pb.outputs.branch }}" \
+            --branch="${{ steps.fin.outputs.branch }}" \
             --commit-dirty=true
 
       - name: Live site check
         run: |
-          sleep 20
-          for u in / /percentage-calculator /nsc-calculator /sitemap.xml; do
+          sleep 25
+          for u in / /percentage-calculator /nsc-calculator /sitemap.xml /contact; do
             code=$(curl -s -o /dev/null -w "%{http_code}" "https://sabhisaab.com$u")
             echo "$u -> $code"
           done
