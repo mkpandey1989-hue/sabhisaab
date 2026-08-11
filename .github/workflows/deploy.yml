@@ -51,69 +51,72 @@ jobs:
           echo "site/ me files: $N"
           if [ "$N" -lt 300 ]; then echo "BAHUT KAM FILES - ruk rahe hain"; exit 1; fi
 
-      - name: Cloudflare se sahi Account ID aur project naam poocho
-        id: pb
-        continue-on-error: true
+      - name: Account ID aur project khud dhundo (token se)
+        id: cf
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ACCT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          echo "Token length   : ${#CF_TOKEN}"
-          echo "Account length : ${#CF_ACCT}"
-          echo ""
-          echo "===== 1. Ye token kaunse account dekh sakta hai ====="
-          curl -sS "https://api.cloudflare.com/client/v4/accounts" \
-            -H "Authorization: Bearer $CF_TOKEN" -o acc.json || true
-          python3 - <<'PY1'
-          import json
-          try: d = json.load(open("acc.json"))
-          except Exception as e: print("padha nahi gaya:", e); d = {}
-          print("success:", d.get("success"), "| errors:", d.get("errors"))
-          for a in (d.get("result") or []):
-              print("   ACCOUNT ID =", a.get("id"), " | NAAM =", a.get("name"))
-          PY1
-          echo ""
-          echo "===== 2. Is account me kaunse Pages project hain ====="
-          curl -sS "https://api.cloudflare.com/client/v4/accounts/$CF_ACCT/pages/projects" \
-            -H "Authorization: Bearer $CF_TOKEN" -o proj.json || true
-          python3 - <<'PY2'
-          import json, os
-          try: d = json.load(open("proj.json"))
-          except Exception as e: print("padha nahi gaya:", e); d = {}
-          print("success:", d.get("success"), "| errors:", d.get("errors"))
-          pb = ""
-          for p in (d.get("result") or []):
-              print("   PROJECT =", p.get("name"),
-                    " | production_branch =", p.get("production_branch"),
-                    " | domains =", p.get("domains"))
-              if p.get("name") == "sabhisaab":
-                  pb = p.get("production_branch") or ""
-          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write("branch=%s\n" % (pb or "main"))
-          PY2
+          python3 - <<'PY'
+          import json, os, urllib.request
+          TOK = os.environ["CF_TOKEN"]
+          def api(path):
+              req = urllib.request.Request(
+                  "https://api.cloudflare.com/client/v4" + path,
+                  headers={"Authorization": "Bearer " + TOK})
+              return json.load(urllib.request.urlopen(req))
 
-      - name: Branch tay karo
-        id: fin
-        run: |
-          B="${{ steps.pb.outputs.branch }}"
-          if [ -z "$B" ]; then B="main"; fi
-          echo "Deploy branch = $B"
-          echo "branch=$B" >> $GITHUB_OUTPUT
+          accs = api("/accounts")
+          if not accs.get("success"):
+              raise SystemExit("Token se account list nahi mili: %s" % accs.get("errors"))
+          print("Token ko %d account dikhe" % len(accs["result"]))
+
+          found = None
+          for a in accs["result"]:
+              aid = a["id"]
+              print("  Account:", a.get("name"))
+              try:
+                  pr = api("/accounts/%s/pages/projects" % aid)
+              except Exception as e:
+                  print("     projects nahi mile:", e); continue
+              if not pr.get("success"):
+                  print("     errors:", pr.get("errors")); continue
+              for p in pr["result"]:
+                  doms = p.get("domains") or []
+                  print("     PROJECT:", p["name"], "| branch:", p.get("production_branch"), "| domains:", doms)
+                  if p["name"] == "sabhisaab" or any("sabhisaab.com" in d for d in doms):
+                      found = (aid, p["name"], p.get("production_branch") or "main")
+
+          if not found:
+              raise SystemExit("sabhisaab project kahin nahi mila. Upar ki list dekhein.")
+
+          aid, name, br = found
+          print("::add-mask::" + aid)
+          print("\nMIL GAYA -> project=%s | production_branch=%s" % (name, br))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("account=%s\nproject=%s\nbranch=%s\n" % (aid, name, br))
+          PY
 
       - name: Cloudflare Pages par deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account }}
         run: |
           npx --yes wrangler@4 pages deploy site \
-            --project-name=sabhisaab \
-            --branch="${{ steps.fin.outputs.branch }}" \
+            --project-name="${{ steps.cf.outputs.project }}" \
+            --branch="${{ steps.cf.outputs.branch }}" \
             --commit-dirty=true
 
       - name: Live site check
         run: |
-          sleep 25
+          sleep 30
           for u in / /percentage-calculator /nsc-calculator /sitemap.xml /contact; do
             code=$(curl -s -o /dev/null -w "%{http_code}" "https://sabhisaab.com$u")
             echo "$u -> $code"
           done
+          echo ""
+          echo "--- Naya version live hua ya nahi ---"
+          if curl -s https://sabhisaab.com/ | grep -q 'og:image:width" content="1204"'; then
+            echo "HAAN - naya v8 live hai"
+          else
+            echo "NAHI - abhi purana hi hai (shayad preview par gaya)"
+          fi
