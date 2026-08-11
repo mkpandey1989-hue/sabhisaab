@@ -2,6 +2,16 @@ name: Audit aur Deploy
 
 on:
   workflow_dispatch:
+    inputs:
+      indexnow:
+        description: 'IndexNow par kaunse URL bhejein?'
+        required: true
+        default: 'badle-hue'
+        type: choice
+        options:
+          - badle-hue
+          - sabhi
+          - koi-nahi
 
 concurrency:
   group: sabhisaab-deploy
@@ -13,6 +23,8 @@ jobs:
     steps:
       - name: Repo lao
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Python taiyaar karo
         uses: actions/setup-python@v5
@@ -61,40 +73,16 @@ jobs:
           import json, os, sys, urllib.request, urllib.error
           TOK = os.environ["CF_TOKEN"].strip()
           ACC = os.environ["CF_ACCT"].strip()
-
-          print("Token  ki lambai : %d  (40 ya 53 hona normal hai)" % len(TOK))
-          print("Account ki lambai: %d  (THEEK 32 hona chahiye)" % len(ACC))
           if len(ACC) != 32:
-              print("")
-              print("XXXX  CLOUDFLARE_ACCOUNT_ID galat hai.  XXXX")
-              print("Account ID 32 akshar ka hota hai (sirf a-f aur 0-9).")
-              print("Cloudflare dashboard -> Workers & Pages -> dayein 'Account Details'")
-              print("box me 'Account ID' ke saamne copy icon dabayein.")
-              print("Ya URL me: dash.cloudflare.com/<YAHI-32-AKSHAR>/workers-and-pages")
-              sys.exit(1)
-          bad = [c for c in ACC.lower() if c not in "0123456789abcdef"]
-          if bad:
-              print("Account ID me ajeeb akshar hain:", set(bad)); sys.exit(1)
-
+              print("CLOUDFLARE_ACCOUNT_ID galat hai (32 akshar hona chahiye), abhi:", len(ACC)); sys.exit(1)
           def api(path):
-              req = urllib.request.Request(
-                  "https://api.cloudflare.com/client/v4" + path,
-                  headers={"Authorization": "Bearer " + TOK})
-              try:
-                  return json.load(urllib.request.urlopen(req))
-              except urllib.error.HTTPError as ex:
-                  return json.load(ex)
-
+              req = urllib.request.Request("https://api.cloudflare.com/client/v4" + path,
+                    headers={"Authorization": "Bearer " + TOK})
+              try: return json.load(urllib.request.urlopen(req))
+              except urllib.error.HTTPError as ex: return json.load(ex)
           pr = api("/accounts/%s/pages/projects" % ACC)
           if not pr.get("success"):
-              print("Pages projects nahi mile. Cloudflare ka jawab:")
-              print("  errors:", pr.get("errors"))
-              print("  -> code 7003 ka matlab: Account ID galat hai")
-              print("  -> code 9109/10000 ka matlab: token ki permission kam hai")
-              sys.exit(1)
-
-          print("")
-          print("Is account me %d Pages project mile:" % len(pr["result"]))
+              print("Cloudflare errors:", pr.get("errors")); sys.exit(1)
           found = None
           for p in pr["result"]:
               doms = p.get("domains") or []
@@ -102,11 +90,9 @@ jobs:
               if p["name"] == "sabhisaab" or any("sabhisaab.com" in d for d in doms):
                   found = (p["name"], p.get("production_branch") or "main")
           if not found:
-              print("sabhisaab project nahi mila - upar ki list me se sahi naam batayein"); sys.exit(1)
-
+              print("sabhisaab project nahi mila"); sys.exit(1)
           name, br = found
-          print("")
-          print("MIL GAYA -> project=%s | production_branch=%s" % (name, br))
+          print("MIL GAYA -> project=%s | branch=%s" % (name, br))
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write("project=%s\nbranch=%s\n" % (name, br))
           PY
@@ -128,10 +114,71 @@ jobs:
             code=$(curl -s -o /dev/null -w "%{http_code}" "https://sabhisaab.com$u")
             echo "$u -> $code"
           done
-          echo ""
-          echo "--- Naya version live hua ya nahi ---"
-          if curl -s https://sabhisaab.com/ | grep -q 'og:image:width" content="1204"'; then
-            echo "HAAN - naya v8 live hai"
+
+      - name: IndexNow - Bing, Yandex, Naver, Seznam ko khabar
+        if: ${{ github.event.inputs.indexnow != 'koi-nahi' }}
+        env:
+          MODE: ${{ github.event.inputs.indexnow }}
+        run: |
+          KEY=""
+          for f in site/*.txt; do
+            n=$(basename "$f" .txt)
+            c=$(tr -d '[:space:]' < "$f")
+            if [ "$n" = "$c" ] && [ ${#n} -ge 8 ]; then KEY="$n"; fi
+          done
+          if [ -z "$KEY" ]; then echo "IndexNow key file nahi mili - chhod rahe hain"; exit 0; fi
+          echo "IndexNow key mil gayi (${#KEY} akshar)"
+
+          if [ "$MODE" = "sabhi" ]; then
+            echo "Mode: SABHI URL"
+            python3 - > urls.txt <<'PY'
+          import re
+          sm = open("site/sitemap.xml", encoding="utf-8").read()
+          for u in re.findall(r"<loc>([^<]+)</loc>", sm):
+              print(u)
+          PY
           else
-            echo "NAHI - abhi purana hi hai (shayad preview par gaya)"
+            echo "Mode: sirf badle hue URL"
+            git diff --name-only HEAD~1 HEAD -- 'site/*.html' > ch.txt || true
+            python3 - > urls.txt <<'PY'
+          import os
+          base = "https://sabhisaab.com/"
+          out = []
+          try:
+              for line in open("ch.txt"):
+                  f = os.path.basename(line.strip())
+                  if not f.endswith(".html"): continue
+                  slug = f[:-5]
+                  if slug in ("404", "googleb9a1fd91a1579ee6"): continue
+                  out.append(base if slug == "index" else base + slug)
+          except FileNotFoundError:
+              pass
+          for u in sorted(set(out)):
+              print(u)
+          PY
           fi
+
+          N=$(wc -l < urls.txt)
+          echo "Bhejne wale URL: $N"
+          if [ "$N" -eq 0 ]; then echo "Kuch nahi badla - IndexNow skip"; exit 0; fi
+          head -10 urls.txt
+
+          python3 - <<PY
+          import json, urllib.request
+          key = "$KEY"
+          urls = [l.strip() for l in open("urls.txt") if l.strip()][:10000]
+          body = json.dumps({
+              "host": "sabhisaab.com",
+              "key": key,
+              "keyLocation": "https://sabhisaab.com/%s.txt" % key,
+              "urlList": urls,
+          }).encode()
+          req = urllib.request.Request("https://api.indexnow.org/IndexNow", data=body,
+                headers={"Content-Type": "application/json; charset=utf-8"})
+          try:
+              r = urllib.request.urlopen(req)
+              print("IndexNow: %d URL bheje -> HTTP %d" % (len(urls), r.status))
+              print("200/202 = safal")
+          except Exception as e:
+              print("IndexNow error:", e)
+          PY
