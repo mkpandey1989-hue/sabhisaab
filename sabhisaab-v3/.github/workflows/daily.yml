@@ -1,0 +1,74 @@
+name: Daily report
+
+on:
+  schedule:
+    - cron: '0 1 * * *'      # roz 6:30 AM IST
+  workflow_dispatch:
+    inputs:
+      ack:
+        description: 'Purane alert band kar dein?'
+        required: false
+        default: 'no'
+
+permissions:
+  contents: write
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: Packages
+        run: pip install -q google-auth google-auth-httplib2 google-api-python-client
+
+      - name: Audit (report ke liye)
+        continue-on-error: true
+        run: |
+          cat > config.json <<'EOF'
+          {"site_url":"https://sabhisaab.com","site_dir":"site","incoming_dir":"/tmp",
+           "gsc_property":"sc-domain:sabhisaab.com","ga4_id":"G-QX5MWV42TR",
+           "adsense_approved":false,"git_branch":"main","indexnow_key":"x",
+           "bing_api_key":"x","bing_enabled":false,"google_sa_json":"/tmp/x.json",
+           "gsc_enabled":false,"gsc_daily_budget":150,
+           "telegram_token":"x","telegram_chat_id":"x","telegram_enabled":false}
+          EOF
+          python3 scripts/audit.py || true
+
+      - name: Purane alert band karein
+        if: ${{ github.event.inputs.ack == 'yes' }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          p = "state/alerts.json"
+          try: d = json.load(open(p))
+          except Exception: d = {}
+          d["open"] = {}
+          os.makedirs("state", exist_ok=True)
+          json.dump(d, open(p, "w"), indent=1)
+          print("alerts band")
+          PY
+
+      - name: Poora scan aur report
+        env:
+          GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
+          GOOGLE_SA_JSON_B64: ${{ secrets.GOOGLE_SA_JSON_B64 }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GSC_PROPERTY: sc-domain:sabhisaab.com
+          GSC_BUDGET: '150'
+        run: python3 scripts/daily.py
+
+      - name: State yaad rakho
+        run: |
+          git config user.name "Sab Hisaab bot"
+          git config user.email "contact@sabhisaab.com"
+          git add state/ || true
+          git diff --cached --quiet || git commit -m "daily state $(date +%F)"
+          git pull --rebase --autostash || true
+          git push || true
