@@ -1,0 +1,52 @@
+{
+ "down": false,
+ "down_since": null,
+ "lcur": 6,
+ "ok_links": [
+  "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap",
+  "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&amp;family=Inter:wght@400;500&amp;display=swap",
+  "https://www.incometax.gov.in",
+  "https://www.incometax.gov.in/iec/foportal/",
+  "https://www.rbi.org.in"
+ ],
+ "src_hash": {
+  "Income Tax": "d41d8cd98f00",
+  "RBI": "9afaecd530ce"
+ },
+ "review": {
+  "capital-gain-tax-calculator.html": "2026-08-12",
+  "epf-calculator.html": "2026-08-12",
+  "epf-guide.html": "2026-08-12",
+  "gold-loan-calculator.html": "2026-08-12",
+  "gold-loan-vs-personal-loan.html": "2026-08-12",
+  "gst-calculator.html": "2026-08-12",
+  "gst-guide.html": "2026-08-12",
+  "income-tax-calculator.html": "2026-08-12",
+  "income-tax-guide.html": "2026-08-12",
+  "kvp-calculator.html": "2026-08-12",
+  "mahila-samman-calculator.html": "2026-08-12",
+  "nsc-calculator.html": "2026-08-12",
+  "old-vs-new-tax-regime-calculator.html": "2026-08-12",
+  "post-office-guide.html": "2026-08-12",
+  "post-office-mis-calculator.html": "2026-08-12",
+  "post-office-mis-ka-hisaab.html": "2026-08-12",
+  "ppf-calculator.html": "2026-08-12",
+  "ppf-guide.html": "2026-08-12",
+  "ppf-vs-sukanya-beti-ke-liye.html": "2026-08-12",
+  "property-bechne-par-capital-gain-tax.html": "2026-08-12",
+  "scss-calculator.html": "2026-08-12",
+  "section-80c-calculator.html": "2026-08-12",
+  "section-80c-full-guide.html": "2026-08-12",
+  "stamp-duty-calculator.html": "2026-08-12",
+  "sukanya-samriddhi-calculator.html": "2026-08-12",
+  "tax-regime-compare-calculator.html": "2026-08-12",
+  "tax-regime-guide.html": "2026-08-12",
+  "tds-calculator.html": "2026-08-12",
+  "tds-guide.html": "2026-08-12"
+ },
+ "svc_hash": {
+  "Web3Forms": "79bd2249b8cc",
+  "IndexNow": "d41d8cd98f00"
+ },
+ "lastheavy": "2026-08-12"
+}
