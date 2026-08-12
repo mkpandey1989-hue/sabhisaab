@@ -1,4 +1,0 @@
-name = "sabhisaab-bot"
-main = "index.js"
-compatibility_date = "2026-06-01"
-workers_dev = true

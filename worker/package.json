@@ -1,8 +1,2 @@
-{
-  "name": "sabhisaab-bot",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "fflate": "^0.8.2"
-  }
-}
+{ "name": "sabhisaab-bot", "private": true, "type": "module",
+  "dependencies": { "fflate": "^0.8.2" } }
