@@ -289,7 +289,10 @@ function routeOf(name) {
   if (/\.(yml|yaml)$/i.test(n)) return ".github/workflows/" + n;
   if (/\.py$/i.test(n)) return "scripts/" + n;
   if (/^(index|google)\.js$|^wrangler\.toml$|^package(-lock)?\.json$/i.test(n)) return "worker/" + n;
-  if (/\.(html|webp|png|jpg|xml|txt|json|js|ico|svg)$/i.test(n)) return "site/" + n;
+  // bina extension wali site files — _headers, _redirects, googleXXXX verification
+  if (/^_(headers|redirects|routes)$/i.test(n)) return "site/" + n;
+  if (/^google[a-f0-9]{16}\.html$/i.test(n)) return "site/" + n;
+  if (/\.(html|webp|png|jpg|jpeg|gif|xml|txt|json|js|ico|svg|webmanifest)$/i.test(n)) return "site/" + n;
   return null;
 }
 async function putFile(env, path, bytes, msg) {
