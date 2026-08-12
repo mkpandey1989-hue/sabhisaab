@@ -1,0 +1,58 @@
+name: Natija Telegram par
+
+on:
+  workflow_run:
+    workflows: ["Audit aur Deploy", "Sab Hisaab audit", "Telegram bot deploy", "Daily report", "Chaukidaar", "Pending kaam"]
+    types: [completed]
+
+jobs:
+  tell:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Telegram par batao
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WF:      ${{ github.event.workflow_run.name }}
+          NUM:     ${{ github.event.workflow_run.run_number }}
+          CONC:    ${{ github.event.workflow_run.conclusion }}
+          URL:     ${{ github.event.workflow_run.html_url }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, urllib.request
+          wf, num = os.environ["WF"], os.environ["NUM"]
+          c, url   = os.environ["CONC"], os.environ["URL"]
+
+          # jinki apni report aati hai, unka dobara message nahi
+          if wf in ("Daily report", "Chaukidaar", "Pending kaam") and c == "success":
+              print("apni report aa chuki — chup"); raise SystemExit
+
+          ic  = {"success":"✅","failure":"❌","cancelled":"⚪","timed_out":"⏱","skipped":"⏭"}.get(c,"•")
+          if c == "success":
+              extra = ""
+              if wf == "Audit aur Deploy":
+                  time.sleep(20)
+                  try:
+                      r = urllib.request.urlopen(urllib.request.Request(
+                          "https://sabhisaab.com/sitemap.xml",
+                          headers={"User-Agent":"Mozilla/5.0 SabHisaabBot"}), timeout=25)
+                      n = r.read().decode().count("<loc>")
+                      extra = f"\nSite live — <b>{n}</b> URL sitemap me"
+                  except Exception:
+                      extra = "\nSite live ho gayi"
+              msg = f"{ic} <b>{wf}</b> #{num} — ho gaya{extra}"
+              btn = None
+          else:
+              msg = (f"{ic} <b>{wf}</b> #{num} — <b>{c}</b>\n\n"
+                     f"Kuch live nahi gaya. Log dekhein:\n{url}")
+              btn = {"inline_keyboard": [[{"text":"📋 Pending dekho","callback_data":"do:pending"},
+                                          {"text":"🛠 Audit chalao","callback_data":"do:audit"}]]}
+          body = {"chat_id": os.environ["TG_CHAT"], "text": msg,
+                  "parse_mode": "HTML", "disable_web_page_preview": True}
+          if btn: body["reply_markup"] = btn
+          urllib.request.urlopen(urllib.request.Request(
+              "https://api.telegram.org/bot%s/sendMessage" % os.environ["TG_TOKEN"],
+              data=json.dumps(body).encode(),
+              headers={"Content-Type":"application/json"}), timeout=25).read()
+          print(msg)
+          PY
