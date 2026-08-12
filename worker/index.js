@@ -46,9 +46,20 @@ const MAIN = kb([
   [{ text: "📑 Indexing", callback_data: "m:idx" }, { text: "⚡ Speed", callback_data: "m:spd" }],
   [{ text: "🛠 Audit", callback_data: "m:aud" }, { text: "🚀 Deploy", callback_data: "m:dep" }],
   [{ text: "☁️ Cloudflare", callback_data: "m:cf" }, { text: "📁 Files", callback_data: "m:file" }],
-  [{ text: "❤️ Health", callback_data: "do:health" }, { text: "📖 Madad", callback_data: "do:help" }],
+  [{ text: "📋 Pending kaam", callback_data: "do:pending" }, { text: "❤️ Health", callback_data: "do:health" }],
+  [{ text: "📖 Madad", callback_data: "do:help" }],
 ]);
 const back = [{ text: "⬅️ Wapas", callback_data: "m:main" }];
+
+// Hamesha message box ke upar chipka rehne wala keyboard — kabhi upar nahi khiskega
+const RKB = { keyboard: [
+    [{ text: "🚀 Deploy" }, { text: "📋 Pending" }],
+    [{ text: "🔍 Search" }, { text: "📈 Analytics" }],
+    [{ text: "📑 Indexing" }, { text: "⚡ Speed" }],
+    [{ text: "🛠 Audit" }, { text: "❤️ Health" }],
+    [{ text: "📖 Poora menu" }]],
+  resize_keyboard: true, is_persistent: true,
+  input_field_placeholder: "Button dabayein ya file bhejein" };
 const MENUS = {
   gsc: { t: "<b>🔍 Google Search</b>\nKis samay ka data?", k: kb([
     [{ text: "Kal", callback_data: "g:1:1" }, { text: "7 din", callback_data: "g:7:1" }, { text: "28 din", callback_data: "g:28:1" }],
@@ -277,6 +288,7 @@ function routeOf(name) {
   if (/^(audit|publish|indexnow|gsc|lib|notify|bing_submit|gsc_report|daily)\.py$/i.test(n)) return "scripts/" + n;
   if (/\.(yml|yaml)$/i.test(n)) return ".github/workflows/" + n;
   if (/\.py$/i.test(n)) return "scripts/" + n;
+  if (/^(index|google)\.js$|^wrangler\.toml$|^package(-lock)?\.json$/i.test(n)) return "worker/" + n;
   if (/\.(html|webp|png|jpg|xml|txt|json|js|ico|svg)$/i.test(n)) return "site/" + n;
   return null;
 }
@@ -365,6 +377,7 @@ async function onCb(env, q) {
   if (d === "do:unused") return doState(env, mid, "unused", "Faltu file");
   if (d === "do:auditlast") return doState(env, mid, "todo", "Aaj dabane wale URL");
   if (d === "do:help") return edit(env, mid, HELP, MAIN);
+  if (d === "do:pending") { await runWf(env, "pending.yml"); return edit(env, mid, "📋 Pending list ban rahi hai — 1 min me aayegi.", MAIN); }
   if (d === "do:audit") { await runWf(env, "audit.yml"); return edit(env, mid, "🛠 Audit chalu — natija Telegram par aayega.", MENUS.aud.k); }
   if (d === "do:report" || d === "do:daily") { await runWf(env, "daily.yml"); return edit(env, mid, "📑 Poora scan chalu — 3-5 minute me report aayegi.", MENUS.idx.k); }
   if (d === "do:sitemap") { await runWf(env, "daily.yml", {}); return edit(env, mid, "Sitemap submit ho jaayega (daily scan ke saath).", MENUS.idx.k); }
@@ -431,17 +444,28 @@ export default {
     if (!m || String(m.chat.id) !== String(env.TG_CHAT)) return j({ ok: true });
     if (m.document) { await handleDoc(env, m.document); return j({ ok: true }); }
 
-    const txt = (m.text || "").trim();
+    let txt = (m.text || "").trim();
+    const RMAP = { "🚀 Deploy": "/deploy", "📋 Pending": "/pending", "🔍 Search": "/gsc 7",
+      "📈 Analytics": "/ga 7", "📑 Indexing": "/report", "⚡ Speed": "/speed",
+      "🛠 Audit": "/audit", "❤️ Health": "/health", "📖 Poora menu": "/menu" };
+    if (RMAP[txt]) txt = RMAP[txt];
     const [c0, ...rest] = txt.split(/\s+/);
     const cmd = c0.toLowerCase().replace(/@.*$/, ""), arg = rest[0] || "";
     try {
-      if (["/start", "/menu", "/help"].includes(cmd)) await say(env, cmd === "/help" ? HELP : "<b>Sab Hisaab — control center</b>", MAIN);
+      if (["/start", "/menu", "/help"].includes(cmd)) {
+        await tgApi(env, "sendMessage", { chat_id: env.TG_CHAT,
+          text: "⌨️ Neeche wale button hamesha yahin rahenge.", reply_markup: RKB });
+        await say(env, cmd === "/help" ? HELP : "<b>Sab Hisaab — control center</b>", MAIN);
+      }
       else if (cmd === "/get") { if (!arg) await say(env, "Aise: <code>/get nsc-calculator.html</code>");
         else if (!(await sendFile(env, arg))) await say(env, `Nahi mili: <code>${arg}</code>`); }
       else if (cmd === "/deploy") { await runWf(env, "deploy.yml", { indexnow: arg === "sabhi" ? "sabhi" : arg === "chup" ? "koi-nahi" : "badle-hue" });
         await say(env, "🚀 Deploy chalu."); }
       else if (cmd === "/report") { await runWf(env, "daily.yml"); await say(env, "📑 Scan chalu — 3-5 min."); }
       else if (cmd === "/audit") { await runWf(env, "audit.yml"); await say(env, "🛠 Audit chalu."); }
+      else if (cmd === "/pending") { await runWf(env, "pending.yml"); await say(env, "📋 Pending list ban rahi hai — 1 min."); }
+      else if (cmd === "/watch") { await runWf(env, "watch.yml", { mode: "watch" }); await say(env, "👁 Nigraani chalu."); }
+      else if (cmd === "/speed") { const r = await say(env, "⏳ …"); await doSpeed(env, r.result.message_id, "mobile"); }
       else if (["/gsc", "/ga", "/health", "/pages", "/status", "/site"].includes(cmd)) {
         const r = await say(env, "⏳ …", MAIN); const mid = r.result.message_id;
         if (cmd === "/gsc") await doGsc(env, mid, +arg || 7);
