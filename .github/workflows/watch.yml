@@ -1,0 +1,43 @@
+name: Chaukidaar
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'     # har 30 minute
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'watch (nigraani) ya pending (kaam ki list) ya all'
+        required: false
+        default: 'watch'
+        type: choice
+        options: [watch, pending, all]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sabhisaab-watch
+  cancel-in-progress: true
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: Nigraani
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 scripts/watch.py ${{ github.event.inputs.mode || 'watch' }}
+
+      - name: Yaad rakho
+        run: |
+          git config user.name "Sab Hisaab bot"
+          git config user.email "contact@sabhisaab.com"
+          git add state/ 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "watch state $(date -u +%F-%H%M)"
+          git pull --rebase --autostash --quiet || true
+          git push --quiet || true
