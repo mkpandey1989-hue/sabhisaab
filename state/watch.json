@@ -1,12 +1,16 @@
 {
  "down": false,
  "down_since": null,
- "lcur": 6,
+ "lcur": 12,
  "ok_links": [
+  "https://agristack.gov.in/",
+  "https://dolr.gov.in",
   "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap",
   "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&amp;family=Inter:wght@400;500&amp;display=swap",
+  "https://ukfr.agristack.gov.in",
   "https://www.incometax.gov.in",
   "https://www.incometax.gov.in/iec/foportal/",
+  "https://www.pfrda.org.in",
   "https://www.rbi.org.in"
  ],
  "src_hash": {
@@ -48,5 +52,5 @@
   "Web3Forms": "79bd2249b8cc",
   "IndexNow": "d41d8cd98f00"
  },
- "lastheavy": "2026-08-12"
+ "lastheavy": "2026-08-13"
 }
