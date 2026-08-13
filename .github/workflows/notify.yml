@@ -1,9 +1,14 @@
 name: Natija Telegram par
 
+# "Sab Hisaab audit" list se hataya — uska natija audit.yml khud bhejta hai.
 on:
   workflow_run:
-    workflows: ["Audit aur Deploy", "Sab Hisaab audit", "Telegram bot deploy", "Daily report", "Chaukidaar", "Pending kaam"]
+    workflows: ["Audit aur Deploy", "Telegram bot deploy"]
     types: [completed]
+
+concurrency:
+  group: sabhisaab-notify-${{ github.event.workflow_run.id }}
+  cancel-in-progress: true
 
 jobs:
   tell:
@@ -22,12 +27,9 @@ jobs:
           import os, json, time, urllib.request
           wf, num = os.environ["WF"], os.environ["NUM"]
           c, url   = os.environ["CONC"], os.environ["URL"]
-
-          # jinki apni report aati hai, unka dobara message nahi
-          if wf in ("Daily report", "Chaukidaar", "Pending kaam") and c == "success":
-              print("apni report aa chuki — chup"); raise SystemExit
-
-          ic  = {"success":"✅","failure":"❌","cancelled":"⚪","timed_out":"⏱","skipped":"⏭"}.get(c,"•")
+          if c == "cancelled":
+              print("cancelled — chup"); raise SystemExit
+          ic = {"success":"✅","failure":"❌","timed_out":"⏱","skipped":"⏭"}.get(c,"•")
           if c == "success":
               extra = ""
               if wf == "Audit aur Deploy":
@@ -36,15 +38,12 @@ jobs:
                       r = urllib.request.urlopen(urllib.request.Request(
                           "https://sabhisaab.com/sitemap.xml",
                           headers={"User-Agent":"Mozilla/5.0 SabHisaabBot"}), timeout=25)
-                      n = r.read().decode().count("<loc>")
-                      extra = f"\nSite live — <b>{n}</b> URL sitemap me"
+                      extra = "\nSite live — <b>%d</b> URL sitemap me" % r.read().decode().count("<loc>")
                   except Exception:
                       extra = "\nSite live ho gayi"
-              msg = f"{ic} <b>{wf}</b> #{num} — ho gaya{extra}"
-              btn = None
+              msg = f"{ic} <b>{wf}</b> #{num} — ho gaya{extra}"; btn = None
           else:
-              msg = (f"{ic} <b>{wf}</b> #{num} — <b>{c}</b>\n\n"
-                     f"Kuch live nahi gaya. Log dekhein:\n{url}")
+              msg = (f"{ic} <b>{wf}</b> #{num} — <b>{c}</b>\n\nKuch live nahi gaya. Log dekhein:\n{url}")
               btn = {"inline_keyboard": [[{"text":"📋 Pending dekho","callback_data":"do:pending"},
                                           {"text":"🛠 Audit chalao","callback_data":"do:audit"}]]}
           body = {"chat_id": os.environ["TG_CHAT"], "text": msg,

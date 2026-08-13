@@ -1,5 +1,17 @@
 name: Sab Hisaab audit
-on: [push, pull_request]
+
+# 'push' trigger JAAN-BOOJH KAR hataya gaya hai.
+# Bot har file ka alag commit banata tha -> har commit par audit chalta tha
+# -> 12 Aug 2026 ko 6600+ run aur hazaaron Telegram message ban gaye the.
+# Audit ab sirf do jagah: deploy se pehle (deploy.yml ke andar) aur button dabane par.
+on:
+  workflow_dispatch:
+  pull_request:
+
+concurrency:
+  group: sabhisaab-audit
+  cancel-in-progress: true
+
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -7,14 +19,37 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
+
       - name: Audit chalao
         run: |
           cat > config.json <<'EOF'
-          {"site_url":"https://sabhisaab.com","site_dir":".","incoming_dir":"/tmp",
+          {"site_url":"https://sabhisaab.com","site_dir":"site","incoming_dir":"/tmp",
            "gsc_property":"sc-domain:sabhisaab.com","ga4_id":"G-QX5MWV42TR",
            "adsense_approved":false,"git_branch":"main","indexnow_key":"x",
            "bing_api_key":"x","bing_enabled":false,"google_sa_json":"/tmp/x.json",
            "gsc_enabled":false,"gsc_daily_budget":150,
            "telegram_token":"x","telegram_chat_id":"x","telegram_enabled":false}
           EOF
-          python3 scripts/audit.py
+          set +e
+          python3 scripts/audit.py | tee out.txt
+
+      - name: Natija Telegram par
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os, json, urllib.request
+          t = open("out.txt", encoding="utf-8").read()
+          keep = [l for l in t.split("\n") if l.strip() and "====" not in l][:40]
+          msg = "<b>Audit ka natija</b>\n<pre>" + "\n".join(keep)[:3000] + "</pre>"
+          body = json.dumps({"chat_id": os.environ["TG_CHAT"], "text": msg,
+                             "parse_mode": "HTML", "disable_web_page_preview": True}).encode()
+          urllib.request.urlopen(urllib.request.Request(
+              "https://api.telegram.org/bot%s/sendMessage" % os.environ["TG_TOKEN"],
+              data=body, headers={"Content-Type": "application/json"})).read()
+          PY
+
+      - name: Audit fail hua to job bhi fail
+        run: python3 scripts/audit.py > /dev/null
