@@ -295,6 +295,36 @@ function routeOf(name) {
   if (/\.(html|webp|png|jpg|jpeg|gif|xml|txt|json|js|ico|svg|webmanifest)$/i.test(n)) return "site/" + n;
   return null;
 }
+
+/** ZIP ki saari file EK hi commit me — warna har file par audit chal jaata hai */
+async function putMany(env, files, msg) {
+  const R = `/repos/${env.GH_REPO}`;
+  const ref = await gh(env, `${R}/git/ref/heads/main`);
+  if (!ref.ok) return { ok: false, err: `ref ${ref.status}` };
+  const baseSha = ref.data.object.sha;
+  const baseCommit = await gh(env, `${R}/git/commits/${baseSha}`);
+  if (!baseCommit.ok) return { ok: false, err: `commit ${baseCommit.status}` };
+
+  const tree = [];
+  for (const [path, bytes] of files) {
+    const blob = await gh(env, `${R}/git/blobs`, {
+      method: "POST", body: JSON.stringify({ content: b64(bytes), encoding: "base64" }) });
+    if (!blob.ok) return { ok: false, err: `blob ${path} ${blob.status}` };
+    tree.push({ path, mode: "100644", type: "blob", sha: blob.data.sha });
+  }
+  const nt = await gh(env, `${R}/git/trees`, {
+    method: "POST", body: JSON.stringify({ base_tree: baseCommit.data.tree.sha, tree }) });
+  if (!nt.ok) return { ok: false, err: `tree ${nt.status}` };
+
+  const nc = await gh(env, `${R}/git/commits`, {
+    method: "POST", body: JSON.stringify({ message: msg, tree: nt.data.sha, parents: [baseSha] }) });
+  if (!nc.ok) return { ok: false, err: `newcommit ${nc.status}` };
+
+  const upd = await gh(env, `${R}/git/refs/heads/main`, {
+    method: "PATCH", body: JSON.stringify({ sha: nc.data.sha }) });
+  return { ok: upd.ok, err: upd.ok ? null : `ref-update ${upd.status}` };
+}
+
 async function putFile(env, path, bytes, msg) {
   const cur = await gh(env, `/repos/${env.GH_REPO}/contents/${path}`);
   const sha = cur.ok ? cur.data.sha : undefined;
@@ -339,17 +369,27 @@ async function handleDoc(env, doc) {
 
   if (/\.zip$/i.test(name)) {
     let files; try { files = unzipSync(bytes); } catch (e) { return say(env, `ZIP nahi khuli: ${String(e).slice(0,120)}`); }
-    const ok = [], skip = [];
+    const batch = [], skip = [];
     for (const [p, data] of Object.entries(files)) {
       if (!data.length || p.endsWith("/")) continue;
       const t = routeOf(p); if (!t) { skip.push(p.split("/").pop()); continue; }
-      const r = await putFile(env, t, data, `zip se: ${t}`);
-      if (r.ok) ok.push(t + (r.updated ? " (update)" : ""));
+      batch.push([t, data]);
     }
-    return say(env, `<b>ZIP khol di</b> — ${name}\n\n✅ ${ok.length} file:\n` +
-      ok.slice(0, 25).map((x) => "• " + x).join("\n") +
+    if (!batch.length) return say(env, `ZIP me koi pehchani file nahi mili.\n⚪ chhodi: ${skip.slice(0,10).join(", ")}`);
+    if (batch.length > 300) return say(env, `ZIP me ${batch.length} file hain — 300 se zyada. Do hisson me bhejiye.`);
+
+    await say(env, `⏳ ${batch.length} file chadha raha hoon — ek hi commit me…`);
+    const r = await putMany(env, batch, `zip se ${batch.length} file: ${name}`);
+    if (!r.ok) return say(env, `❌ Nahi chadhi — ${r.err}`);
+
+    const list = batch.map(([t]) => t);
+    return say(env,
+      `<b>ZIP khol di</b> — ${name}\n\n✅ <b>${batch.length} file — ek commit me</b>\n` +
+      list.slice(0, 20).map((x) => "• " + x).join("\n") +
+      (list.length > 20 ? `\n…aur ${list.length - 20}` : "") +
       (skip.length ? `\n\n⚪ chhodi: ${skip.slice(0, 8).join(", ")}` : "") + "\n\nAb deploy?", btn);
   }
+
   const t = routeOf(name);
   if (!t) return say(env, `Ye file nahi pehchani: <code>${name}</code>`);
   const r = await putFile(env, t, bytes, `telegram se: ${t}`);
