@@ -306,11 +306,15 @@ async function putMany(env, files, msg) {
   if (!baseCommit.ok) return { ok: false, err: `commit ${baseCommit.status}` };
 
   const tree = [];
-  for (const [path, bytes] of files) {
-    const blob = await gh(env, `${R}/git/blobs`, {
-      method: "POST", body: JSON.stringify({ content: b64(bytes), encoding: "base64" }) });
-    if (!blob.ok) return { ok: false, err: `blob ${path} ${blob.status}` };
-    tree.push({ path, mode: "100644", type: "blob", sha: blob.data.sha });
+  for (let i = 0; i < files.length; i += 4) {          // 4-4 ke jatthe me, ek saath
+    const part = files.slice(i, i + 4);
+    const res = await Promise.all(part.map(([path, bytes]) =>
+      gh(env, `${R}/git/blobs`, { method: "POST",
+        body: JSON.stringify({ content: b64(bytes), encoding: "base64" }) })));
+    for (let k = 0; k < part.length; k++) {
+      if (!res[k].ok) return { ok: false, err: `blob ${part[k][0]} ${res[k].status}` };
+      tree.push({ path: part[k][0], mode: "100644", type: "blob", sha: res[k].data.sha });
+    }
   }
   const nt = await gh(env, `${R}/git/trees`, {
     method: "POST", body: JSON.stringify({ base_tree: baseCommit.data.tree.sha, tree }) });
@@ -379,7 +383,9 @@ async function handleDoc(env, doc) {
     if (batch.length > 300) return say(env, `ZIP me ${batch.length} file hain — 300 se zyada. Do hisson me bhejiye.`);
 
     await say(env, `⏳ ${batch.length} file chadha raha hoon — ek hi commit me…`);
-    const r = await putMany(env, batch, `zip se ${batch.length} file: ${name}`);
+    let r;
+    try { r = await putMany(env, batch, `zip se ${batch.length} file: ${name}`); }
+    catch (e) { return say(env, `❌ Nahi chadhi — <code>${String(e).slice(0, 300)}</code>`); }
     if (!r.ok) return say(env, `❌ Nahi chadhi — ${r.err}`);
 
     const list = batch.map(([t]) => t);
@@ -485,7 +491,11 @@ export default {
     }
     const m = u.message;
     if (!m || String(m.chat.id) !== String(env.TG_CHAT)) return j({ ok: true });
-    if (m.document) { await handleDoc(env, m.document); return j({ ok: true }); }
+    if (m.document) {
+      try { await handleDoc(env, m.document); }
+      catch (e) { await say(env, `❌ File nahi chadhi\n<code>${String(e).slice(0, 400)}</code>`); }
+      return j({ ok: true });
+    }
 
     let txt = (m.text || "").trim();
     const RMAP = { "🚀 Deploy": "/deploy", "📋 Pending": "/pending", "🔍 Search": "/gsc 7",
