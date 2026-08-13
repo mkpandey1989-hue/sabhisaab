@@ -1624,4 +1624,11 @@
 <priority>0.8</priority>
 <image:image><image:loc>https://sabhisaab.com/sab-hisaab-og.png</image:loc></image:image>
 </url>
+<url>
+<loc>https://sabhisaab.com/xirr-calculator</loc>
+<lastmod>2026-08-13</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+<image:image><image:loc>https://sabhisaab.com/sab-hisaab-og.png</image:loc></image:image>
+</url>
 </urlset>
