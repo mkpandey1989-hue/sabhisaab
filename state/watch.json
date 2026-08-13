@@ -1,13 +1,16 @@
 {
  "down": false,
  "down_since": null,
- "lcur": 12,
+ "lcur": 18,
  "ok_links": [
   "https://agristack.gov.in/",
   "https://dolr.gov.in",
   "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap",
   "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&amp;family=Inter:wght@400;500&amp;display=swap",
+  "https://investor.sebi.gov.in/",
   "https://ukfr.agristack.gov.in",
+  "https://wa.me/?text=",
+  "https://www.amfiindia.com/",
   "https://www.incometax.gov.in",
   "https://www.incometax.gov.in/iec/foportal/",
   "https://www.pfrda.org.in",
@@ -15,7 +18,7 @@
  ],
  "src_hash": {
   "Income Tax": "d41d8cd98f00",
-  "RBI": "9afaecd530ce"
+  "RBI": "47a55123a7aa"
  },
  "review": {
   "capital-gain-tax-calculator.html": "2026-08-12",
@@ -52,5 +55,5 @@
   "Web3Forms": "79bd2249b8cc",
   "IndexNow": "d41d8cd98f00"
  },
- "lastheavy": "2026-08-13"
+ "lastheavy": "2026-08-14"
 }
