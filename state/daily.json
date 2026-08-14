@@ -6,7 +6,7 @@
   "ctr": 12.903225806451612,
   "pos": 9.048387096774194
  },
- "cursor": 135,
+ "cursor": 52,
  "status": {
   "https://sabhisaab.com/": {
    "ok": true,
@@ -934,7 +934,7 @@
   },
   "https://sabhisaab.com/random-number-generator": {
    "ok": false,
-   "why": "Discovered - currently not indexed",
+   "why": "URL is unknown to Google",
    "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
    "day": "2026-08-14"
   },
@@ -1401,18 +1401,16 @@
    "day": "2026-08-14"
   },
   "https://sabhisaab.com/xirr-calculator": {
-   "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
    "day": "2026-08-14"
   }
  },
  "todo": [
   "https://sabhisaab.com/delivery-date-calculator",
   "https://sabhisaab.com/number-system-converter",
-  "https://sabhisaab.com/random-number-generator",
-  "https://sabhisaab.com/stopwatch-online",
-  "https://sabhisaab.com/xirr-calculator"
+  "https://sabhisaab.com/stopwatch-online"
  ],
  "ga_last": 0.0,
  "aud_e": 0,
