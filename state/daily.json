@@ -1,12 +1,12 @@
 {
- "sitemap_day": "2026-08-12",
+ "sitemap_day": "2026-08-14",
  "gsc_last": {
-  "c": 7,
-  "i": 33,
-  "ctr": 21.21212121212121,
-  "pos": 10.06060606060606
+  "c": 8,
+  "i": 62,
+  "ctr": 12.903225806451612,
+  "pos": 9.048387096774194
  },
- "cursor": 68,
+ "cursor": 218,
  "status": {
   "https://sabhisaab.com/": {
    "ok": true,
@@ -420,871 +420,871 @@
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/english-word-meaning": {
-   "ok": false,
-   "why": "Crawled - currently not indexed",
+   "ok": true,
+   "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/epf-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/fasal-munafa-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/fd-byaj-ki-ganana": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/fd-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/fd-ladder-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/fire-number-calculator": {
    "ok": false,
    "why": "Discovered - currently not indexed",
    "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/fno-loss-itr3-kaise-dikhaye": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/fraction-simplify-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/fuel-cost-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/ghar-kharidein-ya-kiraya-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/goal-lumpsum-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/gold-loan-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/gold-loan-vs-personal-loan": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/gpa-percentage-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/gratuity-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/gratuity-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/gst-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/gst-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/guides": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/hectare-bigha-acre-converter": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/home-loan-eligibility-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/home-loan-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/home-loan-prepayment-emi-ya-tenure": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/hra-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/ideal-weight-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/income-tax-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/income-tax-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/inflation-impact-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/intraday-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/invoice-total-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/itr3-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/kisan-credit-card-kaise-banwaye": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/kvp-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/lcm-hcf-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/leave-encashment-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/loan-amortization-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/loan-amortization-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/loan-prepayment-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/loan-tax-calculators": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/love-calculator": {
-   "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
-   "day": "2026-08-12"
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/lumpsum-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/macro-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/mahila-samman-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/marks-percentage-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/mausam-weather": {
-   "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
-   "day": "2026-08-12"
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/mileage-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/mutual-fund-vs-fd-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/nali-mutthi-converter": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/nali-mutthi-square-feet": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/neet-marks-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/net-worth-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/nivesh-calculators": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/nps-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/nps-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/nps-se-pension-kitni-milegi": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/nsc-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/number-system-converter": {
    "ok": false,
    "why": "Discovered - currently not indexed",
    "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/number-to-words": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/old-vs-new-tax-regime-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/options-breakeven-calculator": {
-   "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
-   "day": "2026-08-12"
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/overtime-pay-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/paint-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/paisa-kahan-rakhein-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/password-generator": {
-   "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
-   "day": "2026-08-12"
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/percentage-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/percentage-change-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/percentage-kaise-nikale": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/personal-loan-emi-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/petrol-cng-ev-compare-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/pivot-points-calculator": {
-   "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
-   "day": "2026-08-12"
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/position-size-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/post-office-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/post-office-mis-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/post-office-mis-ka-hisaab": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/ppf-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/ppf-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/ppf-vs-sukanya-beti-ke-liye": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/price-compare-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/privacy": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/professional-tax-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/profit-margin-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/property-bechne-par-capital-gain-tax": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/property-price-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/qr-code-generator": {
-   "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
-   "day": "2026-08-12"
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/random-number-generator": {
    "ok": false,
    "why": "Discovered - currently not indexed",
    "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/ratio-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/rd-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/reading-time-calculator": {
-   "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
-   "day": "2026-08-12"
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/real-return-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/recipe-scaler-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/rent-receipt-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/rent-receipt-hra-claim-kaise-karein": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/rental-yield-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/retirement-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/risk-reward-ratio-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/roi-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/roman-numerals-converter": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/rozana-calculators": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/rule-of-72-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/running-pace-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/salary-calculator-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/salary-hike-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/salary-per-hour-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/salary-slip-kaise-samjhein": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/salary-structure-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/savings-rate-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/scientific-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/scientific-calculator-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/scss-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/section-80c-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/section-80c-full-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/sehat-calculators": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/services": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/simple-interest-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/sip-5000-mahina-10-saal": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/sip-band-karun-ya-nahi-market-girne-par": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/sip-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/sip-delay-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/sip-goal-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/sip-goal-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/sip-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/sleep-time-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/sovereign-gold-bond-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/speed-converter": {
-   "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
-   "day": "2026-08-12"
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/sqft-to-sqm-converter": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/stamp-duty-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/step-up-sip-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/stock-averaging-calculator": {
-   "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
-   "day": "2026-08-12"
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/stop-loss-target-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/stopwatch-online": {
    "ok": false,
    "why": "Discovered - currently not indexed",
    "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/sukanya-samriddhi-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/swp-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/tax-regime-compare-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/tax-regime-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/tdee-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/tdee-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/tds-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/tds-guide": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/temperature-converter": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/term-vs-endowment-insurance": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/terms": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/tile-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/time-duration-calculator": {
    "ok": true,
    "why": "Submitted and indexed",
    "robots": "ALLOWED",
-   "day": "2026-08-12"
+   "day": "2026-08-14"
   },
   "https://sabhisaab.com/trading-calculators": {
    "ok": true,
@@ -1369,6 +1369,36 @@
    "why": "URL is unknown to Google",
    "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
    "day": "2026-08-12"
+  },
+  "https://sabhisaab.com/emi-se-byaj-dar-calculator": {
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
+  },
+  "https://sabhisaab.com/epf-guide": {
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
+  },
+  "https://sabhisaab.com/exam-target-marks-calculator": {
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
+  },
+  "https://sabhisaab.com/fd-rd-guide": {
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
+  },
+  "https://sabhisaab.com/fire-guide": {
+   "ok": true,
+   "why": "Submitted and indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-14"
   }
  },
  "todo": [
@@ -1377,16 +1407,12 @@
   "https://sabhisaab.com/delivery-date-calculator",
   "https://sabhisaab.com/dividend-yield-calculator",
   "https://sabhisaab.com/fire-number-calculator",
-  "https://sabhisaab.com/love-calculator",
-  "https://sabhisaab.com/mausam-weather",
   "https://sabhisaab.com/number-system-converter",
-  "https://sabhisaab.com/options-breakeven-calculator",
-  "https://sabhisaab.com/password-generator",
-  "https://sabhisaab.com/pivot-points-calculator",
-  "https://sabhisaab.com/qr-code-generator"
+  "https://sabhisaab.com/random-number-generator",
+  "https://sabhisaab.com/stopwatch-online"
  ],
  "ga_last": 0.0,
  "aud_e": 0,
  "aud_w": 183,
- "day": "2026-08-12"
+ "day": "2026-08-14"
 }
