@@ -18,6 +18,7 @@ Report teen hisson me: 🔴 High priority, 🟠 Important, 🔵 Daily
 High priority ka jawab na dein to ROZ dohraya jaata hai.
 """
 import os, re, sys, json, time, base64, datetime, urllib.parse, urllib.request, urllib.error
+import html as _html
 
 SITE = "https://sabhisaab.com"
 PROP = os.environ.get("GSC_PROPERTY", "sc-domain:sabhisaab.com")
@@ -39,19 +40,60 @@ def save(p, o):
     os.makedirs(STATE_DIR, exist_ok=True)
     with open(p, "w", encoding="utf-8") as f: json.dump(o, f, indent=1, ensure_ascii=False)
 
+def esc(x):
+    """Telegram HTML mode ke liye — bina iske ek '&' poora message gira deta hai."""
+    return _html.escape(str(x), quote=False)
+
+def _send(tok, chat, txt, buttons, as_html=True):
+    body = {"chat_id": chat, "text": txt, "disable_web_page_preview": True}
+    if as_html: body["parse_mode"] = "HTML"
+    if buttons: body["reply_markup"] = {"inline_keyboard": buttons}
+    req = urllib.request.Request("https://api.telegram.org/bot%s/sendMessage" % tok,
+          data=json.dumps(body).encode(), headers={"Content-Type": "application/json"})
+    return urllib.request.urlopen(req, timeout=25).read()
+
+def _chunks(text, limit=3500):
+    """Line par kaato, beech me tag mat todo — warna Telegram poora message reject karta hai."""
+    out, cur = [], ""
+    for line in text.split("\n"):
+        if len(line) > limit:
+            if cur: out.append(cur); cur = ""
+            for i in range(0, len(line), limit): out.append(line[i:i+limit])
+            continue
+        if cur and len(cur) + len(line) + 1 > limit:
+            out.append(cur); cur = line
+        else:
+            cur = line if not cur else cur + "\n" + line
+    if cur: out.append(cur)
+    return out or [text[:limit]]
+
+TG_FAILS = []
+PEND_MSG = []
+
 def tg(text, buttons=None):
+    """Report kabhi gayab nahi honi chahiye: HTML fail ho to plain text me bhejta hai."""
     tok, chat = os.environ.get("TG_TOKEN"), os.environ.get("TG_CHAT")
     if not tok or not chat:
         print(text); return
-    for i in range(0, len(text), 3800):
-        body = {"chat_id": chat, "text": text[i:i+3800], "parse_mode": "HTML",
-                "disable_web_page_preview": True}
-        if buttons and i + 3800 >= len(text):
-            body["reply_markup"] = {"inline_keyboard": buttons}
-        req = urllib.request.Request("https://api.telegram.org/bot%s/sendMessage" % tok,
-              data=json.dumps(body).encode(), headers={"Content-Type": "application/json"})
-        try: urllib.request.urlopen(req, timeout=25).read()
-        except Exception as e: print("tg fail:", e)
+    parts = _chunks(text)
+    for k, part in enumerate(parts):
+        btn = buttons if (buttons and k == len(parts) - 1) else None
+        try:
+            _send(tok, chat, part, btn, True); continue
+        except Exception as e:
+            why = ""
+            try: why = e.read().decode("utf-8", "ignore")[:200]
+            except Exception: why = str(e)[:200]
+            print("tg HTML fail:", why)
+        plain = re.sub(r"<[^>]+>", "", part)
+        for a, b in (("&amp;", "&"), ("&lt;", "<"), ("&gt;", ">"), ("&nbsp;", " "), ("&middot;", "-")):
+            plain = plain.replace(a, b)
+        try:
+            _send(tok, chat, plain, btn, False)
+            print("plain text me bhej diya")
+        except Exception as e2:
+            print("tg plain bhi fail:", str(e2)[:200])
+            TG_FAILS.append(why)
 
 def creds(scopes):
     from google.oauth2 import service_account
@@ -267,7 +309,7 @@ def main():
     d3 = today() - datetime.timedelta(days=3)     # GSC 2-3 din peeche rehta hai
     svc = None
     try: svc = gsc()
-    except Exception as e: hi.append(f"❌ GSC key kaam nahi kar rahi — <code>{str(e)[:90]}</code>")
+    except Exception as e: hi.append(f"❌ GSC key kaam nahi kar rahi — <code>{esc(str(e)[:90])}</code>")
 
     # ---------- sitemap roz dobara submit ----------
     if svc:
@@ -275,7 +317,7 @@ def main():
             svc.sitemaps().submit(siteUrl=PROP, feedpath=SITE + "/sitemap.xml").execute()
             st["sitemap_day"] = dstr(today())
         except Exception as e:
-            imp.append(f"🟠 Sitemap submit fail — <code>{str(e)[:80]}</code>")
+            imp.append(f"🟠 Sitemap submit fail — <code>{esc(str(e)[:80])}</code>")
 
     # ---------- GSC search ----------
     if svc:
@@ -296,7 +338,7 @@ def main():
             day.append(f"\n<b>{label}</b>")
             for r in rows:
                 nm = r["keys"][0].replace(SITE, "") or "/"
-                day.append(f"• {nm[:44]} — {n(r.get('clicks',0))} click, {n(r.get('impressions',0))} impr")
+                day.append(f"• {esc(nm[:44])} — {n(r.get('clicks',0))} click, {n(r.get('impressions',0))} impr")
 
     # ---------- indexing ----------
     urls = []
@@ -318,7 +360,7 @@ def main():
             imp += [f"• <code>{u}</code>" for u in gained[:10]]
         if lost:
             hi.append(f"🔴 <b>{len(lost)} page index se NIKAL gaya</b>")
-            hi += [f"• <code>{u}</code>\n  {status[u]['why']}" for u in lost[:10]]
+            hi += [f"• <code>{u}</code>\n  {esc(status[u]['why'])}" for u in lost[:10]]
 
         # kal jo 12 URL diye the, unme se kitne ban gaye
         prev_todo = st.get("todo", [])
@@ -328,13 +370,52 @@ def main():
             day.append(f"\nKal diye <b>{len(prev_todo)}</b> URL me se — index hue : <b>{len(became)}</b>, "
                        f"abhi baaki : <b>{len(still)}</b>")
 
+        # ---- Google ko abhi tak pata hi nahi (kabhi inspect nahi hue) ----
+        never = [u for u in urls if u not in status]
+        if never:
+            day.append(f"Abhi jaanch hi nahi hui : <b>{len(never)}</b>")
+
+        # ---- Roz ka itihaas — indexed count ka trend ----
+        hist = st.get("hist", [])
+        tdy = dstr(today())
+        hist = [h for h in hist if h.get("d") != tdy]
+        hist.append({"d": tdy, "total": len(urls), "ok": ok, "pending": len(status) - ok})
+        hist = hist[-60:]
+        st["hist"] = hist
+        if len(hist) > 1:
+            y = hist[-2]
+            day.append(f"Kal ke muqable : indexed {ok - y.get('ok', ok):+d}, "
+                       f"pending {(len(status)-ok) - y.get('pending', 0):+d}")
+        w = [h for h in hist if h["d"] <= tdy][-8:]
+        if len(w) > 2:
+            day.append("\n<b>Pichhle din — indexed / pending</b>")
+            for h in w:
+                day.append(f"• {h['d']} — {h['ok']} / {h.get('pending', 0)}")
+
         cov = coverage(status)
         if cov:
             day.append("\n<b>Kis wajah se atke (category-wise)</b>")
-            for why, lst in list(cov.items())[:8]:
-                day.append(f"• {why} — <b>{len(lst)}</b>")
+            for why, lst in list(cov.items())[:10]:
+                day.append(f"• {esc(why)} — <b>{len(lst)}</b>")
+
+            # ---- POORI pending list, wajah ke hisaab se ----
+            pend = ["\n<b>📋 Pending URL — poori list</b>"]
+            for why, lst in cov.items():
+                pend.append(f"\n<b>{esc(why)}</b> — {len(lst)}")
+                for u in lst[:40]:
+                    pend.append(f"<code>{u}</code>")
+                if len(lst) > 40:
+                    pend.append(f"…aur {len(lst)-40}")
+            if never:
+                pend.append(f"\n<b>Google ko abhi pata nahi (jaanch baaki)</b> — {len(never)}")
+                for u in never[:40]:
+                    pend.append(f"<code>{u}</code>")
+                if len(never) > 40:
+                    pend.append(f"…aur {len(never)-40}")
+            PEND_MSG.append("\n".join(pend))
+
             top = list(cov.items())[0]
-            day.append(f"\n<b>Aaj ye {min(12,len(top[1]))} dabaayein</b> — <i>{top[0]}</i>")
+            day.append(f"\n<b>Aaj ye {min(12,len(top[1]))} dabaayein</b> — <i>{esc(top[0])}</i>")
             for u in top[1][:12]:
                 day.append(f"<code>{u}</code>")
             st["todo"] = top[1][:12]
@@ -359,12 +440,16 @@ def main():
                 if rows:
                     day.append(f"\n<b>{label}</b>")
                     for dv, mv in rows:
-                        day.append(f"• {dv[0][:40]} — {n(float(mv[0]))}")
+                        day.append(f"• {esc(dv[0][:40])} — {n(float(mv[0]))}")
         rt = ga4_run({"metrics": [{"name": "activeUsers"}]})
         if rt: day.append(f"\nAbhi site par : <b>{n(ga4_total(rt))}</b> log")
 
     # ---------- speed ----------
     m, dsk = psi(SITE, "mobile"), psi(SITE, "desktop")
+    if not m:
+        day.append("\n<b>⚡ Speed</b>")
+        day.append("PageSpeed se jawab nahi mila." + ("" if os.environ.get("PSI_KEY")
+                   else " PSI_KEY secret nahi laga — bina key ke Google quota bahut jaldi khatam kar deta hai."))
     if m:
         old = st.get("psi_mobile")
         day.append(f"\n<b>⚡ Speed</b>")
@@ -388,7 +473,7 @@ def main():
             if fixed > 0:  imp.append(f"🟢 Kal se <b>{fixed} galti theek</b> ho gayi (spelling/heading/duplicate)")
             elif fixed < 0: imp.append(f"🟠 Kal se <b>{-fixed} nayi galti</b> aa gayi")
         for k, v in list(wd.items())[:5]:
-            day.append(f"• {k} — {len(v)}")
+            day.append(f"• {esc(k)} — {len(v)}")
         st["aud_e"], st["aud_w"] = e, w
         if e: hi.append(f"🔴 Audit me {e} ERROR — deploy nahi hoga")
 
@@ -396,18 +481,18 @@ def main():
     uf = unused_files()
     if uf:
         imp.append(f"🟠 <b>{len(uf)} file kahin use nahi ho rahi</b>")
-        imp += [f"• <code>{f}</code>" for f in uf[:12]]
+        imp += [f"• <code>{esc(f)}</code>" for f in uf[:12]]
         st["unused"] = uf
 
     # ---------- khabar ----------
     hot, seen = news(alerts.get("seen_news", {}))
     alerts["seen_news"] = seen
     for src, title, link in hot[:6]:
-        imp.append(f"📰 <b>{src}</b>\n{title}\n{link}")
+        imp.append(f"📰 <b>{esc(src)}</b>\n{esc(title)}\n{link}")
 
     # ---------- limits ----------
     for a1, a2, a3 in cf_limits():
-        day.append(f"\n{a1} : {a2} ({a3})")
+        day.append(f"\n{esc(a1)} : {esc(a2)} ({esc(a3)})")
 
     # ---------- khule alert dohrao ----------
     op = alerts.get("open", {})
@@ -431,10 +516,21 @@ def main():
            [[{"text": "🗑 Faltu file hatao", "callback_data": "rm_unused"}]] if uf else None)
     if day:
         tg(f"🔵 <b>DAILY REPORT</b>\n{hdr}\n\n" + "\n".join(day))
+    for m in PEND_MSG:
+        tg(f"🔵 <b>PENDING URL</b>\n{hdr}\n{m}")
+
+    # report bhejne me sach me dikkat aayi to chup mat raho
+    if TG_FAILS:
+        try:
+            _send(os.environ.get("TG_TOKEN"), os.environ.get("TG_CHAT"),
+                  "Report ka %d hissa Telegram par nahi ja paaya. "
+                  "Pehli wajah: %s" % (len(TG_FAILS), TG_FAILS[0][:150]), None, False)
+        except Exception as e:
+            print("fail-alert bhi nahi gaya:", str(e)[:120])
 
     st["day"] = dstr(today())
     save(S_MAIN, st); save(S_ALERT, alerts)
-    print("ho gaya | high:", len(hi), "imp:", len(imp))
+    print("ho gaya | high:", len(hi), "imp:", len(imp), "| tg fail:", len(TG_FAILS))
 
 if __name__ == "__main__":
     main()

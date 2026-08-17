@@ -2,7 +2,8 @@ name: Daily report
 
 on:
   schedule:
-    - cron: '0 1 * * *'      # roz 6:30 AM IST
+    - cron: '17 0 * * *'     # roz ~6:00 AM IST. Poore ghante (:00) par GitHub ka schedule
+                             # sabse zyada bheed me padta hai aur 2-3 ghante late chalta hai.
   workflow_dispatch:
     inputs:
       ack:
@@ -62,9 +63,11 @@ jobs:
           CF_ACCT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           GSC_PROPERTY: sc-domain:sabhisaab.com
           GSC_BUDGET: '150'
+          PSI_KEY: ${{ secrets.PSI_KEY }}
         run: python3 scripts/daily.py
 
       - name: State yaad rakho
+        if: always()
         run: |
           git config user.name "Sab Hisaab bot"
           git config user.email "contact@sabhisaab.com"

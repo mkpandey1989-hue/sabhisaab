@@ -230,6 +230,81 @@ def main(only=None):
             if "noopener" not in a: bad("Policy: rel=noopener nahi", (f, a[:60]))
 
     if not only:
+        # ---------- v9 NAYE CHECK (17 Aug 2026) ----------
+        try:
+            ix = read(os.path.join(d, "index.html"))
+            ixline = [l for l in ix.split("\n") if l.startswith("const PAGES=")]
+            tool_ids = re.findall(r"\{id:'([A-Za-z0-9_-]+)',cat:'([^']+)'", ix)
+            n_tools = len(tool_ids)
+
+            # 1) duplicate tool id ya duplicate tool naam
+            for tid, c in collections.Counter(i for i, _ in tool_ids).items():
+                if c > 1: bad("Tools: duplicate tool id", (tid, c))
+            names = re.findall(r"\{id:'[A-Za-z0-9_-]+',cat:'[^']+',ic:'[^']*',name:'([^']*)'", ix)
+            for nm, c in collections.Counter(names).items():
+                if c > 1: bad("Tools: duplicate tool naam", (nm, c))
+
+            # 2) khokhla tool (calc ya fields khaali) jiska apna page bhi nahi
+            pmap = dict(re.findall(r'"([^"]+)":"([^"]+)"', ixline[0])) if ixline else {}
+            for m in re.finditer(r"\{id:'([A-Za-z0-9_-]+)',cat:'[^']+',ic:'[^']*',name:'[^']*',desc:'[^']*',fields:''", ix):
+                if m.group(1) not in pmap:
+                    bad("Tools: khokhla tool (fields khaali, page bhi nahi)", m.group(1))
+            if ixline:
+                # 3) PAGES map <-> tools array ka milaan
+                for k in pmap:
+                    if k not in [i for i, _ in tool_ids]:
+                        bad("Tools: PAGES me entry par tool nahi", k)
+                for i, _ in tool_ids:
+                    if i not in pmap:
+                        bad("Tools: tool ka dedicated page nahi", i)
+                for k, v in pmap.items():
+                    if not os.path.exists(os.path.join(d, v.strip("/") + ".html")):
+                        bad("Tools: PAGES ka page file gayab", (k, v))
+
+            # 4) tool ki ginti har page par ek jaisi (yahi 4 alag ginti wali galti thi)
+            numpat = re.compile(r"(?<![-\d/])\b(1\d\d|2\d\d)\b(?![-\d])")
+            for f2 in files:
+                if f2 in SKIP_ALL: continue
+                s2 = read(os.path.join(d, f2))
+                for m in numpat.finditer(s2):
+                    pre, post = s2[max(0, m.start()-9):m.start()], s2[m.end():m.end()+40]
+                    if "\u20b9" in pre or "&#8377;" in pre or "(" in pre[-2:]: continue
+                    if not re.search(r"^[^.]{0,40}?(tool|calculator)", post, re.I): continue
+                    if m.group(1) != str(n_tools):
+                        bad("Tools: ginti galat likhi hai (asli %d)" % n_tools, (f2, m.group(1)))
+        except Exception as e:
+            bad("Tools: ginti check chal nahi paaya", str(e)[:120])
+
+        # 5) sitemap lastmod aur schema dateModified ek jaise hon
+        try:
+            sm = read(os.path.join(d, "sitemap.xml"))
+            lm = dict(re.findall(r"<loc>([^<]+)</loc>\s*<lastmod>([\d-]+)</lastmod>", sm))
+            for f2 in files:
+                if f2 in SKIP_ALL or f2 == "404.html": continue
+                s2 = read(os.path.join(d, f2))
+                dm = re.search(r'"dateModified"\s*:\s*"([\d-]+)"', s2)
+                if not dm: continue
+                slug = f2[:-5]
+                u = base + "/" if slug == "index" else base + "/" + slug
+                if u in lm and lm[u] != dm.group(1):
+                    warn("SEO: sitemap lastmod aur dateModified alag", (f2, lm[u], dm.group(1)))
+        except Exception as e:
+            warn("SEO: lastmod check chal nahi paaya", str(e)[:120])
+
+        # 6) common script har page par (install-app.js chhoot jaata hai)
+        miss = [f2 for f2 in files if f2 not in SKIP_ALL and f2 != "404.html"
+                and "install-app.js" not in read(os.path.join(d, f2))]
+        if miss: warn("Perf: install-app.js page par nahi", miss)
+
+        # 7) robots.txt me canonical/redirect wale URL block na hon
+        try:
+            rb = read(os.path.join(d, "robots.txt"))
+            for line in rb.split("\n"):
+                if line.strip().lower().startswith("disallow:") and "?" in line:
+                    bad("SEO: robots.txt me query-string block (canonical padha nahi jaayega)", line.strip())
+        except Exception:
+            pass
+
         for p in sorted(pages):
             if p in ("404", "googleb9a1fd91a1579ee6"): continue
             if inb.get(p, 0) < 3: bad("SEO: inbound link 3 se kam", (p, inb.get(p, 0)))

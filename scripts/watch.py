@@ -10,6 +10,7 @@ Sab Hisaab — chaukidaar (har 30 min chalta hai)
   6. Pending kaam ka tracker — kitna hua, kitna baaki, priority-wise
 """
 import os, re, sys, json, time, hashlib, datetime, urllib.request, urllib.error
+import html as _html
 
 SITE = "https://sabhisaab.com"
 ST   = "state/watch.json"
@@ -27,17 +28,50 @@ def save(p, o):
     os.makedirs("state", exist_ok=True)
     with open(p, "w", encoding="utf-8") as f: json.dump(o, f, indent=1, ensure_ascii=False)
 
+def esc(x):
+    return _html.escape(str(x), quote=False)
+
+def _send(tok, chat, txt, buttons, as_html=True):
+    b = {"chat_id": chat, "text": txt, "disable_web_page_preview": True}
+    if as_html: b["parse_mode"] = "HTML"
+    if buttons: b["reply_markup"] = {"inline_keyboard": buttons}
+    return urllib.request.urlopen(urllib.request.Request(
+        "https://api.telegram.org/bot%s/sendMessage" % tok,
+        data=json.dumps(b).encode(), headers={"Content-Type": "application/json"}), timeout=25).read()
+
+def _chunks(text, limit=3500):
+    out, cur = [], ""
+    for line in text.split("\n"):
+        if len(line) > limit:
+            if cur: out.append(cur); cur = ""
+            for k in range(0, len(line), limit): out.append(line[k:k+limit])
+            continue
+        if cur and len(cur) + len(line) + 1 > limit:
+            out.append(cur); cur = line
+        else:
+            cur = line if not cur else cur + "\n" + line
+    if cur: out.append(cur)
+    return out or [text[:limit]]
+
 def tg(text, buttons=None):
+    """HTML fail ho to plain text me bhejo — chaukidaar ka alert kabhi gayab na ho."""
     tok, chat = os.environ.get("TG_TOKEN"), os.environ.get("TG_CHAT")
     if not tok or not chat: print(text); return
-    for i in range(0, len(text), 3800):
-        b = {"chat_id": chat, "text": text[i:i+3800], "parse_mode": "HTML", "disable_web_page_preview": True}
-        if buttons and i + 3800 >= len(text): b["reply_markup"] = {"inline_keyboard": buttons}
+    parts = _chunks(text)
+    for k, part in enumerate(parts):
+        btn = buttons if (buttons and k == len(parts) - 1) else None
         try:
-            urllib.request.urlopen(urllib.request.Request(
-                "https://api.telegram.org/bot%s/sendMessage" % tok,
-                data=json.dumps(b).encode(), headers={"Content-Type": "application/json"}), timeout=25).read()
-        except Exception as e: print("tg fail:", e)
+            _send(tok, chat, part, btn, True); continue
+        except Exception as e:
+            why = ""
+            try: why = e.read().decode("utf-8", "ignore")[:200]
+            except Exception: why = str(e)[:200]
+            print("tg HTML fail:", why)
+        plain = re.sub(r"<[^>]+>", "", part)
+        for a, b2 in (("&amp;", "&"), ("&lt;", "<"), ("&gt;", ">"), ("&middot;", "-")):
+            plain = plain.replace(a, b2)
+        try: _send(tok, chat, plain, btn, False); print("plain text me bhej diya")
+        except Exception as e2: print("tg plain bhi fail:", str(e2)[:200])
 
 def get(url, timeout=25):
     try:
