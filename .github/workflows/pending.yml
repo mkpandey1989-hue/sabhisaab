@@ -2,8 +2,8 @@ name: Pending kaam
 
 on:
   schedule:
-    - cron: '30 3 * * *'      # roz 9:00 AM IST
-    - cron: '30 3 * * 0'      # Sunday extra
+    - cron: '23 3 * * *'      # roz ~9:00 AM IST. Sunday wali doosri line hata di —
+                              # dono ka time ek hi tha, isliye Sunday ko do report aati thin.
   workflow_dispatch:
 
 jobs:

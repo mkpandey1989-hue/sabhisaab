@@ -2,7 +2,7 @@ name: Hafte ki jaanch
 
 on:
   schedule:
-    - cron: '30 1 * * 0'      # har Sunday 7:00 AM IST
+    - cron: '13 1 * * 0'      # har Sunday ~7:00 AM IST (:00 aur :30 par GitHub me bheed hoti hai)
   workflow_dispatch:
 
 jobs:
