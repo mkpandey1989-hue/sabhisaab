@@ -498,6 +498,183 @@ async function handleDoc(env, doc) {
   return say(env, r.ok ? `${r.updated ? "♻️ Update" : "🆕 Nayi file"}\n<code>${t}</code>\n${(doc.file_size/1024).toFixed(0)} KB` : `❌ ${r.status}`, btn);
 }
 
+
+// ================= BAAT-CHEET (naya) =================
+// Do parat: (1) shabd pehchano — turant, kabhi fail nahi hota
+//           (2) samajh na aaye to Workers AI — par wo sirf ye tay karta hai
+//               ki kaunsa kaam chalana hai. NUMBER hamesha asli API se aate hain.
+
+/** Site ke asli aankde — AI ko yahi diye jaate hain, taaki wo apne se number na banaye */
+async function siteFacts(env) {
+  const f = { indexed: "?", pending: "?", total: "?", err: "?", warn: "?", day: "?", clicks: "?", impr: "?" };
+  try {
+    const r = await gh(env, `/repos/${env.GH_REPO}/contents/state/daily.json`);
+    if (r.ok) {
+      const d = JSON.parse(atob(r.data.content.replace(/\n/g, "")));
+      const st = d.status || {};
+      const ok = Object.values(st).filter((v) => v && v.ok).length;
+      f.indexed = ok; f.pending = Object.keys(st).length - ok; f.total = Object.keys(st).length;
+      f.err = d.aud_e ?? "?"; f.warn = d.aud_w ?? "?"; f.day = d.day || "?";
+      if (d.gsc_last) { f.clicks = d.gsc_last.c; f.impr = d.gsc_last.i; }
+    }
+  } catch {}
+  return f;
+}
+
+/** Sab kaam ek jagah — shabd wala tarika aur AI, dono isi list se chalte hain */
+const JOBS = {
+  gsc:       (env, mid, a) => doGsc(env, mid, +a || 7),
+  topquery:  (env, mid) => doGscDim(env, mid, "query"),
+  toppage:   (env, mid) => doGscDim(env, mid, "page"),
+  desh:      (env, mid) => doGscDim(env, mid, "country"),
+  device:    (env, mid) => doGscDim(env, mid, "device"),
+  ga:        (env, mid, a) => doGa(env, mid, +a || 7, 1),
+  live:      (env, mid) => doGaLive(env, mid),
+  ghante:    (env, mid) => doGaHourly(env, mid),
+  kahanse:   (env, mid) => doGaDim(env, mid, "sessionDefaultChannelGroup"),
+  indexing:  (env, mid) => doIndexQuick(env, mid),
+  check:     (env, mid, a) => doInspect(env, mid, a || "/"),
+  speed:     (env, mid, a) => doSpeed(env, mid, /desk/i.test(a || "") ? "desktop" : "mobile"),
+  audit:     (env, mid) => doAuditLast(env, mid),
+  auditrun:  async (env, mid) => { await runWf(env, "audit.yml"); return edit(env, mid, "🛠 Audit chalu — natija aayega.", MAIN); },
+  pages:     (env, mid) => doPages(env, mid),
+  sitecheck: (env, mid) => doSite(env, mid),
+  health:    (env, mid) => doHealth(env, mid),
+  status:    (env, mid) => doStatus(env, mid),
+  sitemap:   (env, mid) => doSitemap(env, mid),
+  purge:     (env, mid) => doCf(env, mid, "purge"),
+  rollback:  (env, mid) => doCf(env, mid, "rb"),
+  pending:   async (env, mid) => { await runWf(env, "pending.yml"); return edit(env, mid, "📋 Pending list ban rahi hai — 1 min.", MAIN); },
+  report:    async (env, mid) => { await runWf(env, "daily.yml"); return edit(env, mid, "📑 Poora scan chalu — 3-5 minute.", MAIN); },
+  deploy:    async (env, mid) => {
+    if (await wfBusy(env, "deploy.yml")) return edit(env, mid, "⏳ Ek deploy pehle se chal raha hai.", MAIN);
+    await runWf(env, "deploy.yml", { indexnow: "badle-hue" });
+    return edit(env, mid, "🚀 Deploy chalu — audit paas hoga tabhi live jaayega.", MAIN); },
+};
+
+/** Bina AI ke — sirf shabd dekhkar. Ye hamesha chalta hai, kabhi quota khatam nahi hota. */
+function understand(t) {
+  const x = " " + t.toLowerCase().replace(/[?.,!]/g, " ") + " ";
+  const has = (...w) => w.some((k) => x.includes(" " + k) || x.includes(k + " "));
+  let num = (x.match(/\b(\d{1,3})\s*din\b/) || [])[1];
+  if (!num && / kal |yesterday/.test(x)) num = "1";
+  if (!num && / mahine| month|30 din/.test(x)) num = "28";
+
+  // URL ki jaanch — "ye page index hua?"
+  const url = (t.match(/\/[a-z0-9][a-z0-9-]{3,}/i) || [])[0];
+  if (url && has("index", "indexed", "crawl", "chadha", "hua")) return ["check", url];
+
+  if (has("live", "abhi kitne", "is waqt")) return ["live", ""];
+  if (has("ghante", "hourly", "ghanta")) return ["ghante", ""];
+  if (has("kahan se", "source", "traffic kahan")) return ["kahanse", ""];
+  if (has("query", "queries", "kya search", "kaunsi search")) return ["topquery", ""];
+  if (has("top page", "kaunsa page", "konsa page", "best page")) return ["toppage", ""];
+  if (has("desh", "country")) return ["desh", ""];
+  if (has("device", "mobile ya desktop")) return ["device", ""];
+  if (has("speed", "kitni tez", "dheemi", "pagespeed", "lcp", "cls")) return ["speed", x];
+  if (has("index", "indexed", "indexing", "kitne page chadhe", "pending url")) return ["indexing", ""];
+  if (has("sitemap")) return ["sitemap", ""];
+  if (has("purge", "cache")) return ["purge", ""];
+  if (has("rollback", "wapas le", "purana version")) return ["rollback", ""];
+  if (has("audit chalao", "audit karo", "naya audit")) return ["auditrun", ""];
+  if (has("audit", "error kitne", "warning")) return ["audit", ""];
+  if (has("deploy", "live karo", "chadha do")) return ["deploy", ""];
+  if (has("pending", "kya baaki", "kya karna")) return ["pending", ""];
+  if (has("health", "sab theek", "token theek")) return ["health", ""];
+  if (has("kitne page", "kitne tool", "kitni file")) return ["pages", ""];
+  if (has("site chal", "site down", "site khul")) return ["sitecheck", ""];
+  if (has("run", "workflow", "pichhle")) return ["status", ""];
+  if (has("poora scan", "report banao", "scan karo")) return ["report", ""];
+  // clicks / users
+  if (has("click", "search console", "gsc", "impression")) return ["gsc", num || "7"];
+  if (has("user", "visitor", "analytics", "log aaye", "traffic")) return ["ga", num || "7"];
+  if (num && has("data", "haal", "batao", "dikhao")) return ["gsc", num];
+  return null;
+}
+
+const AI_MODELS = ["@cf/meta/llama-3.2-3b-instruct", "@cf/meta/llama-3.1-8b-instruct"];
+async function aiRun(env, messages, max_tokens = 320) {
+  if (!env.AI) return null;
+  for (const m of AI_MODELS) {
+    try { const r = await env.AI.run(m, { messages, max_tokens }); if (r && r.response) return r.response; }
+    catch {}
+  }
+  return null;
+}
+
+/** AI sirf ye tay karta hai ki kaunsa kaam chalana hai — jawab wo khud nahi banata */
+async function aiPick(env, t) {
+  const out = await aiRun(env, [
+    { role: "system", content:
+      "Tum ek router ho. User Hinglish me kuch poochhta hai. Sirf ek JSON lauta do, aur kuch nahi.\n" +
+      'Roop: {"a":"KAAM","x":"ARG"}\n' +
+      "KAAM in me se ek: gsc topquery toppage desh device ga live ghante kahanse indexing check speed audit pages sitecheck health status sitemap pending report deploy none\n" +
+      "gsc/ga ke liye x me dinon ki ginti. check ke liye x me URL ka slug. warna x khaali.\n" +
+      "Samajh na aaye to a=none." },
+    { role: "user", content: t.slice(0, 300) },
+  ], 60);
+  if (!out) return null;
+  try {
+    const m = out.match(/\{[^}]*\}/); if (!m) return null;
+    const d = JSON.parse(m[0]);
+    if (!d.a || d.a === "none" || !JOBS[d.a]) return null;
+    return [d.a, String(d.x || "")];
+  } catch { return null; }
+}
+
+/** Aam sawaal ka jawab — sirf asli aankdon ke saath, apne se number nahi */
+async function aiTalk(env, mid, t) {
+  const f = await siteFacts(env);
+  const out = await aiRun(env, [
+    { role: "system", content:
+      "Tum 'Sab Hisaab' website ke sahayak ho. Malik ka naam Manoj hai.\n" +
+      "Site: sabhisaab.com — Hinglish calculator site, Cloudflare Pages par, 154 tool, 38 guide, 24 lekh.\n" +
+      "NIYAM: (1) Hinglish me jawab do, Roman script me. (2) Chhote vaakya, 4-6 line se zyada nahi.\n" +
+      "(3) Koi bhi number apne se MAT banao — sirf neeche diye aankde use karo. Pata na ho to saaf kaho 'ye number mere paas nahi, /menu se dekh lijiye'.\n" +
+      "(4) AdSense abhi apply nahi hui. (5) Sabse badi kamzori: backlink nahi hain.\n" +
+      "ASLI AANKDE (" + f.day + "): indexed " + f.indexed + ", pending " + f.pending + ", kul URL " + f.total +
+      ", audit ERROR " + f.err + " WARNING " + f.warn + ", GSC 7 din: clicks " + f.clicks + " impressions " + f.impr + "." },
+    { role: "user", content: t.slice(0, 500) },
+  ]);
+  if (!out) return edit(env, mid,
+    "Ye baat samajh nahi aayi.\n\nAise poochh sakte hain:\n• <i>7 din ke click batao</i>\n• <i>kitne page index hue</i>\n• <i>speed kaisi hai</i>\n• <i>/check /nsc-calculator</i>\n\nYa 📖 Poora menu dabaiye.", MAIN);
+  return edit(env, mid, esc(out.trim().slice(0, 3000)) + "\n\n<i>— jaanch ke liye /menu</i>", MAIN);
+}
+
+/** Poora raasta: pehle shabd, phir AI se kaam chuno, phir AI se baat */
+async function chat(env, t) {
+  const r = await say(env, "⏳ …");
+  const mid = r?.result?.message_id;
+  if (!mid) return;
+  let pick = understand(t);
+  if (!pick) pick = await aiPick(env, t);
+  if (pick && JOBS[pick[0]]) { try { return await JOBS[pick[0]](env, mid, pick[1]); } catch (e) {
+    return edit(env, mid, `❌ ${esc(String(e).slice(0, 200))}`, MAIN); } }
+  return aiTalk(env, mid, t);
+}
+
+/** Indexing ka turant jawab — bina scan chalaye, yaaddasht se */
+async function doIndexQuick(env, mid) {
+  await edit(env, mid, "⏳ …");
+  const r = await gh(env, `/repos/${env.GH_REPO}/contents/state/daily.json`);
+  if (!r.ok) return edit(env, mid, "Abhi koi record nahi. 📑 Indexing → Poora scan chalayein.", MAIN);
+  let d = {}; try { d = JSON.parse(atob(r.data.content.replace(/\n/g, ""))); } catch {}
+  const st = d.status || {};
+  const ok = Object.values(st).filter((v) => v && v.ok);
+  const no = Object.entries(st).filter(([, v]) => v && !v.ok);
+  const why = {};
+  no.forEach(([, v]) => { const k = v.why || "?"; why[k] = (why[k] || 0) + 1; });
+  const h = (d.hist || []).slice(-5);
+  return edit(env, mid,
+    `<b>📑 Indexing — ${esc(d.day || "")}</b>\n\n` +
+    `Indexed : <b>${ok.length}</b>\nBaaki : <b>${no.length}</b>\n\n` +
+    (Object.keys(why).length ? "<b>Kis wajah se atke</b>\n" +
+      Object.entries(why).map(([k, v]) => `• ${esc(k)} — <b>${v}</b>`).join("\n") + "\n\n" : "") +
+    (h.length > 1 ? "<b>Pichhle din</b>\n" + h.map((x) => `• ${x.d} — ${x.ok} indexed`).join("\n") + "\n\n" : "") +
+    (no.length ? "<b>Ye dabaiye</b>\n" + no.slice(0, 10).map(([u]) => `<code>${esc(u)}</code>`).join("\n") : "Sab index hai ✅"),
+    MAIN);
+}
+
 // ---------- callbacks ----------
 async function onCb(env, q) {
   const mid = q.message.message_id, d = q.data;
@@ -552,6 +729,13 @@ Sab kuch <b>Menu ke button</b> se. Type karne ki zaroorat nahi.
 /check /nsc-calculator — ye URL index hua ya nahi
 /deploy · /report · /audit · /health
 /gsc 7 · /ga 28 — seedha data
+
+<b>Ya seedha Hinglish me likh dijiye</b>
+<i>7 din ke click batao</i>
+<i>kitne page index hue</i>
+<i>speed kaisi hai</i>
+<i>top query kya hai</i>
+<i>nsc-calculator index hua kya</i>
 
 <b>File chadhana</b>
 HTML ya ZIP bhej dijiye — bot khud sahi folder me daal dega.
@@ -627,7 +811,8 @@ async function handle(env, u) {
       else if (cmd === "/pages") await doPages(env, mid);
       else if (cmd === "/status") await doStatus(env, mid);
       else await doSite(env, mid);
-    } else if (txt.startsWith("/")) await say(env, "Ye command nahi jaanta. /menu dekhiye.", MAIN);
+    } else if (txt.startsWith("/")) await say(env, "Ye command nahi jaanta. /menu dekhiye, ya seedha Hinglish me likh dijiye.", MAIN);
+    else if (txt.length > 2) await chat(env, txt);   // <- saada Hinglish sawaal
   } catch (e) { await say(env, `❌ ${esc(String(e).slice(0, 300))}`); }
 }
 

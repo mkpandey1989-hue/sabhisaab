@@ -2,3 +2,7 @@ name = "sabhisaab-bot"
 main = "index.js"
 compatibility_date = "2026-06-01"
 workers_dev = true
+
+# Baat-cheet ke liye — Cloudflare Workers AI (free plan me 10,000 neuron roz)
+[ai]
+binding = "AI"
