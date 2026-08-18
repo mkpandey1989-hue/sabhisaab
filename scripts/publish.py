@@ -21,8 +21,26 @@ HUB = {"Nivesh": "nivesh-calculators", "Loan/Tax": "loan-tax-calculators",
        "Guide": "guides", "Article": "articles"}
 
 # ---------------------------------------------------------------- sitemap
+def git_date(path):
+    """Us file ke aakhri commit ki date (YYYY-MM-DD). Na mile to file ki mtime."""
+    try:
+        r = subprocess.run(["git", "log", "-1", "--format=%cs", "--", path],
+                           capture_output=True, text=True, timeout=10)
+        d = r.stdout.strip()
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", d):
+            return d
+    except Exception:
+        pass
+    return datetime.date.fromtimestamp(os.path.getmtime(path)).isoformat()
+
+
 def rebuild_sitemap():
-    """Har page ka lastmod uski asli file-mtime se. Ek hi date sab par = kamzor signal."""
+    """Har page ka lastmod uske git commit ki asli date se.
+
+    Pehle file-mtime use hoti thi, par CI me checkout ke waqt sab file ki mtime ek
+    ho jaati hai — isse poori sitemap par ek hi date chadh jaati thi. Google aisi
+    sitemap ka lastmod maanna hi band kar deta hai. Ab git se asli date li jaati hai;
+    git na mile to mtime fallback."""
     d = site_dir(); C = cfg(); base = C["site_url"].rstrip("/")
     hubs = set(HUB.values())
     legal = {"about", "author", "contact", "disclaimer", "privacy", "services", "terms"}
@@ -32,7 +50,7 @@ def rebuild_sitemap():
         if p in ("404", "googleb9a1fd91a1579ee6"):
             continue
         loc = base + "/" if p == "index" else base + "/" + p
-        mt = datetime.date.fromtimestamp(os.path.getmtime(os.path.join(d, f))).isoformat()
+        mt = git_date(os.path.join(d, f))
         if p == "index":      pr, cf = "1.0", "daily"
         elif p in hubs:       pr, cf = "0.9", "weekly"
         elif p in legal:      pr, cf = "0.3", "yearly"
@@ -44,6 +62,9 @@ def rebuild_sitemap():
             img = "\n<image:image><image:loc>%s</image:loc></image:image>" % m.group(1)
         rows.append("<url>\n<loc>%s</loc>\n<lastmod>%s</lastmod>\n<changefreq>%s</changefreq>"
                     "\n<priority>%s</priority>%s\n</url>" % (loc, mt, cf, pr, img))
+    # homepage sabse pehle, baaki alphabetical — taaki kram kabhi na toote
+    rows.sort(key=lambda r: ("" if "<loc>%s/</loc>" % base in r else
+                             re.search(r"<loc>[^<]*/([^<]*)</loc>", r).group(1) or "\uffff"))
     xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
            'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n'

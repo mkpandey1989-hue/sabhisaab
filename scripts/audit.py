@@ -308,6 +308,30 @@ def main(only=None):
         except Exception:
             pass
 
+        # TOC me har H2 hona chahiye, aur har TOC anchor page par maujood ho
+        for f in targets:
+            t = read(os.path.join(d, f))
+            m = re.search(r'<div class="tocbox">.*?</div>', t, re.S)
+            if not m: continue
+            have = re.findall(r'href="#([a-z0-9-]+)"', m.group(0))
+            h2 = re.findall(r'<h2 id="([a-z0-9-]+)"', t)
+            miss = [x for x in h2 if x not in have]
+            dead = [x for x in have if x not in h2]
+            if miss: bad("Content: H2 TOC me nahi hai", (f, ",".join(miss)))
+            if dead: bad("Content: TOC ka anchor page par nahi", (f, ",".join(dead)))
+
+        # sitemap: kram theek ho aur lastmod ek hi date par sab na hon
+        try:
+            smx = read(os.path.join(d, "sitemap.xml"))
+            slugs = re.findall(r"<loc>[^<]*sabhisaab\.com/([^<]*)</loc>", smx)
+            if slugs[1:] != sorted(slugs[1:]):
+                warn("Sitemap: URL alphabetical kram me nahi", "publish.py se banwayein")
+            lms = re.findall(r"<lastmod>([\d-]+)</lastmod>", smx)
+            if lms and len(set(lms)) == 1:
+                bad("Sitemap: har URL par ek hi lastmod (Google bharosa nahi karta)", lms[0])
+        except Exception:
+            pass
+
         # site/ ki alag .js file ka syntax bhi jaancho (tools.js, install-app.js, sw.js)
         for jf in sorted(glob.glob(os.path.join(d, "*.js"))):
             r = subprocess.run(["node", "--check", jf], capture_output=True, text=True)
