@@ -6,7 +6,7 @@
   "ctr": 10.204081632653061,
   "pos": 14.36734693877551
  },
- "cursor": 154,
+ "cursor": 71,
  "status": {
   "https://sabhisaab.com/": {
    "ok": true,
@@ -1415,8 +1415,8 @@
   "https://sabhisaab.com/stopwatch-online"
  ],
  "ga_last": 0.0,
- "aud_e": 0,
- "aud_w": 104,
+ "aud_e": 93,
+ "aud_w": 1,
  "day": "2026-08-18",
  "hist": [
   {
