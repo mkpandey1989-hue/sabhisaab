@@ -540,7 +540,8 @@ async function handleDoc(env, doc) {
 
 /** Site ke asli aankde — AI ko yahi diye jaate hain, taaki wo apne se number na banaye */
 async function siteFacts(env) {
-  const f = { indexed: "?", pending: "?", total: "?", err: "?", warn: "?", day: "?", clicks: "?", impr: "?" };
+  const f = { indexed: "?", pending: "?", total: "?", err: "?", warn: "?", day: "?",
+              c7: "?", i7: "?", c1: "?", i1: "?", c28: "?", i28: "?", pos: "?", topq: "" };
   try {
     const r = await gh(env, `/repos/${env.GH_REPO}/contents/state/daily.json`);
     if (r.ok) {
@@ -549,8 +550,19 @@ async function siteFacts(env) {
       const ok = Object.values(st).filter((v) => v && v.ok).length;
       f.indexed = ok; f.pending = Object.keys(st).length - ok; f.total = Object.keys(st).length;
       f.err = d.aud_e ?? "?"; f.warn = d.aud_w ?? "?"; f.day = d.day || "?";
-      if (d.gsc_last) { f.clicks = d.gsc_last.c; f.impr = d.gsc_last.i; }
+      if (d.gsc_last) { f.c7 = d.gsc_last.c; f.i7 = d.gsc_last.i; }
     }
+  } catch {}
+  // GSC se taaza data — taaki "aaj kuch hua ya nahi" ka jawab de sake
+  try {
+    const [a, b, q] = await Promise.all([
+      gscQuery(env, 1, 0), gscQuery(env, 28, 0), gscQuery(env, 28, 0, ["query"], 5),
+    ]);
+    const g = (x) => x?.rows?.[0] || {};
+    f.c1 = g(a).clicks ?? 0; f.i1 = g(a).impressions ?? 0;
+    f.c28 = g(b).clicks ?? 0; f.i28 = g(b).impressions ?? 0;
+    f.pos = g(b).position ? Number(g(b).position).toFixed(1) : "?";
+    f.topq = (q?.rows || []).map((x) => `${x.keys[0]} (${x.impressions} impr)`).join(", ");
   } catch {}
   return f;
 }
@@ -660,6 +672,11 @@ function understand(t) {
     return ["botupdate", ""];
   if (has("poora scan", "report banao", "scan karo", "naya scan", "poori report"))
     return ["report", ""];
+
+  // "aaj kuch hua kya", "kal ek bhi nahi", "kuch aaya kya" — seedha GSC
+  if (has("aaj", "kal", "today", "yesterday") &&
+      has("hua", "huwa", "aaya", "ek bhi", "kuch nahi", "nahi huwa", "nahi hua", "kaisa raha"))
+    return ["gsc", num || "1"];
 
   // ---- GSC / GA ka aam data ----
   if (has("click", "clicks", "impression", "impressions", "search console", "gsc", "ranking", "position", "ctr"))
@@ -824,7 +841,13 @@ async function aiTalk(env, mid, t) {
       "- Sab kuch pehle se laga hua hai: sitemap, schema (FAQ/Breadcrumb/WebApplication), canonical, IndexNow, " +
       "security headers grade A, consent banner, internal linking, hub pages, GSC aur GA4 juda hua.\n" +
       "- " + f.indexed + " page Google me index hain, " + f.pending + " baaki. Audit me ERROR " + f.err + ", WARNING " + f.warn + ".\n" +
-      "- Par 7 din me sirf " + f.clicks + " click aur " + f.impr + " impression aaye. (" + f.day + " tak ka data)\n" +
+      "- ASLI GSC DATA (Google 2-3 din peeche chalta hai, isliye 'aaj' ka matlab 3 din pehle):\n" +
+      "  · pichhle 1 din: " + f.c1 + " click, " + f.i1 + " impression\n" +
+      "  · pichhle 7 din: " + f.c7 + " click, " + f.i7 + " impression\n" +
+      "  · pichhle 28 din: " + f.c28 + " click, " + f.i28 + " impression, average position " + f.pos + "\n" +
+      (f.topq ? "  · sabse zyada dikhne wali query: " + f.topq + "\n" : "") +
+      "- Agar koi poochhe 'aaj kuch hua ya nahi' to upar wale 1-din ke number se jawab do. " +
+      "Ye mat kaho ki data mere paas nahi hai.\n" +
       "- ASLI KAMZORI: site par lagbhag ZERO backlink hain aur koi social profile nahi. Page index to hain, " +
       "par Google unhe upar nahi rakhta kyunki domain ki koi sakh (authority) nahi bani.\n" +
       "- AdSense abhi apply nahi ki. Pehle backlink, social profile aur bache hue thin page theek karne hain.\n\n" +
