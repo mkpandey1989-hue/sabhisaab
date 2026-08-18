@@ -572,6 +572,10 @@ const JOBS = {
   purge:     (env, mid) => doCf(env, mid, "purge"),
   rollback:  (env, mid) => doCf(env, mid, "rb"),
   pending:   async (env, mid) => { await runWf(env, "pending.yml"); return edit(env, mid, "📋 Pending list ban rahi hai — 1 min.", MAIN); },
+  botupdate: async (env, mid) => {
+    if (await wfBusy(env, "bot.yml")) return edit(env, mid, "⏳ Bot ka update pehle se chal raha hai.", MAIN);
+    await runWf(env, "bot.yml");
+    return edit(env, mid, "🤖 Bot ka update chalu — 1-2 minute me ho jaayega.", MAIN); },
   report:    async (env, mid) => { await runWf(env, "daily.yml"); return edit(env, mid, "📑 Poora scan chalu — 3-5 minute.", MAIN); },
   deploy:    async (env, mid) => {
     if (await wfBusy(env, "deploy.yml")) return edit(env, mid, "⏳ Ek deploy pehle se chal raha hai.", MAIN);
@@ -645,6 +649,8 @@ function understand(t) {
     return ["sitecheck", ""];
   if (has("workflow", "pichhle run", "last run", "kya chala"))
     return ["status", ""];
+  if (has("bot update", "bot ka code", "bot chadha", "bot deploy"))
+    return ["botupdate", ""];
   if (has("poora scan", "report banao", "scan karo", "naya scan", "poori report"))
     return ["report", ""];
 
@@ -940,6 +946,9 @@ async function handle(env, u) {
       if (await wfBusy(env, "deploy.yml")) await say(env, "⏳ Ek deploy pehle se chal raha hai — usi ka intezaar kijiye.");
       else { await runWf(env, "deploy.yml", { indexnow: arg === "sabhi" ? "sabhi" : arg === "chup" ? "koi-nahi" : "badle-hue" });
         await say(env, "🚀 Deploy chalu."); } }
+    else if (cmd === "/botupdate") {
+      if (await wfBusy(env, "bot.yml")) await say(env, "⏳ Bot ka update pehle se chal raha hai.");
+      else { await runWf(env, "bot.yml"); await say(env, "🤖 Bot ka update chalu — 1-2 minute."); } }
     else if (cmd === "/report") { await runWf(env, "daily.yml"); await say(env, "📑 Scan chalu — 3-5 min."); }
     else if (cmd === "/audit") { await runWf(env, "audit.yml"); await say(env, "🛠 Audit chalu."); }
     else if (cmd === "/pending") { await runWf(env, "pending.yml"); await say(env, "📋 Pending list ban rahi hai — 1 min."); }
