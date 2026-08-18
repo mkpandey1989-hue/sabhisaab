@@ -359,7 +359,7 @@ async function doHealth(env, mid) {
       const list = await geminiModels((env.GEMINI_KEY || "").trim());
       o.push("🔴 Gemini nahi chali\n   Wajah: <code>" + esc(String(GEM_ERR).slice(0, 160)) + "</code>");
       o.push(list.length
-        ? "   Is key par ye model milte hain:\n   <code>" + esc(list.slice(0, 6).join(", ")) + "</code>"
+        ? "   Is key par ye model milte hain:\n   <code>" + esc(list.slice(0, 12).join(", ")) + "</code>"
         : "   Is key par ek bhi model nahi mila — key galat hai ya API enable nahi hui.");
     }
   } else o.push(env.AI ? "🟠 AI — sirf Cloudflare ka chhota model (Gemini key nahi lagi)" : "❌ AI band hai");
@@ -692,11 +692,16 @@ async function geminiModels(key) {
   } catch (e) { GEM_ERR = String(e).slice(0, 120); return []; }
 }
 
-/** Jo model milte hain unme se sabse theek chuno */
+/** Jo model milte hain unme se sabse naya flash chuno.
+ *  Google purane naam band karta rehta hai (jaise 2.5-flash naye users ke liye band ho gaya),
+ *  isliye version ka number dekhkar sabse naya uthate hain — naam hardcode nahi karte. */
 function pickModel(list) {
-  const want = [/2\.5-flash$/, /2\.5-flash-lite$/, /2\.0-flash$/, /flash-latest$/, /flash/, /pro/];
-  for (const w of want) { const m = list.find((x) => w.test(x) && !/vision|embed|image|tts|audio|live/i.test(x)); if (m) return m; }
-  return list[0] || "";
+  const ok = list.filter((m) => /^gemini-/.test(m) &&
+    !/tts|embed|vision|image|audio|live|thinking|exp$/i.test(m));
+  const ver = (m) => { const x = m.match(/gemini-(\d+)(?:\.(\d+))?/); return x ? (+x[1]) * 100 + (+(x[2] || 0)) : 0; };
+  const rank = (m) => (/flash-lite/.test(m) ? 2 : /flash/.test(m) ? 3 : /pro/.test(m) ? 1 : 0);
+  ok.sort((a, b) => (ver(b) - ver(a)) || (rank(b) - rank(a)) || (a.length - b.length));
+  return ok[0] || list[0] || "";
 }
 
 async function geminiCall(key, model, sys, user, max_tokens) {
@@ -715,21 +720,27 @@ async function geminiCall(key, model, sys, user, max_tokens) {
   return t.trim();
 }
 
+const GEM_DEAD = new Set();   // jo model mana kar chuke, unpar samay barbaad mat karo
 async function gemini(env, sys, user, max_tokens = 700) {
   const key = (env.GEMINI_KEY || "").trim();
   if (!key) { GEM_ERR = "key nahi lagi"; return null; }
   GEM_ERR = "";
-  if (GEM_MODEL) { const t = await geminiCall(key, GEM_MODEL, sys, user, max_tokens); if (t) return t; GEM_MODEL = ""; }
-  for (const m of ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]) {
+  if (GEM_MODEL) { const t = await geminiCall(key, GEM_MODEL, sys, user, max_tokens); if (t) return t; GEM_DEAD.add(GEM_MODEL); GEM_MODEL = ""; }
+  for (const m of ["gemini-3.6-flash", "gemini-flash-latest", "gemini-3.6-flash-lite", "gemini-2.5-flash"]) {
+    if (GEM_DEAD.has(m)) continue;
     const t = await geminiCall(key, m, sys, user, max_tokens);
     if (t) { GEM_MODEL = m; return t; }
+    GEM_DEAD.add(m);
   }
   // naam badal gaye hon to Google se hi list mangwa lo
-  const list = await geminiModels(key);
-  const pick = pickModel(list);
-  if (pick) {
+  const list = (await geminiModels(key)).filter((m) => !GEM_DEAD.has(m));
+  for (let k = 0; k < 3 && list.length; k++) {
+    const pick = pickModel(list);
+    if (!pick) break;
     const t = await geminiCall(key, pick, sys, user, max_tokens);
     if (t) { GEM_MODEL = pick; return t; }
+    GEM_DEAD.add(pick);
+    list.splice(list.indexOf(pick), 1);
   }
   return null;
 }
