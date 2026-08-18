@@ -351,7 +351,11 @@ async function doHealth(env, mid) {
   const s = await gh(env, `/repos/${env.GH_REPO}/actions/runs?per_page=1`);
   const x = s.data?.workflow_runs?.[0];
   if (x) o.push(`${x.conclusion === "success" ? "✅" : "❌"} Aakhri run — ${esc(x.name)}: ${esc(x.conclusion || x.status)}`);
-  o.push((env.GEMINI_KEY || "").trim() ? "✅ AI — Gemini (samajhdar)" : (env.AI ? "🟠 AI — sirf Cloudflare ka chhota model" : "❌ AI band hai"));
+  if ((env.GEMINI_KEY || "").trim()) {
+    const t0 = Date.now();
+    const g = await gemini(env, "Sirf ye shabd lauta do: OK", "test", 10);
+    o.push(g ? `✅ AI — Gemini chal raha hai (${Date.now() - t0}ms)` : "🔴 Gemini key lagi hai par jawab nahi de rahi — limit khatam ho sakti hai");
+  } else o.push(env.AI ? "🟠 AI — sirf Cloudflare ka chhota model (Gemini key nahi lagi)" : "❌ AI band hai");
   o.push((env.PSI_KEY || "").trim() ? "✅ PageSpeed key lagi hai" : "🟠 PageSpeed key nahi — speed report adhoori aayegi");
   await edit(env, mid, "<b>❤️ Jaanch</b>\n\n" + o.join("\n"), MAIN);
 }
@@ -663,7 +667,7 @@ const AI_GOOD = ["@cf/meta/llama-3.1-8b-instruct", "@cf/meta/llama-3.2-3b-instru
 async function gemini(env, sys, user, max_tokens = 700) {
   const key = (env.GEMINI_KEY || "").trim();
   if (!key) return null;
-  for (const model of ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]) {
+  for (const model of ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-flash-latest"]) {
     try {
       const r = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
@@ -692,11 +696,25 @@ async function aiRun(env, messages, max_tokens = 320, models = AI_GOOD) {
 }
 
 /** Dono ko ek jagah se poochho: pehle Gemini, na chale to Cloudflare */
+let LAST_BRAIN = "";
 async function think(env, sys, user, max_tokens = 700, fast = false) {
   const g = await gemini(env, sys, user, max_tokens);
-  if (g) return g;
-  return aiRun(env, [{ role: "system", content: sys }, { role: "user", content: user }],
-               max_tokens, fast ? AI_FAST : AI_GOOD);
+  if (g) { LAST_BRAIN = "Gemini"; return g; }
+  const c = await aiRun(env, [{ role: "system", content: sys }, { role: "user", content: user }],
+                        max_tokens, fast ? AI_FAST : AI_GOOD);
+  LAST_BRAIN = c ? "Cloudflare AI" : "";
+  return c;
+}
+
+/** Model markdown me likhta hai, Telegram HTML samajhta hai — beech ka pul */
+function md2tg(t) {
+  return esc(t)
+    .replace(/^\s*#{1,6}\s*/gm, "")
+    .replace(/\*\*([^*\n]+)\*\*/g, "<b>$1</b>")
+    .replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,!?]|$)/g, "$1<i>$2</i>")
+    .replace(/^\s*[-*]\s+/gm, "• ")
+    .replace(/`([^`\n]+)`/g, "<code>$1</code>")
+    .replace(/\n{3,}/g, "\n\n");
 }
 
 /** AI sirf ye tay karta hai ki kaunsa kaam chalana hai — jawab wo khud nahi banata */
@@ -741,20 +759,30 @@ async function aiPick(env, t) {
 async function aiTalk(env, mid, t) {
   const f = await siteFacts(env);
   const out = await think(env,
-      "Tum 'Sab Hisaab' website ke sahayak ho. Malik ka naam Manoj hai.\n" +
-      "Site: sabhisaab.com — Hinglish calculator site, Cloudflare Pages par, 154 tool, 38 guide, 24 lekh.\n" +
-      "NIYAM: (1) Hinglish me jawab do, Roman script me. (2) Chhote vaakya, 4-6 line se zyada nahi.\n" +
-      "(3) Koi bhi number apne se MAT banao — sirf neeche diye aankde use karo. Pata na ho to saaf kaho 'ye number mere paas nahi, /menu se dekh lijiye'.\n" +
-      "(4) AdSense abhi apply nahi hui — pehle backlink, social profile aur thin page theek karne hain.\n" +
-      "(5) Sabse badi kamzori: site par lagbhag zero backlink hain. Isi wajah se page index to hain par impression kam hain.\n" +
-      "(6) Site Cloudflare Pages par hai, GitHub Actions se deploy hoti hai, aur ye bot Telegram se sab chalata hai.\n" +
-      "(7) Salah dete waqt seedhi baat karo, ginn kar 2-4 point do, jhooth mat bolo. Pata na ho to keh do ki pata nahi.\n" +
-      "ASLI AANKDE (" + f.day + "): indexed " + f.indexed + ", pending " + f.pending + ", kul URL " + f.total +
-      ", audit ERROR " + f.err + " WARNING " + f.warn + ", GSC 7 din: clicks " + f.clicks + " impressions " + f.impr + ".",
-      t.slice(0, 500), 800);
+      "Tum 'Sab Hisaab' ke maalik Manoj ke apne sahayak ho. Unki website sabhisaab.com hai.\n\n" +
+      "SITE KA SACH:\n" +
+      "- Hinglish calculator site, 154 tool, 38 guide, 24 lekh. Cloudflare Pages par, GitHub Actions se deploy.\n" +
+      "- Sab kuch pehle se laga hua hai: sitemap, schema (FAQ/Breadcrumb/WebApplication), canonical, IndexNow, " +
+      "security headers grade A, consent banner, internal linking, hub pages, GSC aur GA4 juda hua.\n" +
+      "- " + f.indexed + " page Google me index hain, " + f.pending + " baaki. Audit me ERROR " + f.err + ", WARNING " + f.warn + ".\n" +
+      "- Par 7 din me sirf " + f.clicks + " click aur " + f.impr + " impression aaye. (" + f.day + " tak ka data)\n" +
+      "- ASLI KAMZORI: site par lagbhag ZERO backlink hain aur koi social profile nahi. Page index to hain, " +
+      "par Google unhe upar nahi rakhta kyunki domain ki koi sakh (authority) nahi bani.\n" +
+      "- AdSense abhi apply nahi ki. Pehle backlink, social profile aur bache hue thin page theek karne hain.\n\n" +
+      "JAWAB DENE KE NIYAM — inhe todna nahi:\n" +
+      "1. Hinglish me likho (Roman script me Hindi). Chhote vaakya.\n" +
+      "2. Zyada se zyada 6-8 line. Lambi list mat banao.\n" +
+      "3. GHISI-PITI SALAH BILKUL MAT DO. 'SEO karo', 'quality content likho', 'content marketing karo', " +
+      "'email marketing', 'social media marketing' — ye sab BEKAAR jawab hain. Ye sab pehle se ho chuka hai.\n" +
+      "4. Hamesha SAB HISAAB ki apni sthiti par baat karo. Agar aage badhne ki salah deni ho to yaad rakho ki " +
+      "asli rukawat backlink hai, content nahi.\n" +
+      "5. Koi number apne se MAT banao. Sirf upar diye aankde use karo. Pata na ho to keh do 'ye number mere paas nahi, /menu se dekh lijiye'.\n" +
+      "6. Markdown ka # heading mat lagao. Seedha likho.",
+      t.slice(0, 600), 700);
   if (!out) return edit(env, mid,
     "Ye baat samajh nahi aayi.\n\nAise poochh sakte hain:\n• <i>7 din ke click batao</i>\n• <i>kitne page index hue</i>\n• <i>speed kaisi hai</i>\n• <i>/check /nsc-calculator</i>\n\nYa 📖 Poora menu dabaiye.", MAIN);
-  return edit(env, mid, esc(out.trim().slice(0, 3000)) + "\n\n<i>— jaanch ke liye /menu</i>", MAIN);
+  return edit(env, mid, md2tg(out.trim()).slice(0, 3400) +
+    "\n\n<i>— " + esc(LAST_BRAIN || "AI") + " · jaanch ke liye /menu</i>", MAIN);
 }
 
 /** Poora raasta: pehle shabd, phir AI se kaam chuno, phir AI se baat */
