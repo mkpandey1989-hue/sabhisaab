@@ -233,6 +233,9 @@ def main(only=None):
         # ---------- v9 NAYE CHECK (17 Aug 2026) ----------
         try:
             ix = read(os.path.join(d, "index.html"))
+            # tools ka JS ab alag file me hai (speed ke liye) — dono jodkar dekho
+            tjs = os.path.join(d, "tools.js")
+            if os.path.exists(tjs): ix += "\n" + read(tjs)
             ixline = [l for l in ix.split("\n") if l.startswith("const PAGES=")]
             tool_ids = re.findall(r"\{id:'([A-Za-z0-9_-]+)',cat:'([^']+)'", ix)
             n_tools = len(tool_ids)
@@ -304,6 +307,17 @@ def main(only=None):
                     bad("SEO: robots.txt me query-string block (canonical padha nahi jaayega)", line.strip())
         except Exception:
             pass
+
+        # site/ ki alag .js file ka syntax bhi jaancho (tools.js, install-app.js, sw.js)
+        for jf in sorted(glob.glob(os.path.join(d, "*.js"))):
+            r = subprocess.run(["node", "--check", jf], capture_output=True, text=True)
+            if r.returncode != 0:
+                bad("Code: JS file tooti hai", (os.path.basename(jf), r.stderr.strip().split("\n")[0][:90]))
+        # har page par jo .js file link hai, wo maujood hai ya nahi
+        for f in targets:
+            for src in re.findall(r'<script[^>]*src="/([^"]+\.js)"', read(os.path.join(d, f))):
+                if not os.path.exists(os.path.join(d, src)):
+                    bad("Code: JS file gayab hai", (f, src))
 
         for p in sorted(pages):
             if p in ("404", "googleb9a1fd91a1579ee6"): continue

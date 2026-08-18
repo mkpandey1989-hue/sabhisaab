@@ -17,6 +17,15 @@
 /*.jpg
   Cache-Control: public, max-age=31536000, immutable
 
+/tools.js
+  Cache-Control: public, max-age=86400
+
+/install-app.js
+  Cache-Control: public, max-age=86400
+
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
 /sitemap.xml
   Cache-Control: public, max-age=3600
 
