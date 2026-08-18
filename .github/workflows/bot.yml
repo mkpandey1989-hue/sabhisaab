@@ -41,7 +41,8 @@ jobs:
           put GA4_ID       "${{ secrets.GA4_PROPERTY_ID }}"
           put CF_TOKEN     "${{ secrets.CLOUDFLARE_API_TOKEN }}"
           put CF_ACCT      "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
-          put PSI_KEY      "${{ secrets.PSI_KEY }}"   # na ho to khaali — bot phir bhi chalega
+          put PSI_KEY      "${{ secrets.PSI_KEY }}"      # na ho to khaali — bot phir bhi chalega
+          put GEMINI_KEY   "${{ secrets.GEMINI_KEY }}"   # na ho to Cloudflare wali AI chalti rahegi
 
       - name: Webhook + menu
         env:

@@ -351,6 +351,8 @@ async function doHealth(env, mid) {
   const s = await gh(env, `/repos/${env.GH_REPO}/actions/runs?per_page=1`);
   const x = s.data?.workflow_runs?.[0];
   if (x) o.push(`${x.conclusion === "success" ? "✅" : "❌"} Aakhri run — ${esc(x.name)}: ${esc(x.conclusion || x.status)}`);
+  o.push((env.GEMINI_KEY || "").trim() ? "✅ AI — Gemini (samajhdar)" : (env.AI ? "🟠 AI — sirf Cloudflare ka chhota model" : "❌ AI band hai"));
+  o.push((env.PSI_KEY || "").trim() ? "✅ PageSpeed key lagi hai" : "🟠 PageSpeed key nahi — speed report adhoori aayegi");
   await edit(env, mid, "<b>❤️ Jaanch</b>\n\n" + o.join("\n"), MAIN);
 }
 async function doCf(env, mid, what) {
@@ -656,6 +658,30 @@ function understand(t) {
 
 const AI_FAST = ["@cf/meta/llama-3.2-3b-instruct", "@cf/meta/llama-3.1-8b-instruct"];
 const AI_GOOD = ["@cf/meta/llama-3.1-8b-instruct", "@cf/meta/llama-3.2-3b-instruct"];
+
+/** Gemini — sabse samajhdar. Key na ho to apne aap Cloudflare wale par chala jaata hai. */
+async function gemini(env, sys, user, max_tokens = 700) {
+  const key = (env.GEMINI_KEY || "").trim();
+  if (!key) return null;
+  for (const model of ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]) {
+    try {
+      const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
+        { method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: sys }] },
+            contents: [{ role: "user", parts: [{ text: user }] }],
+            generationConfig: { temperature: 0.3, maxOutputTokens: max_tokens },
+          }) });
+      if (!r.ok) continue;
+      const d = await r.json();
+      const t = d?.candidates?.[0]?.content?.parts?.map((x) => x.text).filter(Boolean).join("");
+      if (t && t.trim()) return t.trim();
+    } catch {}
+  }
+  return null;
+}
+
 async function aiRun(env, messages, max_tokens = 320, models = AI_GOOD) {
   if (!env.AI) return null;
   for (const m of models) {
@@ -665,10 +691,17 @@ async function aiRun(env, messages, max_tokens = 320, models = AI_GOOD) {
   return null;
 }
 
+/** Dono ko ek jagah se poochho: pehle Gemini, na chale to Cloudflare */
+async function think(env, sys, user, max_tokens = 700, fast = false) {
+  const g = await gemini(env, sys, user, max_tokens);
+  if (g) return g;
+  return aiRun(env, [{ role: "system", content: sys }, { role: "user", content: user }],
+               max_tokens, fast ? AI_FAST : AI_GOOD);
+}
+
 /** AI sirf ye tay karta hai ki kaunsa kaam chalana hai — jawab wo khud nahi banata */
 async function aiPick(env, t) {
-  const out = await aiRun(env, [
-    { role: "system", content:
+  const out = await think(env,
       "Tum ek router ho. User Hinglish (Roman script me Hindi) me kuch poochhta hai.\n" +
       'Sirf ek JSON lauta do, aur kuch bhi nahi: {"a":"KAAM","x":"ARG"}\n\n' +
       "KAAM ki poori list aur matlab:\n" +
@@ -693,9 +726,8 @@ async function aiPick(env, t) {
       'User: 15 din ka search data -> {"a":"gsc","x":"15"}\n' +
       'User: /ppf-calculator google me aaya kya -> {"a":"check","x":"/ppf-calculator"}\n' +
       'User: site kyu dheemi hai -> {"a":"speed","x":"mobile"}\n' +
-      'User: backlink kaise banau -> {"a":"none","x":""}' },
-    { role: "user", content: t.slice(0, 300) },
-  ], 60, AI_FAST);
+      'User: backlink kaise banau -> {"a":"none","x":""}',
+    t.slice(0, 300), 80, true);
   if (!out) return null;
   try {
     const m = out.match(/\{[\s\S]*?\}/); if (!m) return null;
@@ -708,8 +740,7 @@ async function aiPick(env, t) {
 /** Aam sawaal ka jawab — sirf asli aankdon ke saath, apne se number nahi */
 async function aiTalk(env, mid, t) {
   const f = await siteFacts(env);
-  const out = await aiRun(env, [
-    { role: "system", content:
+  const out = await think(env,
       "Tum 'Sab Hisaab' website ke sahayak ho. Malik ka naam Manoj hai.\n" +
       "Site: sabhisaab.com — Hinglish calculator site, Cloudflare Pages par, 154 tool, 38 guide, 24 lekh.\n" +
       "NIYAM: (1) Hinglish me jawab do, Roman script me. (2) Chhote vaakya, 4-6 line se zyada nahi.\n" +
@@ -719,9 +750,8 @@ async function aiTalk(env, mid, t) {
       "(6) Site Cloudflare Pages par hai, GitHub Actions se deploy hoti hai, aur ye bot Telegram se sab chalata hai.\n" +
       "(7) Salah dete waqt seedhi baat karo, ginn kar 2-4 point do, jhooth mat bolo. Pata na ho to keh do ki pata nahi.\n" +
       "ASLI AANKDE (" + f.day + "): indexed " + f.indexed + ", pending " + f.pending + ", kul URL " + f.total +
-      ", audit ERROR " + f.err + " WARNING " + f.warn + ", GSC 7 din: clicks " + f.clicks + " impressions " + f.impr + "." },
-    { role: "user", content: t.slice(0, 500) },
-  ]);
+      ", audit ERROR " + f.err + " WARNING " + f.warn + ", GSC 7 din: clicks " + f.clicks + " impressions " + f.impr + ".",
+      t.slice(0, 500), 800);
   if (!out) return edit(env, mid,
     "Ye baat samajh nahi aayi.\n\nAise poochh sakte hain:\n• <i>7 din ke click batao</i>\n• <i>kitne page index hue</i>\n• <i>speed kaisi hai</i>\n• <i>/check /nsc-calculator</i>\n\nYa 📖 Poora menu dabaiye.", MAIN);
   return edit(env, mid, esc(out.trim().slice(0, 3000)) + "\n\n<i>— jaanch ke liye /menu</i>", MAIN);
