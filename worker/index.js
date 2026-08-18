@@ -221,15 +221,36 @@ async function doGaDim(env, mid, dim) {
 }
 async function doSpeed(env, mid, st) {
   await edit(env, mid, "⏳ PageSpeed chal raha hai (30-60 sec)…");
-  try {
-    const d = await (await fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(SITE)}&strategy=${st}&category=performance`)).json();
-    const lh = d.lighthouseResult, a = lh.audits;
-    const sc = Math.round(lh.categories.performance.score * 100);
-    await edit(env, mid, `<b>⚡ ${st === "mobile" ? "Mobile" : "Desktop"} speed</b>\n\n` +
-      `Score : <b>${sc}</b> ${sc >= 90 ? "🟢" : sc >= 50 ? "🟠" : "🔴"}\n` +
-      `LCP : ${a["largest-contentful-paint"].displayValue}\nCLS : ${a["cumulative-layout-shift"].displayValue}\n` +
-      `TBT : ${a["total-blocking-time"].displayValue}\nSpeed Index : ${a["speed-index"].displayValue}`, MENUS.spd.k);
-  } catch (e) { await edit(env, mid, `❌ ${esc(String(e).slice(0, 250))}`, MENUS.spd.k); }
+  const key = (env.PSI_KEY || "").trim();
+  const url = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(SITE)}` +
+              `&strategy=${st}&category=performance${key ? "&key=" + encodeURIComponent(key) : ""}`;
+  for (let try_ = 1; try_ <= 2; try_++) {
+    try {
+      const res = await fetch(url);
+      const d = await res.json();
+      const lh = d && d.lighthouseResult;
+      if (!lh || !lh.audits) {
+        const why = d?.error?.message || `HTTP ${res.status}`;
+        if (try_ === 1) { await new Promise((r) => setTimeout(r, 4000)); continue; }
+        return edit(env, mid,
+          "⚠️ <b>PageSpeed ne jawab nahi diya</b>\n\n" + `<code>${esc(String(why).slice(0, 140))}</code>\n\n` +
+          (key ? "Key lagi hui hai — Google ki taraf se der ho sakti hai, 2 minute baad phir dekhiye."
+               : "Wajah: <b>API key nahi lagi</b>. Bina key ke Google bahut kam request deta hai aur aksar mana kar deta hai.\n\n" +
+                 "Ek baar ka kaam: Google Cloud me <i>PageSpeed Insights API</i> chalu karke key banayein, phir GitHub me " +
+                 "<code>PSI_KEY</code> naam ka secret jodein. Free hai — 25,000 request roz.") +
+          "\n\nAbhi ke liye: pagespeed.web.dev par khud check kar sakte hain.", MENUS.spd.k);
+      }
+      const a = lh.audits, sc = Math.round((lh.categories?.performance?.score ?? 0) * 100);
+      const v = (k) => a[k]?.displayValue || "-";
+      return edit(env, mid, `<b>⚡ ${st === "mobile" ? "Mobile" : "Desktop"} speed</b>\n\n` +
+        `Score : <b>${sc}</b> ${sc >= 90 ? "🟢" : sc >= 50 ? "🟠" : "🔴"}\n` +
+        `LCP : ${esc(v("largest-contentful-paint"))}\nCLS : ${esc(v("cumulative-layout-shift"))}\n` +
+        `TBT : ${esc(v("total-blocking-time"))}\nSpeed Index : ${esc(v("speed-index"))}\n\n` +
+        `<i>${key ? "" : "Key lagne par ye report zyada bharosemand hogi."}</i>`, MENUS.spd.k);
+    } catch (e) {
+      if (try_ === 2) return edit(env, mid, `❌ ${esc(String(e).slice(0, 200))}`, MENUS.spd.k);
+    }
+  }
 }
 async function doSite(env, mid) {
   await edit(env, mid, "⏳ …");
@@ -245,7 +266,7 @@ async function doSite(env, mid) {
 async function doStatus(env, mid) {
   const r = await gh(env, `/repos/${env.GH_REPO}/actions/runs?per_page=5`);
   const ic = { success: "✅", failure: "❌", cancelled: "⚪", in_progress: "⏳", queued: "⏳" };
-  const t = "<b>Pichhle 5 run</b>\n\n" + (r.data.workflow_runs || []).map((x) => {
+  const t = "<b>Pichhle 5 run</b>\n\n" + (r.data?.workflow_runs || []).map((x) => {
     const s = x.status === "completed" ? x.conclusion : x.status;
     return `${ic[s] || "•"} ${esc(x.name)} #${x.run_number} — ${esc(s)}, ${ago(x.updated_at)} pehle`; }).join("\n");
   await edit(env, mid, t, MENUS.dep.k);
@@ -261,7 +282,7 @@ async function doPages(env, mid) {
 async function doState(env, mid, key, title) {
   const r = await gh(env, `/repos/${env.GH_REPO}/contents/state/daily.json`);
   if (!r.ok) return edit(env, mid, "Abhi koi report nahi bani. Pehle daily scan chalayein.", MENUS.file.k);
-  const d = JSON.parse(atob(r.data.content.replace(/\n/g, "")));
+  const d = JSON.parse(atob(r.data?.content?.replace(/\n/g, "") || ""));
   const arr = d[key] || [];
   if (!arr.length) return edit(env, mid, `${title}: koi nahi ✅`, MENUS.file.k);
   await edit(env, mid, `<b>${title}</b> (${arr.length})\n\n` + arr.slice(0, 30).map((x) => `<code>${esc(x)}</code>`).join("\n"),
@@ -510,7 +531,7 @@ async function siteFacts(env) {
   try {
     const r = await gh(env, `/repos/${env.GH_REPO}/contents/state/daily.json`);
     if (r.ok) {
-      const d = JSON.parse(atob(r.data.content.replace(/\n/g, "")));
+      const d = JSON.parse(atob(r.data?.content?.replace(/\n/g, "") || ""));
       const st = d.status || {};
       const ok = Object.values(st).filter((v) => v && v.ok).length;
       f.indexed = ok; f.pending = Object.keys(st).length - ok; f.total = Object.keys(st).length;
@@ -554,48 +575,90 @@ const JOBS = {
 
 /** Bina AI ke — sirf shabd dekhkar. Ye hamesha chalta hai, kabhi quota khatam nahi hota. */
 function understand(t) {
-  const x = " " + t.toLowerCase().replace(/[?.,!]/g, " ") + " ";
+  const x = " " + t.toLowerCase().replace(/[?.,!|]/g, " ").replace(/\s+/g, " ") + " ";
   const has = (...w) => w.some((k) => x.includes(" " + k) || x.includes(k + " "));
-  let num = (x.match(/\b(\d{1,3})\s*din\b/) || [])[1];
-  if (!num && / kal |yesterday/.test(x)) num = "1";
-  if (!num && / mahine| month|30 din/.test(x)) num = "28";
+  let num = (x.match(/\b(\d{1,3})\s*(din|day)\b/) || [])[1];
+  if (!num && has("kal", "yesterday", "aaj", "today")) num = "1";
+  if (!num && has("teen mahine", "3 mahine", "quarter", "tim'ahi")) num = "90";
+  if (!num && has("mahine", "mahina", "month", "maheene")) num = "28";
+  if (!num && has("hafte", "hafta", "week", "saptah")) num = "7";
 
-  // URL ki jaanch — "ye page index hua?"
+  // ---- kisi URL ki jaanch ----
   const url = (t.match(/\/[a-z0-9][a-z0-9-]{3,}/i) || [])[0];
-  if (url && has("index", "indexed", "crawl", "chadha", "hua")) return ["check", url];
+  if (url && has("index", "indexed", "crawl", "chadha", "hua", "google", "jaanch", "check", "dekho"))
+    return ["check", url];
 
-  if (has("live", "abhi kitne", "is waqt")) return ["live", ""];
-  if (has("ghante", "hourly", "ghanta")) return ["ghante", ""];
-  if (has("kahan se", "source", "traffic kahan")) return ["kahanse", ""];
-  if (has("query", "queries", "kya search", "kaunsi search")) return ["topquery", ""];
-  if (has("top page", "kaunsa page", "konsa page", "best page")) return ["toppage", ""];
-  if (has("desh", "country")) return ["desh", ""];
-  if (has("device", "mobile ya desktop")) return ["device", ""];
-  if (has("speed", "kitni tez", "dheemi", "pagespeed", "lcp", "cls")) return ["speed", x];
-  if (has("index", "indexed", "indexing", "kitne page chadhe", "pending url")) return ["indexing", ""];
+  // ---- live / abhi ----
+  if (has("live", "abhi kitne", "is waqt", "is samay", "real time", "realtime", "abhi kaun"))
+    return ["live", ""];
+  if (has("ghante", "ghanta", "hourly", "hour", "kis samay", "kaunse time"))
+    return ["ghante", ""];
+
+  // ---- traffic kahan se ----
+  if (has("kahan se", "kaha se", "source", "channel", "referral", "direct ya", "organic"))
+    return ["kahanse", ""];
+
+  // ---- search console ke tukde ----
+  if (has("query", "queries", "keyword", "kya search", "kaunsi search", "konsi search", "kis shabd"))
+    return ["topquery", ""];
+  if (has("top page", "best page", "kaunsa page", "konsa page", "kaun sa page", "sabse zyada page"))
+    return ["toppage", ""];
+  if (has("desh", "country", "kis desh", "videsh", "bharat ke bahar"))
+    return ["desh", ""];
+  if (has("device", "mobile ya desktop", "phone ya computer", "kis device"))
+    return ["device", ""];
+
+  // ---- speed ----
+  if (has("speed", "kitni tez", "dheemi", "dheema", "slow", "fast", "pagespeed", "lcp", "cls", "tbt", "score", "performance"))
+    return ["speed", has("desktop", "computer", "laptop") ? "desktop" : "mobile"];
+
+  // ---- indexing ----
+  if (has("index", "indexed", "indexing", "kitne page chadhe", "pending url", "crawl", "google ko pata", "kitne baaki"))
+    return ["indexing", ""];
   if (has("sitemap")) return ["sitemap", ""];
-  if (has("purge", "cache")) return ["purge", ""];
-  if (has("rollback", "wapas le", "purana version")) return ["rollback", ""];
-  if (has("audit chalao", "audit karo", "naya audit")) return ["auditrun", ""];
-  if (has("audit", "error kitne", "warning")) return ["audit", ""];
-  if (has("deploy", "live karo", "chadha do")) return ["deploy", ""];
-  if (has("pending", "kya baaki", "kya karna")) return ["pending", ""];
-  if (has("health", "sab theek", "token theek")) return ["health", ""];
-  if (has("kitne page", "kitne tool", "kitni file")) return ["pages", ""];
-  if (has("site chal", "site down", "site khul")) return ["sitecheck", ""];
-  if (has("run", "workflow", "pichhle")) return ["status", ""];
-  if (has("poora scan", "report banao", "scan karo")) return ["report", ""];
-  // clicks / users
-  if (has("click", "search console", "gsc", "impression")) return ["gsc", num || "7"];
-  if (has("user", "visitor", "analytics", "log aaye", "traffic")) return ["ga", num || "7"];
-  if (num && has("data", "haal", "batao", "dikhao")) return ["gsc", num];
+
+  // ---- cloudflare ----
+  if (has("purge", "cache", "purana dikh", "refresh nahi")) return ["purge", ""];
+  if (has("rollback", "wapas le", "purana version", "undo", "pehle wala")) return ["rollback", ""];
+
+  // ---- audit / deploy ----
+  if (has("audit chalao", "audit karo", "naya audit", "dobara audit")) return ["auditrun", ""];
+  if (has("audit", "error kitne", "kitne error", "warning", "kami", "galti"))
+    return ["audit", ""];
+  if (has("deploy", "live karo", "chadha do", "publish", "upload kar"))
+    return ["deploy", ""];
+
+  // ---- kaam ki list ----
+  if (has("pending", "kya baaki", "kaam baaki", "kya karna", "todo", "kaam kya", "aage kya"))
+    return ["pending", ""];
+  if (has("health", "sab theek", "token theek", "sab chal", "kuch toota"))
+    return ["health", ""];
+  if (has("kitne page", "kitne tool", "kitni file", "total page", "kul page", "ginti"))
+    return has("google", "index", "crawl", "search") ? ["indexing", ""] : ["pages", ""];
+  if (has("site chal", "site down", "site khul", "site theek", "server", "uptime"))
+    return ["sitecheck", ""];
+  if (has("workflow", "pichhle run", "last run", "kya chala"))
+    return ["status", ""];
+  if (has("poora scan", "report banao", "scan karo", "naya scan", "poori report"))
+    return ["report", ""];
+
+  // ---- GSC / GA ka aam data ----
+  if (has("click", "clicks", "impression", "impressions", "search console", "gsc", "ranking", "position", "ctr"))
+    return ["gsc", num || "7"];
+  if (has("user", "users", "visitor", "log aaye", "kitne log", "analytics", "ga4", "session", "traffic", "view"))
+    return ["ga", num || "7"];
+
+  // ---- sirf din ka zikr ----
+  if (num && has("data", "haal", "batao", "dikhao", "report", "kaisa", "kaisi", "kya hua"))
+    return ["gsc", num];
   return null;
 }
 
-const AI_MODELS = ["@cf/meta/llama-3.2-3b-instruct", "@cf/meta/llama-3.1-8b-instruct"];
-async function aiRun(env, messages, max_tokens = 320) {
+const AI_FAST = ["@cf/meta/llama-3.2-3b-instruct", "@cf/meta/llama-3.1-8b-instruct"];
+const AI_GOOD = ["@cf/meta/llama-3.1-8b-instruct", "@cf/meta/llama-3.2-3b-instruct"];
+async function aiRun(env, messages, max_tokens = 320, models = AI_GOOD) {
   if (!env.AI) return null;
-  for (const m of AI_MODELS) {
+  for (const m of models) {
     try { const r = await env.AI.run(m, { messages, max_tokens }); if (r && r.response) return r.response; }
     catch {}
   }
@@ -606,16 +669,36 @@ async function aiRun(env, messages, max_tokens = 320) {
 async function aiPick(env, t) {
   const out = await aiRun(env, [
     { role: "system", content:
-      "Tum ek router ho. User Hinglish me kuch poochhta hai. Sirf ek JSON lauta do, aur kuch nahi.\n" +
-      'Roop: {"a":"KAAM","x":"ARG"}\n' +
-      "KAAM in me se ek: gsc topquery toppage desh device ga live ghante kahanse indexing check speed audit pages sitecheck health status sitemap pending report deploy none\n" +
-      "gsc/ga ke liye x me dinon ki ginti. check ke liye x me URL ka slug. warna x khaali.\n" +
-      "Samajh na aaye to a=none." },
+      "Tum ek router ho. User Hinglish (Roman script me Hindi) me kuch poochhta hai.\n" +
+      'Sirf ek JSON lauta do, aur kuch bhi nahi: {"a":"KAAM","x":"ARG"}\n\n' +
+      "KAAM ki poori list aur matlab:\n" +
+      "gsc = Google Search ke click/impression (x me dinon ki ginti)\n" +
+      "topquery = log kaunse shabd search karke aaye\n" +
+      "toppage = kaunsa page sabse zyada chala\n" +
+      "desh = kis desh se log aaye | device = mobile ya desktop\n" +
+      "ga = website par kitne log aaye (x me din) | live = abhi kitne log hain\n" +
+      "ghante = ghante ke hisaab se | kahanse = traffic kis raaste se aaya\n" +
+      "indexing = kitne page Google me chadhe, kitne baaki\n" +
+      "check = ek khaas URL index hua ya nahi (x me us page ka slug)\n" +
+      "speed = website kitni tez hai (x me mobile ya desktop)\n" +
+      "audit = site me kitne error/warning | auditrun = naya audit chalao\n" +
+      "pages = site par kitne page/tool hain | sitecheck = site chal rahi hai ya nahi\n" +
+      "health = sab system theek hain ya nahi | status = pichhle workflow run\n" +
+      "sitemap = Google ko sitemap bhejo | pending = kya kaam baaki hai\n" +
+      "report = poora naya scan chalao | deploy = site live karo\n" +
+      "purge = cache saaf karo | rollback = purane version par wapas\n" +
+      "none = ye kaam nahi, ye aam sawaal hai\n\n" +
+      "Misaal:\n" +
+      'User: pichhle hafte kitni kamai wali query thi -> {"a":"topquery","x":""}\n' +
+      'User: 15 din ka search data -> {"a":"gsc","x":"15"}\n' +
+      'User: /ppf-calculator google me aaya kya -> {"a":"check","x":"/ppf-calculator"}\n' +
+      'User: site kyu dheemi hai -> {"a":"speed","x":"mobile"}\n' +
+      'User: backlink kaise banau -> {"a":"none","x":""}' },
     { role: "user", content: t.slice(0, 300) },
-  ], 60);
+  ], 60, AI_FAST);
   if (!out) return null;
   try {
-    const m = out.match(/\{[^}]*\}/); if (!m) return null;
+    const m = out.match(/\{[\s\S]*?\}/); if (!m) return null;
     const d = JSON.parse(m[0]);
     if (!d.a || d.a === "none" || !JOBS[d.a]) return null;
     return [d.a, String(d.x || "")];
@@ -631,7 +714,10 @@ async function aiTalk(env, mid, t) {
       "Site: sabhisaab.com — Hinglish calculator site, Cloudflare Pages par, 154 tool, 38 guide, 24 lekh.\n" +
       "NIYAM: (1) Hinglish me jawab do, Roman script me. (2) Chhote vaakya, 4-6 line se zyada nahi.\n" +
       "(3) Koi bhi number apne se MAT banao — sirf neeche diye aankde use karo. Pata na ho to saaf kaho 'ye number mere paas nahi, /menu se dekh lijiye'.\n" +
-      "(4) AdSense abhi apply nahi hui. (5) Sabse badi kamzori: backlink nahi hain.\n" +
+      "(4) AdSense abhi apply nahi hui — pehle backlink, social profile aur thin page theek karne hain.\n" +
+      "(5) Sabse badi kamzori: site par lagbhag zero backlink hain. Isi wajah se page index to hain par impression kam hain.\n" +
+      "(6) Site Cloudflare Pages par hai, GitHub Actions se deploy hoti hai, aur ye bot Telegram se sab chalata hai.\n" +
+      "(7) Salah dete waqt seedhi baat karo, ginn kar 2-4 point do, jhooth mat bolo. Pata na ho to keh do ki pata nahi.\n" +
       "ASLI AANKDE (" + f.day + "): indexed " + f.indexed + ", pending " + f.pending + ", kul URL " + f.total +
       ", audit ERROR " + f.err + " WARNING " + f.warn + ", GSC 7 din: clicks " + f.clicks + " impressions " + f.impr + "." },
     { role: "user", content: t.slice(0, 500) },
