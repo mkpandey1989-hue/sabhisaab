@@ -353,8 +353,15 @@ async function doHealth(env, mid) {
   if (x) o.push(`${x.conclusion === "success" ? "✅" : "❌"} Aakhri run — ${esc(x.name)}: ${esc(x.conclusion || x.status)}`);
   if ((env.GEMINI_KEY || "").trim()) {
     const t0 = Date.now();
-    const g = await gemini(env, "Sirf ye shabd lauta do: OK", "test", 10);
-    o.push(g ? `✅ AI — Gemini chal raha hai (${Date.now() - t0}ms)` : "🔴 Gemini key lagi hai par jawab nahi de rahi — limit khatam ho sakti hai");
+    const g = await gemini(env, "Sirf ye shabd lauta do: OK", "test", 20);
+    if (g) o.push(`✅ AI — Gemini chal raha hai · <code>${esc(GEM_MODEL)}</code> · ${Date.now() - t0}ms`);
+    else {
+      const list = await geminiModels((env.GEMINI_KEY || "").trim());
+      o.push("🔴 Gemini nahi chali\n   Wajah: <code>" + esc(String(GEM_ERR).slice(0, 160)) + "</code>");
+      o.push(list.length
+        ? "   Is key par ye model milte hain:\n   <code>" + esc(list.slice(0, 6).join(", ")) + "</code>"
+        : "   Is key par ek bhi model nahi mila — key galat hai ya API enable nahi hui.");
+    }
   } else o.push(env.AI ? "🟠 AI — sirf Cloudflare ka chhota model (Gemini key nahi lagi)" : "❌ AI band hai");
   o.push((env.PSI_KEY || "").trim() ? "✅ PageSpeed key lagi hai" : "🟠 PageSpeed key nahi — speed report adhoori aayegi");
   await edit(env, mid, "<b>❤️ Jaanch</b>\n\n" + o.join("\n"), MAIN);
@@ -669,25 +676,60 @@ function understand(t) {
 const AI_FAST = ["@cf/meta/llama-3.2-3b-instruct", "@cf/meta/llama-3.1-8b-instruct"];
 const AI_GOOD = ["@cf/meta/llama-3.1-8b-instruct", "@cf/meta/llama-3.2-3b-instruct"];
 
-/** Gemini — sabse samajhdar. Key na ho to apne aap Cloudflare wale par chala jaata hai. */
+/** Gemini — sabse samajhdar. Key na ho ya na chale to apne aap Cloudflare wale par chala jaata hai. */
+let GEM_MODEL = "";   // jo model chal gaya, wahi yaad rakho
+let GEM_ERR = "";     // Google ne kya wajah batayi
+
+/** Google se poochho ki is key par kaunse model chalte hain */
+async function geminiModels(key) {
+  try {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?pageSize=100&key=${encodeURIComponent(key)}`);
+    const d = await r.json();
+    if (!r.ok) { GEM_ERR = d?.error?.message || ("HTTP " + r.status); return []; }
+    return (d.models || [])
+      .filter((m) => (m.supportedGenerationMethods || []).includes("generateContent"))
+      .map((m) => String(m.name).replace("models/", ""));
+  } catch (e) { GEM_ERR = String(e).slice(0, 120); return []; }
+}
+
+/** Jo model milte hain unme se sabse theek chuno */
+function pickModel(list) {
+  const want = [/2\.5-flash$/, /2\.5-flash-lite$/, /2\.0-flash$/, /flash-latest$/, /flash/, /pro/];
+  for (const w of want) { const m = list.find((x) => w.test(x) && !/vision|embed|image|tts|audio|live/i.test(x)); if (m) return m; }
+  return list[0] || "";
+}
+
+async function geminiCall(key, model, sys, user, max_tokens) {
+  const r = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
+    { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: sys }] },
+        contents: [{ role: "user", parts: [{ text: user }] }],
+        generationConfig: { temperature: 0.3, maxOutputTokens: max_tokens },
+      }) });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) { GEM_ERR = d?.error?.message || ("HTTP " + r.status); return null; }
+  const t = d?.candidates?.[0]?.content?.parts?.map((x) => x.text).filter(Boolean).join("");
+  if (!t || !t.trim()) { GEM_ERR = "khaali jawab (" + (d?.candidates?.[0]?.finishReason || "?") + ")"; return null; }
+  return t.trim();
+}
+
 async function gemini(env, sys, user, max_tokens = 700) {
   const key = (env.GEMINI_KEY || "").trim();
-  if (!key) return null;
-  for (const model of ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-flash-latest"]) {
-    try {
-      const r = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
-        { method: "POST", headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: sys }] },
-            contents: [{ role: "user", parts: [{ text: user }] }],
-            generationConfig: { temperature: 0.3, maxOutputTokens: max_tokens },
-          }) });
-      if (!r.ok) continue;
-      const d = await r.json();
-      const t = d?.candidates?.[0]?.content?.parts?.map((x) => x.text).filter(Boolean).join("");
-      if (t && t.trim()) return t.trim();
-    } catch {}
+  if (!key) { GEM_ERR = "key nahi lagi"; return null; }
+  GEM_ERR = "";
+  if (GEM_MODEL) { const t = await geminiCall(key, GEM_MODEL, sys, user, max_tokens); if (t) return t; GEM_MODEL = ""; }
+  for (const m of ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]) {
+    const t = await geminiCall(key, m, sys, user, max_tokens);
+    if (t) { GEM_MODEL = m; return t; }
+  }
+  // naam badal gaye hon to Google se hi list mangwa lo
+  const list = await geminiModels(key);
+  const pick = pickModel(list);
+  if (pick) {
+    const t = await geminiCall(key, pick, sys, user, max_tokens);
+    if (t) { GEM_MODEL = pick; return t; }
   }
   return null;
 }
