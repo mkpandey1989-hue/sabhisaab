@@ -139,21 +139,22 @@ jobs:
           PY
           else
             echo "Mode: sirf badle hue URL"
-            git diff --name-only HEAD~1 HEAD -- 'site/*.html' > ch.txt || true
+            # PEHLE: git diff HEAD~1 HEAD se URL chunte the.
+            # Dikkat: ek deploy se pehle kai ZIP chadhti hain (kai commit), aur beech me
+            # "daily state" jaisa commit bhi aa jaata hai. Tab HEAD~1..HEAD me koi HTML
+            # hoti hi nahi thi -> 0 URL -> IndexNow skip. Isi wajah se Bing ko kabhi
+            # khabar nahi pahunchi.
+            # AB: sitemap ke lastmod se chunte hain — kitne bhi commit hon, farak nahi padta.
             python3 - > urls.txt <<'PY'
-          import os
-          base = "https://sabhisaab.com/"
-          out = []
-          try:
-              for line in open("ch.txt"):
-                  f = os.path.basename(line.strip())
-                  if not f.endswith(".html"): continue
-                  slug = f[:-5]
-                  if slug in ("404", "googleb9a1fd91a1579ee6"): continue
-                  out.append(base if slug == "index" else base + slug)
-          except FileNotFoundError:
-              pass
-          for u in sorted(set(out)):
+          import re, datetime
+          sm = open("site/sitemap.xml", encoding="utf-8").read()
+          cut = (datetime.date.today() - datetime.timedelta(days=3)).isoformat()
+          rows = re.findall(r"<loc>([^<]+)</loc>\s*<lastmod>([\d-]+)</lastmod>", sm)
+          picked = [u for u, d in rows if d >= cut]
+          if not picked:                      # kuch naya nahi mila to sabse naye 20
+              rows.sort(key=lambda x: x[1], reverse=True)
+              picked = [u for u, _ in rows[:20]]
+          for u in picked[:10000]:
               print(u)
           PY
           fi
@@ -178,7 +179,14 @@ jobs:
           try:
               r = urllib.request.urlopen(req)
               print("IndexNow: %d URL bheje -> HTTP %d" % (len(urls), r.status))
-              print("200/202 = safal")
+              if r.status in (200, 202):
+                  print("SAFAL — Bing, Yandex, Naver, Seznam ko khabar chali gayi.")
+              else:
+                  print("CHETAVNI: HTTP", r.status, "— Bing ko shayad khabar na mile.")
           except Exception as e:
-              print("IndexNow error:", e)
+              body = ""
+              try: body = e.read().decode()[:200]
+              except Exception: pass
+              print("IndexNow FAIL:", e, body)
+              print("Bing ko khabar NAHI gayi. Key file jaanchein: https://sabhisaab.com/<key>.txt")
           PY
