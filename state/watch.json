@@ -1,7 +1,7 @@
 {
  "down": false,
  "down_since": null,
- "lcur": 48,
+ "lcur": 54,
  "ok_links": [
   "https://agristack.gov.in/",
   "https://beeindia.gov.in/",
@@ -26,7 +26,7 @@
  ],
  "src_hash": {
   "Income Tax": "d41d8cd98f00",
-  "RBI": "3780f55a9618"
+  "RBI": "b141bc31a508"
  },
  "review": {
   "capital-gain-tax-calculator.html": "2026-08-12",
@@ -57,11 +57,15 @@
   "tax-regime-compare-calculator.html": "2026-08-12",
   "tax-regime-guide.html": "2026-08-12",
   "tds-calculator.html": "2026-08-12",
-  "tds-guide.html": "2026-08-12"
+  "tds-guide.html": "2026-08-12",
+  "epf-withdrawal-tax-calculator.html": "2026-08-20",
+  "gst-late-fee-calculator.html": "2026-08-20",
+  "ppf-extension-calculator.html": "2026-08-20",
+  "tds-on-rent-calculator.html": "2026-08-20"
  },
  "svc_hash": {
-  "Web3Forms": "79bd2249b8cc",
+  "Web3Forms": "6effe5aa71bc",
   "IndexNow": "d41d8cd98f00"
  },
- "lastheavy": "2026-08-19"
+ "lastheavy": "2026-08-20"
 }
