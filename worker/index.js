@@ -120,7 +120,8 @@ const MENUS = {
     [{ text: "↩️ Purane version par wapas", callback_data: "cf:rb" }], back]) },
   file: { t: "<b>📁 Files</b>\nFile chahiye? <code>/get naam.html</code>\nZIP ya file bhej dijiye — khud sahi jagah jaayegi", k: kb([
     [{ text: "Kitne page hain", callback_data: "do:pages" }],
-    [{ text: "Faltu file dhundo", callback_data: "do:unused" }], back]) },
+    [{ text: "Faltu file dhundo", callback_data: "do:unused" }],
+    [{ text: "📝 Aaj kya badla", callback_data: "do:changes" }], back]) },
 };
 
 // ---------- google helpers ----------
@@ -325,6 +326,32 @@ async function doInspect(env, mid, u) {
   } catch (e) { await edit(env, mid, `❌ ${esc(String(e).slice(0, 250))}`, MAIN); }
 }
 /** Bot khud apna haal batata hai — kya-kya chalu hai, aakhri kaam kab hua */
+/** Aaj (ya N din me) site par kya-kya badla — GitHub ke commit se */
+async function doChanges(env, mid, days) {
+  await edit(env, mid, "⏳ dekh raha hoon…");
+  const since = new Date(Date.now() - days * 864e5 + 330 * 6e4);
+  since.setUTCHours(0, 0, 0, 0);
+  const r = await gh(env, `/repos/${env.GH_REPO}/commits?since=${since.toISOString()}&per_page=60`);
+  if (!r.ok) return edit(env, mid, `❌ GitHub se jawab nahi mila (${r.status})`, MAIN);
+  const list = (r.data || []).filter((c) => !/^(daily|watch|pending) state/i.test(c.commit?.message || ""));
+  if (!list.length)
+    return edit(env, mid, `<b>📝 ${days === 1 ? "Aaj" : days + " din me"}</b>\n\nAbhi tak koi badlaav nahi hua.\n<i>Site waisi hi hai jaisi pehle thi.</i>`, MAIN);
+  let files = 0;
+  const lines = list.map((c) => {
+    const m = String(c.commit.message).split("\n")[0];
+    const n = /(\d+)\s*file/.exec(m);
+    if (n) files += +n[1];
+    const t = new Date(c.commit.author.date);
+    const hhmm = new Date(t.getTime() + 330 * 6e4).toISOString().slice(11, 16);
+    return `• ${hhmm} — ${esc(m.slice(0, 60))}`;
+  });
+  return edit(env, mid,
+    `<b>📝 ${days === 1 ? "Aaj" : "Pichhle " + days + " din"} ka kaam</b>\n\n` +
+    `Badlaav : <b>${list.length}</b>` + (files ? ` · file : <b>${files}</b>` : "") + "\n\n" +
+    lines.slice(0, 20).join("\n") + (lines.length > 20 ? `\n…aur ${lines.length - 20}` : "") +
+    "\n\n<i>Live hua ya nahi, ye 🚀 Deploy → Pichhle 5 run se dekhiye.</i>", MAIN);
+}
+
 async function doBotStatus(env, mid) {
   await edit(env, mid, "⏳ apna haal dekh raha hoon…");
   const o = [];
@@ -645,6 +672,7 @@ const JOBS = {
   rollback:  (env, mid) => doCf(env, mid, "rb"),
   pending:   async (env, mid) => { await runWf(env, "pending.yml"); return edit(env, mid, "📋 Pending list ban rahi hai — 1 min.", MAIN); },
   botstatus: (env, mid) => doBotStatus(env, mid),
+  changes:   (env, mid, a) => doChanges(env, mid, +a || 1),
   botupdate: async (env, mid) => {
     if (await wfBusy(env, "bot.yml")) return edit(env, mid, "⏳ Bot ka update pehle se chal raha hai.", MAIN);
     await runWf(env, "bot.yml");
@@ -716,6 +744,9 @@ function understand(t) {
     return ["pending", ""];
   if (has("health", "sab theek", "token theek", "sab chal", "kuch toota"))
     return ["health", ""];
+  // "aaj kitne page update kiye", "kya badla", "aaj kya kaam hua" — ginti se pehle
+  if (has("update", "badla", "badle", "badli", "kya kiya", "kya hua", "kaam hua", "chadha", "chadhe", "commit"))
+    return ["changes", num || (has("hafte", "week") ? "7" : "1")];
   if (has("kitne page", "kitne tool", "kitni file", "total page", "kul page", "ginti"))
     return has("google", "index", "crawl", "search") ? ["indexing", ""] : ["pages", ""];
   if (has("site chal", "site down", "site khul", "site theek", "server", "uptime"))
@@ -923,6 +954,7 @@ async function aiTalk(env, mid, t) {
       "- Tum ye NAHI kar sakte: naya page banana, content likhna, code theek karna, ya GSC me " +
       "Request Indexing dabana (Google ka API hai hi nahi). Ye kaam Manoj ya unka AI karta hai.\n" +
       "- ZIP me ek baar me 22 file tak hi chadh sakti hai — isse zyada par tum pehle hi mana kar dete ho.\n" +
+      "- 'Aaj kya update hua' jaisa sawaal aaye to tum GitHub ke commit se bata sakte ho.\n" +
       "- Ye sab poochha jaaye to seedha bata do, ghumao mat.",
       t.slice(0, 600), 700);
   if (!out) return edit(env, mid,
@@ -986,6 +1018,7 @@ async function onCb(env, q) {
     await runWf(env, "deploy.yml", { indexnow: d.slice(2) });
     return edit(env, mid, `🚀 Deploy chalu — IndexNow: <code>${esc(d.slice(2))}</code>\nAudit paas hoga tabhi live jaayega.\n<i>Ab is button ko dobara mat dabaiye.</i>`, MENUS.dep.k); }
   if (d === "do:status") return doStatus(env, mid);
+  if (d === "do:changes") return doChanges(env, mid, 1);
   if (d === "do:pages") return doPages(env, mid);
   if (d === "do:site") return doSite(env, mid);
   if (d === "do:health") return doHealth(env, mid);
