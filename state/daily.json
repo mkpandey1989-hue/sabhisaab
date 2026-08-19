@@ -6,7 +6,7 @@
   "ctr": 5.05050505050505,
   "pos": 19.939393939393938
  },
- "cursor": 119,
+ "cursor": 17,
  "status": {
   "https://sabhisaab.com/": {
    "ok": true,
@@ -1408,14 +1408,14 @@
   },
   "https://sabhisaab.com/swp-tax-calculator": {
    "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
+   "why": "Crawled - currently not indexed",
+   "robots": "ALLOWED",
    "day": "2026-08-19"
   },
   "https://sabhisaab.com/tcs-foreign-remittance-calculator": {
    "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
+   "why": "Crawled - currently not indexed",
+   "robots": "ALLOWED",
    "day": "2026-08-19"
   },
   "https://sabhisaab.com/tds-on-rent-calculator": {
@@ -1489,19 +1489,51 @@
    "why": "Crawled - currently not indexed",
    "robots": "ALLOWED",
    "day": "2026-08-19"
+  },
+  "https://sabhisaab.com/nps-tax-benefit-calculator": {
+   "ok": false,
+   "why": "Crawled - currently not indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-19"
+  },
+  "https://sabhisaab.com/nps-vatsalya-calculator": {
+   "ok": false,
+   "why": "Crawled - currently not indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-19"
+  },
+  "https://sabhisaab.com/pension-commutation-calculator": {
+   "ok": false,
+   "why": "Crawled - currently not indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-19"
+  },
+  "https://sabhisaab.com/ppf-extension-calculator": {
+   "ok": false,
+   "why": "Crawled - currently not indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-19"
+  },
+  "https://sabhisaab.com/presumptive-tax-44ada-calculator": {
+   "ok": false,
+   "why": "Crawled - currently not indexed",
+   "robots": "ALLOWED",
+   "day": "2026-08-19"
   }
  },
  "todo": [
-  "https://sabhisaab.com/delivery-date-calculator",
-  "https://sabhisaab.com/number-system-converter",
-  "https://sabhisaab.com/random-number-generator",
-  "https://sabhisaab.com/stopwatch-online",
+  "https://sabhisaab.com/buy-vs-rent-guide",
   "https://sabhisaab.com/swp-tax-calculator",
   "https://sabhisaab.com/tcs-foreign-remittance-calculator",
-  "https://sabhisaab.com/exit-load-calculator",
-  "https://sabhisaab.com/expense-ratio-impact-calculator",
-  "https://sabhisaab.com/gold-vs-sip-calculator",
-  "https://sabhisaab.com/ipo-allotment-chance-calculator"
+  "https://sabhisaab.com/tds-on-rent-calculator",
+  "https://sabhisaab.com/ups-pension-calculator",
+  "https://sabhisaab.com/crypto-tax-calculator",
+  "https://sabhisaab.com/da-arrear-calculator",
+  "https://sabhisaab.com/dividend-tax-calculator",
+  "https://sabhisaab.com/epf-withdrawal-tax-calculator",
+  "https://sabhisaab.com/gst-late-fee-calculator",
+  "https://sabhisaab.com/itr-late-fee-calculator",
+  "https://sabhisaab.com/nps-tax-benefit-calculator"
  ],
  "ga_last": 0.0,
  "aud_e": 0,
@@ -1518,8 +1550,8 @@
    "d": "2026-08-19",
    "total": 252,
    "ok": 227,
-   "pending": 20
+   "pending": 25
   }
  ],
- "psi_mobile": 88
+ "psi_mobile": 78
 }
