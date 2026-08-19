@@ -6,7 +6,7 @@
   "ctr": 5.05050505050505,
   "pos": 19.939393939393938
  },
- "cursor": 17,
+ "cursor": 167,
  "status": {
   "https://sabhisaab.com/": {
    "ok": true,
@@ -460,7 +460,7 @@
   },
   "https://sabhisaab.com/fire-number-calculator": {
    "ok": false,
-   "why": "URL is unknown to Google",
+   "why": "Discovered - currently not indexed",
    "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
    "day": "2026-08-19"
   },
@@ -1456,20 +1456,20 @@
   },
   "https://sabhisaab.com/exit-load-calculator": {
    "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
+   "why": "Crawled - currently not indexed",
+   "robots": "ALLOWED",
    "day": "2026-08-19"
   },
   "https://sabhisaab.com/expense-ratio-impact-calculator": {
    "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
+   "why": "Crawled - currently not indexed",
+   "robots": "ALLOWED",
    "day": "2026-08-19"
   },
   "https://sabhisaab.com/gold-vs-sip-calculator": {
    "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
+   "why": "Crawled - currently not indexed",
+   "robots": "ALLOWED",
    "day": "2026-08-19"
   },
   "https://sabhisaab.com/gst-late-fee-calculator": {
@@ -1480,8 +1480,8 @@
   },
   "https://sabhisaab.com/ipo-allotment-chance-calculator": {
    "ok": false,
-   "why": "Discovered - currently not indexed",
-   "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
+   "why": "Crawled - currently not indexed",
+   "robots": "ALLOWED",
    "day": "2026-08-19"
   },
   "https://sabhisaab.com/itr-late-fee-calculator": {
@@ -1531,9 +1531,9 @@
   "https://sabhisaab.com/da-arrear-calculator",
   "https://sabhisaab.com/dividend-tax-calculator",
   "https://sabhisaab.com/epf-withdrawal-tax-calculator",
-  "https://sabhisaab.com/gst-late-fee-calculator",
-  "https://sabhisaab.com/itr-late-fee-calculator",
-  "https://sabhisaab.com/nps-tax-benefit-calculator"
+  "https://sabhisaab.com/exit-load-calculator",
+  "https://sabhisaab.com/expense-ratio-impact-calculator",
+  "https://sabhisaab.com/gold-vs-sip-calculator"
  ],
  "ga_last": 0.0,
  "aud_e": 0,
@@ -1553,5 +1553,5 @@
    "pending": 25
   }
  ],
- "psi_mobile": 78
+ "psi_mobile": 88
 }
