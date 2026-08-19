@@ -44,6 +44,8 @@
   "GitHub|Rule insights for organizations in public preview": "2026-08-14",
   "GitHub|Grok 4.6 is now available in GitHub Copilot": "2026-08-15",
   "GitHub|GitHub Copilot weekly releases — August 10": "2026-08-15",
-  "GitHub|Multiple redirect URIs and token refresh for OAuth apps": "2026-08-15"
+  "GitHub|Multiple redirect URIs and token refresh for OAuth apps": "2026-08-15",
+  "GitHub|Enterprise managed settings in GitHub Copilot for JetBrains": "2026-08-19",
+  "GitHub|Credential revocation and deauthorization by token type": "2026-08-19"
  }
 }
