@@ -324,6 +324,34 @@ async function doInspect(env, mid, u) {
           : "<i>GSC kholkar isi URL par Request Indexing dabaiye.</i>"), MAIN);
   } catch (e) { await edit(env, mid, `❌ ${esc(String(e).slice(0, 250))}`, MAIN); }
 }
+/** Bot khud apna haal batata hai — kya-kya chalu hai, aakhri kaam kab hua */
+async function doBotStatus(env, mid) {
+  await edit(env, mid, "⏳ apna haal dekh raha hoon…");
+  const o = [];
+  const f = await siteFacts(env);
+  o.push("<b>🤖 Bot ka haal</b>\n");
+  o.push(`<b>Site</b>\nIndexed ${f.indexed} · baaki ${f.pending} · audit ERROR ${f.err}, WARNING ${f.warn}`);
+  o.push(`GSC: 1 din ${f.c1} click · 7 din ${f.c7} click, ${f.i7} impression\n`);
+  o.push("<b>Kya-kya chalu hai</b>");
+  o.push((env.GEMINI_KEY || "").trim() ? "✅ Gemini (baat-cheet)" : "🟠 Gemini key nahi");
+  o.push((env.PSI_KEY || "").trim() ? "✅ PageSpeed key" : "🟠 PageSpeed key nahi");
+  o.push("✅ GSC · ✅ GA4 · ✅ GitHub · ✅ Cloudflare");
+  o.push(`✅ ZIP me ${MAX_FILES} file tak — isse zyada par pehle hi mana kar dunga\n`);
+  try {
+    const wf = ["daily.yml", "watch.yml", "deploy.yml", "bot.yml"];
+    const names = { "daily.yml": "Roz ki report", "watch.yml": "Chaukidaar", "deploy.yml": "Deploy", "bot.yml": "Bot update" };
+    const rs = await Promise.all(wf.map((w) => gh(env, `/repos/${env.GH_REPO}/actions/workflows/${w}/runs?per_page=1`)));
+    o.push("<b>Aakhri baar kab chala</b>");
+    rs.forEach((r, i) => {
+      const x = r.data?.workflow_runs?.[0];
+      o.push(x ? `${x.conclusion === "success" ? "✅" : "❌"} ${names[wf[i]]} — ${ago(x.updated_at)} pehle`
+                : `• ${names[wf[i]]} — abhi tak nahi`);
+    });
+  } catch {}
+  o.push("\n<i>Kuch bhi poochh sakte hain — jaise \"aaj kaisa raha\", \"kitne index hue\", \"speed batao\".</i>");
+  return edit(env, mid, o.join("\n"), MAIN);
+}
+
 async function doAuditLast(env, mid) {
   const r = await gh(env, `/repos/${env.GH_REPO}/contents/state/daily.json`);
   if (!r.ok) return edit(env, mid, "Abhi tak koi audit ka record nahi. \"Audit chalao\" dabaiye.", MENUS.aud.k);
@@ -427,36 +455,51 @@ function routeOf(name) {
 }
 
 /** ZIP ki saari file EK hi commit me — warna har file par audit chal jaata hai */
+/** GitHub par kai file ek hi commit me.
+ *  Do seemayein dhyan me rakhi gayi hain:
+ *  1) Cloudflare free plan me ek request se 50 se zyada bahari call nahi ho sakte.
+ *     Har file = 1 call. Isi wajah se 60 file wali ZIP chup-chaap fail ho jaati thi.
+ *     Ab 22 se zyada file ek baar me nahi lete — bache hue file agli ZIP me maangte hain.
+ *  2) Do ZIP ek saath aayein to dono ek hi purana commit padhkar ek doosre ko mita deti thin.
+ *     Ab ref update fail hone par dobara koshish hoti hai (naya base lekar). */
+const MAX_FILES = 22;
+let ZIP_BUSY = false;   // ek waqt me ek hi ZIP — do saath aayein to doosri ruk jaaye
+
 async function putMany(env, files, msg) {
   const R = `/repos/${env.GH_REPO}`;
-  const ref = await gh(env, `${R}/git/ref/heads/main`);
-  if (!ref.ok) return { ok: false, err: `ref ${ref.status}` };
-  const baseSha = ref.data.object.sha;
-  const baseCommit = await gh(env, `${R}/git/commits/${baseSha}`);
-  if (!baseCommit.ok) return { ok: false, err: `commit ${baseCommit.status}` };
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const ref = await gh(env, `${R}/git/ref/heads/main`);
+    if (!ref.ok) return { ok: false, err: `ref ${ref.status}` };
+    const baseSha = ref.data.object.sha;
+    const baseCommit = await gh(env, `${R}/git/commits/${baseSha}`);
+    if (!baseCommit.ok) return { ok: false, err: `commit ${baseCommit.status}` };
 
-  const tree = [];
-  for (let i = 0; i < files.length; i += 4) {          // 4-4 ke jatthe me, ek saath
-    const part = files.slice(i, i + 4);
-    const res = await Promise.all(part.map(([path, bytes]) =>
-      gh(env, `${R}/git/blobs`, { method: "POST",
-        body: JSON.stringify({ content: b64(bytes), encoding: "base64" }) })));
-    for (let k = 0; k < part.length; k++) {
-      if (!res[k].ok) return { ok: false, err: `blob ${part[k][0]} ${res[k].status}` };
-      tree.push({ path: part[k][0], mode: "100644", type: "blob", sha: res[k].data.sha });
+    const tree = [];
+    for (let i = 0; i < files.length; i += 4) {
+      const part = files.slice(i, i + 4);
+      const res = await Promise.all(part.map(([path, bytes]) =>
+        gh(env, `${R}/git/blobs`, { method: "POST",
+          body: JSON.stringify({ content: b64(bytes), encoding: "base64" }) })));
+      for (let k = 0; k < part.length; k++) {
+        if (!res[k].ok) return { ok: false, err: `blob ${part[k][0]} ${res[k].status}` };
+        tree.push({ path: part[k][0], mode: "100644", type: "blob", sha: res[k].data.sha });
+      }
     }
+    const nt = await gh(env, `${R}/git/trees`, {
+      method: "POST", body: JSON.stringify({ base_tree: baseCommit.data.tree.sha, tree }) });
+    if (!nt.ok) return { ok: false, err: `tree ${nt.status}` };
+
+    const nc = await gh(env, `${R}/git/commits`, {
+      method: "POST", body: JSON.stringify({ message: msg, tree: nt.data.sha, parents: [baseSha] }) });
+    if (!nc.ok) return { ok: false, err: `newcommit ${nc.status}` };
+
+    const upd = await gh(env, `${R}/git/refs/heads/main`, {
+      method: "PATCH", body: JSON.stringify({ sha: nc.data.sha }) });
+    if (upd.ok) return { ok: true, err: null };
+    if (attempt === 3) return { ok: false, err: `ref-update ${upd.status}` };
+    await new Promise((r) => setTimeout(r, 1200 * attempt));   // koi aur ZIP chadh gayi — dobara
   }
-  const nt = await gh(env, `${R}/git/trees`, {
-    method: "POST", body: JSON.stringify({ base_tree: baseCommit.data.tree.sha, tree }) });
-  if (!nt.ok) return { ok: false, err: `tree ${nt.status}` };
-
-  const nc = await gh(env, `${R}/git/commits`, {
-    method: "POST", body: JSON.stringify({ message: msg, tree: nt.data.sha, parents: [baseSha] }) });
-  if (!nc.ok) return { ok: false, err: `newcommit ${nc.status}` };
-
-  const upd = await gh(env, `${R}/git/refs/heads/main`, {
-    method: "PATCH", body: JSON.stringify({ sha: nc.data.sha }) });
-  return { ok: upd.ok, err: upd.ok ? null : `ref-update ${upd.status}` };
+  return { ok: false, err: "ref-update" };
 }
 
 async function putFile(env, path, bytes, msg) {
@@ -510,13 +553,23 @@ async function handleDoc(env, doc) {
       batch.push([t, data]);
     }
     if (!batch.length) return say(env, `ZIP me koi pehchani file nahi mili.\n⚪ chhodi: ${skip.slice(0,10).join(", ")}`);
-    if (batch.length > 300) return say(env, `ZIP me ${batch.length} file hain — 300 se zyada. Do hisson me bhejiye.`);
+    if (batch.length > MAX_FILES)
+      return say(env,
+        `⚠️ <b>Is ZIP me ${batch.length} file hain — itni ek saath nahi chadh sakti.</b>\n\n` +
+        `Cloudflare ek baar me sirf ${MAX_FILES} file tak hi bhej paata hai. ` +
+        `Isse zyada par kaam beech me ruk jaata hai aur GitHub par kuch nahi pahunchta — ` +
+        `pehle aisa chup-chaap hota tha, ab main pehle hi bata deta hoon.\n\n` +
+        `<b>ZIP ko ${Math.ceil(batch.length / MAX_FILES)} hisson me</b> (har ek me ${MAX_FILES} ya usse kam file) ` +
+        `banwa kar ek-ek karke bhejiye. Har ZIP ke baad ✅ ka intezaar kijiye.`);
 
+    if (ZIP_BUSY) return say(env, "⏳ <b>Ek ZIP pehle se chadh rahi hai.</b>\nUska ✅ aane dijiye, phir agli bhejiye — warna dono ek doosre ko mita sakti hain.");
+    ZIP_BUSY = true;
     await say(env, `⏳ ${batch.length} file chadha raha hoon — ek hi commit me…`);
     let r;
     try { r = await putMany(env, batch, `zip se ${batch.length} file: ${name}`); }
-    catch (e) { return say(env, `❌ Nahi chadhi — <code>${esc(String(e).slice(0, 300))}</code>`); }
-    if (!r.ok) return say(env, `❌ Nahi chadhi — ${esc(r.err)}`);
+    catch (e) { ZIP_BUSY = false; return say(env, `❌ Nahi chadhi — <code>${esc(String(e).slice(0, 300))}</code>`); }
+    finally { ZIP_BUSY = false; }
+    if (!r.ok) return say(env, `❌ <b>Nahi chadhi</b> — ${esc(r.err)}\n\nZIP dobara bhejna surakshit hai — file wahi rahegi.`);
 
     const list = batch.map(([t]) => t);
     return say(env,
@@ -591,6 +644,7 @@ const JOBS = {
   purge:     (env, mid) => doCf(env, mid, "purge"),
   rollback:  (env, mid) => doCf(env, mid, "rb"),
   pending:   async (env, mid) => { await runWf(env, "pending.yml"); return edit(env, mid, "📋 Pending list ban rahi hai — 1 min.", MAIN); },
+  botstatus: (env, mid) => doBotStatus(env, mid),
   botupdate: async (env, mid) => {
     if (await wfBusy(env, "bot.yml")) return edit(env, mid, "⏳ Bot ka update pehle se chal raha hai.", MAIN);
     await runWf(env, "bot.yml");
@@ -670,6 +724,8 @@ function understand(t) {
     return ["status", ""];
   if (has("bot update", "bot ka code", "bot chadha", "bot deploy"))
     return ["botupdate", ""];
+  if (has("bot") && has("haal", "kaisa", "kaise ho", "theek", "chal raha", "kya kar", "status", "sab theek"))
+    return ["botstatus", ""];
   if (has("poora scan", "report banao", "scan karo", "naya scan", "poori report"))
     return ["report", ""];
 
@@ -859,7 +915,15 @@ async function aiTalk(env, mid, t) {
       "4. Hamesha SAB HISAAB ki apni sthiti par baat karo. Agar aage badhne ki salah deni ho to yaad rakho ki " +
       "asli rukawat backlink hai, content nahi.\n" +
       "5. Koi number apne se MAT banao. Sirf upar diye aankde use karo. Pata na ho to keh do 'ye number mere paas nahi, /menu se dekh lijiye'.\n" +
-      "6. Markdown ka # heading mat lagao. Seedha likho.",
+      "6. Markdown ka # heading mat lagao. Seedha likho.\n\n" +
+      "BOT (yaani tum) ke baare me — agar Manoj tumhare baare me poochhein:\n" +
+      "- Tum Telegram par chalte ho, Cloudflare Worker par. Tum ye kar sakte ho: GSC aur GA4 ki report, " +
+      "indexing ka haal, kisi URL ka index status (/check), speed, audit, deploy, sitemap submit, " +
+      "cache purge, purane version par wapas jaana (rollback), aur apna khud ka code update karna.\n" +
+      "- Tum ye NAHI kar sakte: naya page banana, content likhna, code theek karna, ya GSC me " +
+      "Request Indexing dabana (Google ka API hai hi nahi). Ye kaam Manoj ya unka AI karta hai.\n" +
+      "- ZIP me ek baar me 22 file tak hi chadh sakti hai — isse zyada par tum pehle hi mana kar dete ho.\n" +
+      "- Ye sab poochha jaaye to seedha bata do, ghumao mat.",
       t.slice(0, 600), 700);
   if (!out) return edit(env, mid,
     "Ye baat samajh nahi aayi.\n\nAise poochh sakte hain:\n• <i>7 din ke click batao</i>\n• <i>kitne page index hue</i>\n• <i>speed kaisi hai</i>\n• <i>/check /nsc-calculator</i>\n\nYa 📖 Poora menu dabaiye.", MAIN);
