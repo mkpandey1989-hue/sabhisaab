@@ -100,6 +100,8 @@ const MENUS = {
     [{ text: "Aaj ki report", callback_data: "do:report" }],
     [{ text: "Poora scan abhi", callback_data: "do:daily" }],
     [{ text: "Sitemap Google ko submit", callback_data: "do:sitemap" }],
+    [{ text: "🗺 Sitemap ka haal", callback_data: "do:smstatus" }],
+    [{ text: "🔍 Bache hue URL jaanchein", callback_data: "do:checkpend" }],
     [{ text: "IndexNow: badle URL", callback_data: "d:badle-hue" }],
     [{ text: "IndexNow: sabhi URL", callback_data: "d:sabhi" }],
     back]) },
@@ -121,7 +123,8 @@ const MENUS = {
   file: { t: "<b>📁 Files</b>\nFile chahiye? <code>/get naam.html</code>\nZIP ya file bhej dijiye — khud sahi jagah jaayegi", k: kb([
     [{ text: "Kitne page hain", callback_data: "do:pages" }],
     [{ text: "Faltu file dhundo", callback_data: "do:unused" }],
-    [{ text: "📝 Aaj kya badla", callback_data: "do:changes" }], back]) },
+    [{ text: "📝 Aaj kya badla", callback_data: "do:changes" }],
+    [{ text: "🔗 Toote link", callback_data: "do:linkcheck" }], back]) },
 };
 
 // ---------- google helpers ----------
@@ -350,6 +353,91 @@ async function doChanges(env, mid, days) {
     `Badlaav : <b>${list.length}</b>` + (files ? ` · file : <b>${files}</b>` : "") + "\n\n" +
     lines.slice(0, 20).join("\n") + (lines.length > 20 ? `\n…aur ${lines.length - 20}` : "") +
     "\n\n<i>Live hua ya nahi, ye 🚀 Deploy → Pichhle 5 run se dekhiye.</i>", MAIN);
+}
+
+
+/** GSC me sitemap ka asli haal — kitne URL, kab padha, kitne error */
+async function doSitemapStatus(env, mid) {
+  await edit(env, mid, "⏳ Google se sitemap ka haal…");
+  try {
+    const site = encodeURIComponent(env.GSC_PROPERTY);
+    const feed = encodeURIComponent(SITE + "/sitemap.xml");
+    const g = await gapi(env, `https://searchconsole.googleapis.com/webmasters/v3/sites/${site}/sitemaps/${feed}`, SCOPE_GSC);
+    const c = (g.contents || [{}])[0];
+    return edit(env, mid,
+      `<b>🗺 Sitemap ka haal</b>\n\n` +
+      `URL sitemap me : <b>${esc(c.submitted ?? "?")}</b>\n` +
+      `Google ne index kiye : <b>${esc(c.indexed ?? "batata nahi")}</b>\n` +
+      `Aakhri baar submit : ${g.lastSubmitted ? ago(g.lastSubmitted) + " pehle" : "?"}\n` +
+      `Aakhri baar padha : ${g.lastDownloaded ? ago(g.lastDownloaded) + " pehle" : "abhi tak nahi"}\n` +
+      `Warning : ${esc(g.warnings ?? 0)}   Error : <b>${esc(g.errors ?? 0)}</b>\n\n` +
+      (Number(g.errors) ? "🔴 Error hai — sitemap jaanchiye." : "🟢 Sitemap theek hai.") +
+      "\n<i>Ab har deploy par ye apne aap Google aur Bing dono ko chala jaata hai.</i>", MENUS.idx.k);
+  } catch (e) { return edit(env, mid, `❌ ${esc(String(e).slice(0, 200))}`, MENUS.idx.k); }
+}
+
+/** Wo queries jinpar dikh rahe hain par click nahi — sabse tez sudhaar ka mauka */
+async function doOpportunity(env, mid) {
+  await edit(env, mid, "⏳ mauke dhoondh raha hoon…");
+  try {
+    const r = await gscQuery(env, 28, 0, ["query"], 200);
+    const rows = (r.rows || [])
+      .filter((x) => x.impressions >= 5 && x.position >= 5 && x.position <= 30)
+      .sort((a, b) => b.impressions - a.impressions).slice(0, 12);
+    if (!rows.length) return edit(env, mid, "Abhi itna data nahi hai ki mauka bataya ja sake.\nKuch hafte aur rukiye.", MAIN);
+    let t = "<b>🎯 Sabse bade mauke — 28 din</b>\n<i>Ye query dikh rahi hain par click kam. Position 5-30 matlab thoda dhakka kaafi hai.</i>\n\n";
+    rows.forEach((x, i) => {
+      t += `${i + 1}. <code>${esc(String(x.keys[0]).slice(0, 44))}</code>\n` +
+           `   ${x.impressions} impr · ${x.clicks} click · position <b>${Number(x.position).toFixed(1)}</b>\n`;
+    });
+    t += "\n<b>Kya kariye:</b> in me se jo shabd hain, unhe hu-ba-hu us page ke FAQ ka sawaal bana dijiye. " +
+         "Position 8-20 wali query par yahi sabse tez kaam karta hai.";
+    return edit(env, mid, t, MAIN);
+  } catch (e) { return edit(env, mid, `❌ ${esc(String(e).slice(0, 200))}`, MAIN); }
+}
+
+/** Jo page abhi index nahi hue, unhe ek-ek karke Google se poochho */
+async function doCheckPending(env, mid) {
+  await edit(env, mid, "⏳ bache hue URL Google se jaanch raha hoon…");
+  const r = await gh(env, `/repos/${env.GH_REPO}/contents/state/daily.json`);
+  if (!r.ok) return edit(env, mid, "Record nahi mila. Pehle 📑 Indexing → Poora scan chalayein.", MAIN);
+  let d = {}; try { d = JSON.parse(atob(r.data?.content?.replace(/\n/g, "") || "")); } catch {}
+  const pend = Object.entries(d.status || {}).filter(([, v]) => v && !v.ok).map(([u]) => u).slice(0, 6);
+  if (!pend.length) return edit(env, mid, "🟢 <b>Sab page index hain.</b>\nKuch jaanchne ko nahi bacha.", MAIN);
+  const out = [];
+  for (const u of pend) {
+    try {
+      const x = await gapi(env, "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+        SCOPE_GSC, { inspectionUrl: u, siteUrl: env.GSC_PROPERTY, languageCode: "en" });
+      const i = x.inspectionResult?.indexStatusResult || {};
+      out.push(`${i.verdict === "PASS" ? "🟢" : "🔴"} <code>${esc(u.replace(SITE, ""))}</code>\n   ${esc(i.coverageState || "?")}` +
+               (i.lastCrawlTime ? ` · crawl ${ago(i.lastCrawlTime)} pehle` : " · abhi tak crawl nahi"));
+    } catch (e) { out.push(`⚪ <code>${esc(u.replace(SITE, ""))}</code> — jaanch nahi ho payi`); }
+  }
+  return edit(env, mid, `<b>🔍 Bache hue URL ka taaza haal</b>\n\n${out.join("\n")}\n\n` +
+    `<i>Google ka apna record 2-3 din peeche chalta hai. "abhi tak crawl nahi" ka matlab hai ki wo aaya hi nahi — ` +
+    `wahan content se zyada backlink kaam karta hai.</i>`, MAIN);
+}
+
+/** Site par toote link — bahari aur andar ke, dono */
+async function doLinkCheck(env, mid) {
+  await edit(env, mid, "⏳ link jaanch raha hoon (thoda samay lagega)…");
+  const r = await gh(env, `/repos/${env.GH_REPO}/contents/site`);
+  if (!r.ok) return edit(env, mid, "Repo se file list nahi mili.", MAIN);
+  const have = new Set((r.data || []).map((x) => x.name));
+  const idx = await gh(env, `/repos/${env.GH_REPO}/contents/site/sitemap.xml`);
+  let dead = [];
+  try {
+    const sm = atob(idx.data.content.replace(/\n/g, ""));
+    const slugs = [...sm.matchAll(/<loc>[^<]*sabhisaab\.com\/([^<]*)<\/loc>/g)].map((m) => m[1]);
+    dead = slugs.filter((s) => s && !have.has(s + ".html"));
+  } catch {}
+  return edit(env, mid,
+    `<b>🔗 Link ki jaanch</b>\n\n` +
+    `site/ me file : <b>${have.size}</b>\n` +
+    `sitemap ka URL jiski file nahi : <b>${dead.length}</b>\n` +
+    (dead.length ? dead.slice(0, 10).map((x) => "• <code>" + esc(x) + "</code>").join("\n") : "🟢 sab theek") +
+    `\n\n<i>Poori jaanch (har page ke andar ke link) audit karta hai — 🛠 Audit chalao.</i>`, MAIN);
 }
 
 async function doBotStatus(env, mid) {
@@ -672,6 +760,10 @@ const JOBS = {
   rollback:  (env, mid) => doCf(env, mid, "rb"),
   pending:   async (env, mid) => { await runWf(env, "pending.yml"); return edit(env, mid, "📋 Pending list ban rahi hai — 1 min.", MAIN); },
   botstatus: (env, mid) => doBotStatus(env, mid),
+  smstatus:  (env, mid) => doSitemapStatus(env, mid),
+  mauka:     (env, mid) => doOpportunity(env, mid),
+  checkpend: (env, mid) => doCheckPending(env, mid),
+  linkcheck: (env, mid) => doLinkCheck(env, mid),
   changes:   (env, mid, a) => doChanges(env, mid, +a || 1),
   botupdate: async (env, mid) => {
     if (await wfBusy(env, "bot.yml")) return edit(env, mid, "⏳ Bot ka update pehle se chal raha hai.", MAIN);
@@ -710,6 +802,8 @@ function understand(t) {
     return ["kahanse", ""];
 
   // ---- search console ke tukde ----
+  if (has("kaunsi query par kaam", "kis query par kaam", "kaunse keyword par kaam"))
+    return ["mauka", ""];
   if (has("query", "queries", "keyword", "kya search", "kaunsi search", "konsi search", "kis shabd"))
     return ["topquery", ""];
   if (has("top page", "best page", "kaunsa page", "konsa page", "kaun sa page", "sabse zyada page"))
@@ -726,7 +820,15 @@ function understand(t) {
   // ---- indexing ----
   if (has("index", "indexed", "indexing", "kitne page chadhe", "pending url", "crawl", "google ko pata", "kitne baaki"))
     return ["indexing", ""];
-  if (has("sitemap")) return ["sitemap", ""];
+  if (has("sitemap")) return has("haal", "status", "kaisa", "error", "kitne url", "dekho", "jaanch")
+    ? ["smstatus", ""] : ["sitemap", ""];
+  if (has("mauka", "mauke", "kya sudhaar", "kahan sudhaar", "opportunity", "kaunsi query par kaam",
+          "click kaise", "traffic kaise badh", "ranking kaise"))
+    return ["mauka", ""];
+  if (has("bache hue", "pending url", "jo index nahi", "unindexed", "dobara jaanch", "phir se check"))
+    return ["checkpend", ""];
+  if (has("toota link", "broken link", "link jaanch", "link check", "dead link"))
+    return ["linkcheck", ""];
 
   // ---- cloudflare ----
   if (has("purge", "cache", "purana dikh", "refresh nahi")) return ["purge", ""];
@@ -955,6 +1057,9 @@ async function aiTalk(env, mid, t) {
       "Request Indexing dabana (Google ka API hai hi nahi). Ye kaam Manoj ya unka AI karta hai.\n" +
       "- ZIP me ek baar me 22 file tak hi chadh sakti hai — isse zyada par tum pehle hi mana kar dete ho.\n" +
       "- 'Aaj kya update hua' jaisa sawaal aaye to tum GitHub ke commit se bata sakte ho.\n" +
+      "- Tum ye bhi kar sakte ho: sitemap ka haal (GSC se), sabse bade mauke (wo query jinpar dikh rahe hain " +
+      "par click nahi), bache hue URL ka taaza index status, aur toote link ki jaanch.\n" +
+      "- Har deploy par sitemap ab apne aap Google aur Bing dono ko chala jaata hai — pehle sirf IndexNow jaata tha.\n" +
       "- Ye sab poochha jaaye to seedha bata do, ghumao mat.",
       t.slice(0, 600), 700);
   if (!out) return edit(env, mid,
@@ -1019,6 +1124,10 @@ async function onCb(env, q) {
     return edit(env, mid, `🚀 Deploy chalu — IndexNow: <code>${esc(d.slice(2))}</code>\nAudit paas hoga tabhi live jaayega.\n<i>Ab is button ko dobara mat dabaiye.</i>`, MENUS.dep.k); }
   if (d === "do:status") return doStatus(env, mid);
   if (d === "do:changes") return doChanges(env, mid, 1);
+  if (d === "do:smstatus") return doSitemapStatus(env, mid);
+  if (d === "do:checkpend") return doCheckPending(env, mid);
+  if (d === "do:mauka") return doOpportunity(env, mid);
+  if (d === "do:linkcheck") return doLinkCheck(env, mid);
   if (d === "do:pages") return doPages(env, mid);
   if (d === "do:site") return doSite(env, mid);
   if (d === "do:health") return doHealth(env, mid);

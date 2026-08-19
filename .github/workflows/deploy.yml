@@ -190,3 +190,79 @@ jobs:
               print("IndexNow FAIL:", e, body)
               print("Bing ko khabar NAHI gayi. Key file jaanchein: https://sabhisaab.com/<key>.txt")
           PY
+
+      - name: Google ko sitemap — har deploy par apne aap
+        if: ${{ github.event.inputs.indexnow != 'koi-nahi' }}
+        env:
+          GOOGLE_SA_JSON_B64: ${{ secrets.GOOGLE_SA_JSON_B64 }}
+          GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
+        run: |
+          python3 - <<'PY'
+          # Pehle sirf IndexNow chalta tha (Bing, Yandex, Naver, Seznam).
+          # Google IndexNow nahi maanta — usse sitemap alag se bhejna padta hai.
+          # Ab ye kaam har deploy par apne aap hota hai.
+          import os, json, base64, time, urllib.request, urllib.parse, hmac, hashlib
+
+          raw = os.environ.get("GOOGLE_SA_JSON_B64") or ""
+          if raw:
+              try: raw = base64.b64decode(raw).decode()
+              except Exception: pass
+          raw = raw or os.environ.get("GOOGLE_SA_JSON") or ""
+          if not raw.strip():
+              print("Google key nahi mili — sitemap submit chhod rahe hain."); raise SystemExit(0)
+          sa = json.loads(raw)
+
+          def b64u(b): return base64.urlsafe_b64encode(b).decode().rstrip("=")
+          try:
+              from cryptography.hazmat.primitives import hashes, serialization
+              from cryptography.hazmat.primitives.asymmetric import padding
+          except Exception:
+              os.system("pip install --quiet cryptography")
+              from cryptography.hazmat.primitives import hashes, serialization
+              from cryptography.hazmat.primitives.asymmetric import padding
+
+          now = int(time.time())
+          hdr = b64u(json.dumps({"alg": "RS256", "typ": "JWT"}).encode())
+          cl = b64u(json.dumps({
+              "iss": sa["client_email"],
+              "scope": "https://www.googleapis.com/auth/webmasters",
+              "aud": "https://oauth2.googleapis.com/token",
+              "iat": now, "exp": now + 3600}).encode())
+          key = serialization.load_pem_private_key(sa["private_key"].encode(), None)
+          sig = b64u(key.sign(f"{hdr}.{cl}".encode(), padding.PKCS1v15(), hashes.SHA256()))
+          data = urllib.parse.urlencode({
+              "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+              "assertion": f"{hdr}.{cl}.{sig}"}).encode()
+          tok = json.load(urllib.request.urlopen(
+              urllib.request.Request("https://oauth2.googleapis.com/token", data=data)))["access_token"]
+
+          site = urllib.parse.quote("sc-domain:sabhisaab.com", safe="")
+          feed = urllib.parse.quote("https://sabhisaab.com/sitemap.xml", safe="")
+          url = f"https://searchconsole.googleapis.com/webmasters/v3/sites/{site}/sitemaps/{feed}"
+
+          req = urllib.request.Request(url, method="PUT", headers={"Authorization": "Bearer " + tok})
+          try:
+              r = urllib.request.urlopen(req)
+              print("Google ko sitemap submit -> HTTP %d — SAFAL" % r.status)
+          except Exception as e:
+              print("Google sitemap FAIL:", e); raise SystemExit(0)
+
+          # natija bhi dikha do
+          try:
+              g = json.load(urllib.request.urlopen(urllib.request.Request(
+                  url, headers={"Authorization": "Bearer " + tok})))
+              c = (g.get("contents") or [{}])[0]
+              print("  URL sitemap me : %s" % c.get("submitted", "?"))
+              print("  Aakhri baar padha: %s" % g.get("lastDownloaded", "abhi tak nahi"))
+              print("  Warning: %s   Error: %s" % (g.get("warnings", 0), g.get("errors", 0)))
+          except Exception as e:
+              print("  (haal nahi mil paaya:", e, ")")
+          PY
+
+      - name: Bing ko sitemap ping
+        if: ${{ github.event.inputs.indexnow != 'koi-nahi' }}
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://www.bing.com/ping?sitemap=https%3A%2F%2Fsabhisaab.com%2Fsitemap.xml" || echo 000)
+          echo "Bing sitemap ping -> $code"
+          echo "(IndexNow se Bing ko URL pehle hi ja chuke hain — ye sirf ek aur raasta hai)"
