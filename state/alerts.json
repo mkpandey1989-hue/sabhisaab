@@ -47,6 +47,7 @@
   "GitHub|Multiple redirect URIs and token refresh for OAuth apps": "2026-08-15",
   "GitHub|Enterprise managed settings in GitHub Copilot for JetBrains": "2026-08-19",
   "GitHub|Credential revocation and deauthorization by token type": "2026-08-19",
-  "GitHub|Track organization code quality trends": "2026-08-19"
+  "GitHub|Track organization code quality trends": "2026-08-19",
+  "GitHub|CodeQL 2.26.3 improves GitHub Actions queries and JavaScript modeling": "2026-08-20"
  }
 }
