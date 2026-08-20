@@ -17,14 +17,27 @@ jobs:
           CF_ACCT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
           GSA: ${{ secrets.GOOGLE_SA_JSON }}
+          GSA_B64: ${{ secrets.GOOGLE_SA_JSON_B64 }}
           TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
           REPO: ${{ github.repository }}
         run: |
           pip install -q google-auth google-auth-httplib2 google-api-python-client
           python3 - <<'PY'
-          import os, json, urllib.request, urllib.error
+          import os, json, base64, urllib.request, urllib.error
           out, bad = [], 0
+
+          def _sa():
+              """Google key dono roop me chal jaye.
+              Pehle sirf GOOGLE_SA_JSON padha jaata tha, par asli secret
+              GOOGLE_SA_JSON_B64 (base64) hai — isi wajah se har Sunday
+              JHOOTHA '❌ Google Search Console key' alert aata tha."""
+              raw = os.environ.get("GSA_B64") or ""
+              if raw.strip():
+                  try: raw = base64.b64decode(raw).decode()
+                  except Exception: pass
+              raw = raw.strip() or os.environ.get("GSA", "")
+              return json.loads(raw)
           def get(u, h):
               try:
                   r = urllib.request.urlopen(urllib.request.Request(u, headers=h), timeout=25)
@@ -47,7 +60,7 @@ jobs:
               from google.oauth2 import service_account
               from googleapiclient.discovery import build
               cr = service_account.Credentials.from_service_account_info(
-                  json.loads(os.environ["GSA"]), scopes=["https://www.googleapis.com/auth/webmasters"])
+                  _sa(), scopes=["https://www.googleapis.com/auth/webmasters"])
               build("searchconsole", "v1", credentials=cr, cache_discovery=False)\
                   .sites().list().execute()
               out.append("✅ Google Search Console key")
