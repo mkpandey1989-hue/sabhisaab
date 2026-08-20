@@ -6,7 +6,7 @@
   "ctr": 7.792207792207792,
   "pos": 24.38961038961039
  },
- "cursor": 243,
+ "cursor": 26,
  "status": {
   "https://sabhisaab.com/": {
    "ok": true,
@@ -1204,7 +1204,7 @@
   },
   "https://sabhisaab.com/stopwatch-online": {
    "ok": false,
-   "why": "Discovered - currently not indexed",
+   "why": "URL is unknown to Google",
    "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
    "day": "2026-08-20"
   },
@@ -1586,7 +1586,6 @@
   "https://sabhisaab.com/fire-number-calculator",
   "https://sabhisaab.com/number-system-converter",
   "https://sabhisaab.com/random-number-generator",
-  "https://sabhisaab.com/stopwatch-online",
   "https://sabhisaab.com/notice-period-buyout-calculator"
  ],
  "ga_last": 0.0,
