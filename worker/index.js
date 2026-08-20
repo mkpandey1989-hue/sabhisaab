@@ -580,6 +580,130 @@ function routeOf(name) {
 const MAX_FILES = 22;
 let ZIP_BUSY = false;   // ek waqt me ek hi ZIP — do saath aayein to doosri ruk jaaye
 
+
+/** ================= ZIP KA PEHLE-SE AUDIT =================
+ *  Pehle bot har file aankh band karke chadha deta tha, aur galti audit gate par
+ *  ya usse bhi aage pakdi jaati thi. Ab bot khud har HTML file jaanchta hai aur
+ *  kami milne par CHADHATA HI NAHI — saaf batata hai ki kya theek karna hai.
+ *  Google ki apni policy (structured-data spam, AdSense, misleading claims) bhi isi me hai. */
+
+const LEGAL_PAGES = ["about", "author", "contact", "disclaimer", "privacy", "services", "terms"];
+const HUB_PAGES = ["nivesh-calculators", "loan-tax-calculators", "rozana-calculators", "utility-tools",
+                   "sehat-calculators", "trading-calculators", "converter-tools", "guides", "articles"];
+
+function auditHtml(name, s) {
+  const slug = String(name).split("/").pop().replace(/\.html$/i, "");
+  const isLegal = LEGAL_PAGES.includes(slug);
+  const isHub = HUB_PAGES.includes(slug);
+  const isHome = slug === "index";
+  const is404 = slug === "404";
+  const P = [];                                   // rukawat — chadhega nahi
+  const W = [];                                   // chetavni — chadh jaayega
+  const body = (s.match(/<body[\s\S]*<\/body>/) || [""])[0]
+    .replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "");
+  const text = body.replace(/<[^>]+>/g, " ");
+  const words = text.split(/\s+/).filter(Boolean).length;
+
+  // ---- Google ki policy (in par kabhi samjhauta nahi) ----
+  if (/aggregateRating/.test(s)) P.push("aggregateRating hai — Google ki structured-data spam policy ka seedha ullanghan. Manual action + AdSense ban ka khatra.");
+  if (/adsbygoogle/.test(s)) P.push("adsbygoogle ka code hai — AdSense approval se pehle ye nahi lagna chahiye.");
+  if (/\b(guaranteed|risk-free)\b/i.test(text) && !/nahi/i.test(text)) P.push("'guaranteed' ya 'risk-free' likha hai bina 'nahi' ke — paise wale page par ye misleading claim hai.");
+  if (/\d[\d,]*\s*(log|people)\s*(padh|read)/i.test(text)) P.push("'itne log padh chuke' jaisa counter hai — jhoothi social proof, AdSense review me pakdi jaati hai.");
+
+  // ---- URL aur canonical ----
+  if (/href="\/[a-z0-9-]+\.html"/.test(s)) P.push("andar koi link .html par jaa raha hai — canonical clean URL hi hona chahiye.");
+  if (/href="[^"]*\?t=/.test(s)) P.push("purana ?t= wala link hai.");
+  const can = s.match(/<link rel="canonical" href="([^"]*)"/);
+  if (!can && !is404) P.push("canonical tag hi nahi hai.");
+  else if (can && !/^https:\/\/sabhisaab\.com\/[a-z0-9-]*$/.test(can[1])) P.push("canonical galat hai: " + can[1]);
+  const ogu = s.match(/property="og:url" content="([^"]*)"/);
+  if (can && ogu && can[1] !== ogu[1]) P.push("og:url canonical se match nahi karta.");
+
+  // ---- head ke zaroori tag ----
+  const t = s.match(/<title>([\s\S]*?)<\/title>/);
+  if (!t) P.push("title hi nahi hai.");
+  else if (t[1].trim().length > 60) P.push(`title ${t[1].trim().length} character ka hai — 60 se kam hona chahiye.`);
+  const d = s.match(/name="description" content="([^"]*)"/);
+  if (!d) P.push("meta description nahi hai.");
+  else if (d[1].length < 95 || d[1].length > 165) P.push(`description ${d[1].length} character ka hai — 95 se 165 ke beech hona chahiye.`);
+  if (!/lang="hi-Latn"/.test(s)) P.push('lang="hi-Latn" nahi hai.');
+  if (!/G-QX5MWV42TR/.test(s) && !is404) P.push("GA4 ka code nahi hai.");
+  if (!/shConsent/.test(s) && !is404) P.push("cookie consent banner nahi hai — privacy niyam aur AdSense dono ki shart.");
+
+  // ---- schema ----
+  const blocks = [...s.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  // FAQ nahi hai to FAQPage schema bhi nahi hoga — tab 2 block hi theek hain
+  const hasFaq = /<details/.test(body);
+  const needBlocks = is404 ? 0 : (isLegal || isHub || isHome || !hasFaq) ? 2 : 3;
+  if (blocks.length < needBlocks)
+    P.push(`sirf ${blocks.length} JSON-LD block hain — is page par kam se kam ${needBlocks} chahiye.`);
+  let faqSchema = null;
+  blocks.forEach((b, i) => {
+    try { const j = JSON.parse(b); if (JSON.stringify(j).includes('"FAQPage"')) faqSchema = j; }
+    catch (e) { P.push(`JSON-LD block ${i + 1} toota hua hai (JSON valid nahi).`); }
+  });
+  if (!/BreadcrumbList/.test(s) && !isHome && !is404) P.push("BreadcrumbList schema nahi hai.");
+
+  // ---- FAQ page se match ----
+  const unesc = (x) => String(x).replace(/<[^>]+>/g, "")
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"').replace(/&#39;|&rsquo;|&lsquo;/g, "'")
+    .replace(/&nbsp;/g, " ").replace(/&mdash;/g, "\u2014").replace(/&ndash;/g, "\u2013")
+    .replace(/&middot;/g, "\u00b7").replace(/&times;/g, "\u00d7").replace(/&divide;/g, "\u00f7")
+    .replace(/&minus;/g, "\u2212").replace(/&rarr;/g, "\u2192").replace(/&harr;/g, "\u2194")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
+    .replace(/\s+/g, " ").trim();
+  const dets = [...body.matchAll(/<summary>([\s\S]*?)<\/summary>/g)].map((m) => unesc(m[1]));
+  if (dets.length && dets.length < 4) W.push(`sirf ${dets.length} FAQ hain — 4-6 rakhna behtar hai.`);
+  if (faqSchema) {
+    const q = (faqSchema.mainEntity || []).map((x) => unesc(x.name));
+    if (q.join("|") !== dets.join("|")) P.push("FAQ schema page ke sawaalon se match nahi karta — Google ise galat data maanta hai.");
+  } else if (dets.length) P.push("page par FAQ hain par FAQPage schema nahi hai.");
+  if (new Set(dets).size !== dets.length) P.push("ek hi page par do FAQ ek jaise hain.");
+
+  // ---- content ----
+  if (words < 1000 && !isLegal && !is404) P.push(`sirf ${words} shabd hain — 1000 se zyada chahiye.`);
+  if (!/<table/.test(body) && !isLegal && !is404 && !isHome) W.push("koi table nahi — featured snippet ka mauka chhoot raha hai.");
+  const h1 = (body.match(/<h1/g) || []).length;
+  if (h1 !== 1) P.push(`H1 ${h1} hain — theek 1 hona chahiye.`);
+  const h2 = [...body.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => m[1].replace(/<[^>]+>/g, "").trim());
+  if (new Set(h2).size !== h2.length) P.push("do H2 ek jaise hain.");
+  if (/[a-zA-Z][\u0900-\u097F]|[\u0900-\u097F][a-zA-Z]/.test(text)) P.push("Hinglish me Devanagari akshar mila hua hai (jaise 'kुch').");
+
+  // ---- TOC ----
+  const toc = body.match(/<div class="tocbox">[\s\S]*?<\/div>/);
+  if (toc) {
+    const have = [...toc[0].matchAll(/href="#([a-z0-9-]+)"/g)].map((m) => m[1]);
+    const ids = [...body.matchAll(/<h2 id="([a-z0-9-]+)"/g)].map((m) => m[1]);
+    const miss = ids.filter((x) => !have.includes(x));
+    if (miss.length) P.push("ye H2 TOC me nahi hain: " + miss.join(", "));
+  }
+
+  // ---- perf / policy ----
+  if (!/install-app\.js/.test(s) && !is404) P.push("install-app.js ka tag nahi hai.");
+  if (/<input[^>]*type="number"/.test(s) && !/inputmode/.test(s)) P.push("number wale input par inputmode nahi — phone par galat keyboard khulega.");
+  const ext = [...s.matchAll(/<a [^>]*href="https?:\/\/(?!sabhisaab)[^"]*"[^>]*>/g)].map((m) => m[0]);
+  if (ext.some((a) => !/noopener/.test(a))) P.push("bahari link par rel=\"noopener\" nahi hai.");
+  const bad = /\b(15[0-9]|16[0-9]|17[0-9]|18[0-2])\b[^0-9]{0,20}(tool|calculator)/i.exec(s);
+  if (bad) W.push(`purani tool ginti likhi lagti hai (${bad[1]}) — abhi 183 hai.`);
+  if (/FY 2025-26|AY 2026-27/.test(s)) W.push("purana FY 2025-26 label hai.");
+
+  return { P, W, words };
+}
+
+function zipAuditReport(files) {
+  const html = files.filter(([p]) => /\.html$/i.test(p) && !/googleb[a-f0-9]{16}\.html/.test(p));
+  if (!html.length) return null;
+  const rep = [];
+  for (const [path, bytes] of html) {
+    let txt = "";
+    try { txt = new TextDecoder("utf-8").decode(bytes); } catch { continue; }
+    const r = auditHtml(path, txt);
+    if (r.P.length || r.W.length) rep.push([path.split("/").pop(), r]);
+  }
+  return rep;
+}
+
 async function putMany(env, files, msg) {
   const R = `/repos/${env.GH_REPO}`;
   for (let attempt = 1; attempt <= 3; attempt++) {
@@ -678,6 +802,37 @@ async function handleDoc(env, doc) {
         `banwa kar ek-ek karke bhejiye. Har ZIP ke baad ✅ ka intezaar kijiye.`);
 
     if (ZIP_BUSY) return say(env, "⏳ <b>Ek ZIP pehle se chadh rahi hai.</b>\nUska ✅ aane dijiye, phir agli bhejiye — warna dono ek doosre ko mita sakti hain.");
+
+    // ---- chadhane se PEHLE khud audit ----
+    if (!/-force\b/i.test(name)) {
+      let rep = [];
+      try { rep = zipAuditReport(batch) || []; }
+      catch (e) { rep = []; }
+      const stop = rep.filter(([, r]) => r.P.length);
+      if (stop.length) {
+        let t = `🛑 <b>Ye ZIP maine nahi chadhayi.</b>\n${stop.length} file me kami hai — pehle ye theek kariye:\n`;
+        for (const [f, r] of stop.slice(0, 6)) {
+          t += `\n<b>${esc(f)}</b>\n` + r.P.slice(0, 5).map((x) => "  • " + esc(x)).join("\n") + "\n";
+        }
+        if (stop.length > 6) t += `\n…aur ${stop.length - 6} file me bhi kami hai.\n`;
+        t += "\n<i>Theek karke dobara bhejiye. Ye jaanch Google ki apni policy aur site ke audit niyam par hai — " +
+             "kami ke saath chadhane par deploy waise bhi ruk jaata.</i>\n" +
+             "<i>Bahut zaroori ho to ZIP ka naam me <code>-force</code> jodkar bhejiye, tab jaanch chhod dunga.</i>";
+        return say(env, t);
+      }
+      const warn = rep.filter(([, r]) => r.W.length);
+      if (warn.length) {
+        let t = `⚠️ <b>Chetavni — ${warn.length} file me chhoti kami hai</b> (chadha raha hoon, rokunga nahi):\n`;
+        for (const [f, r] of warn.slice(0, 4)) t += `\n<b>${esc(f)}</b>\n` + r.W.slice(0, 3).map((x) => "  • " + esc(x)).join("\n") + "\n";
+        await say(env, t);
+      }
+      const n = batch.filter(([p2]) => /\.html$/i.test(p2)).length;
+      if (n >= 10) await say(env,
+        `📌 <b>Dhyan dijiye — is ZIP me ${n} page hain.</b>\n` +
+        `Google ki 'scaled content abuse' policy ke hisaab se hafte me 2-3 naye page hi surakshit hain. ` +
+        `Ye page purane hain to koi baat nahi. Agar naye hain, to live karne ke baad AdSense 3-4 hafte tak apply mat kariye.`);
+    }
+
     ZIP_BUSY = true;
     await say(env, `⏳ ${batch.length} file chadha raha hoon — ek hi commit me…`);
     let r;
