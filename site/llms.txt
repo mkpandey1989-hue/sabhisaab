@@ -10,7 +10,7 @@ Zaroori baat: ye site jaankari deti hai, salah nahi. Hum SEBI-registered investm
 
 ## Mukhya hisse
 
-- [Saare tools](https://sabhisaab.com/): 173 calculator, category ke hisaab se
+- [Saare tools](https://sabhisaab.com/): 183 calculator, category ke hisaab se
 - [Nivesh calculators](https://sabhisaab.com/nivesh-calculators): 40 tools — SIP, lumpsum, PPF, NPS, FD, RD, retirement
 - [Loan aur Tax](https://sabhisaab.com/loan-tax-calculators): 33 tools — EMI, prepayment, income tax, GST, HRA, TDS
 - [Trading](https://sabhisaab.com/trading-calculators): 9 tools — intraday P&L, position size, brokerage, risk-reward
