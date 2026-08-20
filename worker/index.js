@@ -1063,7 +1063,7 @@ function understand(t) {
     return ["taaza", ""];
   if (has("bache hue", "pending url", "jo index nahi", "unindexed", "dobara jaanch", "phir se check"))
     return ["checkpend", ""];
-  if (has("toota link", "broken link", "link jaanch", "link check", "dead link"))
+  if (has("toota link", "toote link", "tute link", "broken link", "link jaanch", "link check", "dead link"))
     return ["linkcheck", ""];
 
   // ---- cloudflare ----
@@ -1082,8 +1082,17 @@ function understand(t) {
     return ["pending", ""];
   if (has("health", "sab theek", "token theek", "sab chal", "kuch toota"))
     return ["health", ""];
+  // BOT ke apne kaam SABSE PEHLE.
+  // Pehle "bot update" me se "update" shabd pakda jaata tha aur wo "aaj kya badla" chala deta tha —
+  // isi wajah se "bot update" likhne par bot Aaj ka kaam dikhata tha aur code chadhta hi nahi tha.
+  if (has("bot update", "bot ka code", "bot chadha", "bot deploy", "bot updat", "botupdate", "update bot"))
+    return ["botupdate", ""];
+  if (has("bot") && has("haal", "kaisa", "kaise ho", "theek", "chal raha", "kya kar", "status", "sab theek"))
+    return ["botstatus", ""];
+
   // "aaj kitne page update kiye", "kya badla", "aaj kya kaam hua" — ginti se pehle
-  if (has("update", "badla", "badle", "badli", "kya kiya", "kya hua", "kaam hua", "chadha", "chadhe", "commit"))
+  if (!has("bot") &&
+      has("update", "badla", "badle", "badli", "kya kiya", "kya hua", "kaam hua", "chadha", "chadhe", "commit"))
     return ["changes", num || (has("hafte", "week") ? "7" : "1")];
   if (has("kitne page", "kitne tool", "kitni file", "total page", "kul page", "ginti"))
     return has("google", "index", "crawl", "search") ? ["indexing", ""] : ["pages", ""];
@@ -1091,10 +1100,6 @@ function understand(t) {
     return ["sitecheck", ""];
   if (has("workflow", "pichhle run", "last run", "kya chala"))
     return ["status", ""];
-  if (has("bot update", "bot ka code", "bot chadha", "bot deploy"))
-    return ["botupdate", ""];
-  if (has("bot") && has("haal", "kaisa", "kaise ho", "theek", "chal raha", "kya kar", "status", "sab theek"))
-    return ["botstatus", ""];
   if (has("poora scan", "report banao", "scan karo", "naya scan", "poori report"))
     return ["report", ""];
 
