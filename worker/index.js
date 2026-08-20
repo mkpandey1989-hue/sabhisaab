@@ -38,11 +38,18 @@ async function edit(env, id, t, k) {
 
 // ---------- github ----------
 async function gh(env, path, init = {}) {
-  const r = await fetch("https://api.github.com" + path, { ...init, headers: {
+  // GitHub par bhi hard timeout — warna ek atki hui call poore bot ko chup kar deti hai
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), 15000);
+  let r;
+  try {
+  r = await fetch("https://api.github.com" + path, { ...init, signal: ac.signal, headers: {
     Authorization: `Bearer ${env.GH_TOKEN}`, Accept: "application/vnd.github+json",
     "User-Agent": "sabhisaab-bot", "content-type": "application/json", ...(init.headers || {}) } });
-  const t = await r.text(); let d = null;
-  try { d = t ? JSON.parse(t) : null; } catch { d = { raw: t }; }
+  } catch (e) { clearTimeout(t); return { ok: false, status: 0, data: { raw: "GitHub ne 15s me jawab nahi diya" } }; }
+  clearTimeout(t);
+  const txt = await r.text(); let d = null;
+  try { d = txt ? JSON.parse(txt) : null; } catch { d = { raw: txt }; }
   return { ok: r.ok, status: r.status, data: d };
 }
 /** Ek hi kaam do baar mat chalao — pehle dekho ki wahi workflow already chal to nahi raha */
@@ -425,34 +432,42 @@ async function doOpportunity(env, mid) {
 /** Jo page abhi index nahi hue, unhe ek-ek karke Google se poochho */
 /** Sabse naye page Google se ABHI poochho — record ka intezaar nahi */
 async function doFreshCheck(env, mid) {
-  await edit(env, mid, "⏳ Google se abhi ka sach poochh raha hoon…");
+  await edit(env, mid, "⏳ Google se abhi ka sach poochh raha hoon… (10-20 second)");
   let urls = [];
   try {
     const r = await gh(env, `/repos/${env.GH_REPO}/contents/site/sitemap.xml`);
+    if (!r.ok) throw new Error(r.data?.raw || ("GitHub " + r.status));
     const sm = atob(r.data.content.replace(/\n/g, ""));
-    const rows = [...sm.matchAll(/<loc>([^<]+)<\/loc>\s*<lastmod>([\d-]+)<\/lastmod>/g)]
-      .map((m) => [m[1], m[2]]);
-    rows.sort((a, b) => (a[1] < b[1] ? 1 : -1));       // sabse naya pehle
-    urls = rows.slice(0, 8).map((x) => x[0]);
-  } catch { return edit(env, mid, "sitemap nahi padh paaya.", MAIN); }
-  const out = [];
-  let pass = 0;
-  for (const u of urls) {
+    const rows = [...sm.matchAll(/<loc>([^<]+)<\/loc>\s*<lastmod>([\d-]+)<\/lastmod>/g)].map((m) => [m[1], m[2]]);
+    rows.sort((a, b) => (a[1] < b[1] ? 1 : -1));          // sabse naya pehle
+    urls = rows.slice(0, 6).map((x) => x[0]);
+  } catch (e) { return edit(env, mid, `❌ sitemap nahi padh paaya — ${esc(String(e).slice(0, 120))}`, MAIN); }
+
+  // PEHLE: ek-ek karke poochta tha, 6 URL me 60-90 second lag jaate the aur bot atak jaata tha.
+  // AB: sab ek saath (Promise.all), har ek par apna 15s ka timeout. Kul 15-20 second.
+  const res = await Promise.all(urls.map(async (u) => {
     try {
       const x = await gapi(env, "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
-        SCOPE_GSC, { inspectionUrl: u, siteUrl: env.GSC_PROPERTY, languageCode: "en" });
-      const i = x.inspectionResult?.indexStatusResult || {};
-      if (i.verdict === "PASS") pass++;
-      out.push(`${i.verdict === "PASS" ? "🟢" : "🔴"} <code>${esc(u.replace(SITE, "") || "/")}</code>\n   ${esc((i.coverageState || "?").slice(0, 46))}`);
-    } catch { out.push(`⚪ <code>${esc(u.replace(SITE, ""))}</code> — jaanch nahi ho payi`); }
-  }
+        SCOPE_GSC, { inspectionUrl: u, siteUrl: env.GSC_PROPERTY, languageCode: "en" }, 15000);
+      const i2 = x.inspectionResult?.indexStatusResult || {};
+      return { u, ok: i2.verdict === "PASS", why: i2.coverageState || "?", crawl: i2.lastCrawlTime };
+    } catch (e) { return { u, err: String(e).slice(0, 60) }; }
+  }));
+
+  const pass = res.filter((r) => r.ok).length;
+  const fail = res.filter((r) => r.err).length;
+  const lines = res.map((r) => r.err
+    ? `⚪ <code>${esc(r.u.replace(SITE, "") || "/")}</code>\n   ${esc(r.err)}`
+    : `${r.ok ? "🟢" : "🔴"} <code>${esc(r.u.replace(SITE, "") || "/")}</code>\n   ${esc(String(r.why).slice(0, 46))}` +
+      (r.crawl ? ` · crawl ${ago(r.crawl)} pehle` : ""));
+
   return edit(env, mid,
     `<b>🔎 Abhi ka sach — sabse naye ${urls.length} page</b>\n` +
-    `<i>Ye seedha Google se poochha gaya hai, kisi purane record se nahi.</i>\n\n` +
-    `${out.join("\n")}\n\n` +
-    `Index : <b>${pass}</b> / ${urls.length}\n\n` +
-    `<i>Ek baar me 8 se zyada nahi poochh sakta. Poori site ka hisaab chahiye to <b>poora scan</b> chalaiye — ` +
-    `wo 262 URL jaanchta hai aur 3-5 minute leta hai.</i>`, MAIN);
+    `<i>Seedha Google se poochha gaya, kisi purane record se nahi.</i>\n\n` +
+    `${lines.join("\n")}\n\n` +
+    `Index : <b>${pass}</b> / ${urls.length}` + (fail ? ` · jaanch nahi hui : ${fail}` : "") + "\n\n" +
+    `<i>Ek baar me 6 se zyada nahi poochh sakta (Cloudflare ki seema). ` +
+    `Poori site ka taaza hisaab chahiye to <b>poora scan</b> — 262 URL, 3-5 minute.</i>`, MAIN);
 }
 
 async function doCheckPending(env, mid) {
@@ -462,16 +477,16 @@ async function doCheckPending(env, mid) {
   let d = {}; try { d = JSON.parse(atob(r.data?.content?.replace(/\n/g, "") || "")); } catch {}
   const pend = Object.entries(d.status || {}).filter(([, v]) => v && !v.ok).map(([u]) => u).slice(0, 6);
   if (!pend.length) return edit(env, mid, "🟢 <b>Sab page index hain.</b>\nKuch jaanchne ko nahi bacha.", MAIN);
-  const out = [];
-  for (const u of pend) {
+  const res = await Promise.all(pend.map(async (u) => {
     try {
       const x = await gapi(env, "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
-        SCOPE_GSC, { inspectionUrl: u, siteUrl: env.GSC_PROPERTY, languageCode: "en" });
+        SCOPE_GSC, { inspectionUrl: u, siteUrl: env.GSC_PROPERTY, languageCode: "en" }, 15000);
       const i = x.inspectionResult?.indexStatusResult || {};
-      out.push(`${i.verdict === "PASS" ? "🟢" : "🔴"} <code>${esc(u.replace(SITE, ""))}</code>\n   ${esc(i.coverageState || "?")}` +
-               (i.lastCrawlTime ? ` · crawl ${ago(i.lastCrawlTime)} pehle` : " · abhi tak crawl nahi"));
-    } catch (e) { out.push(`⚪ <code>${esc(u.replace(SITE, ""))}</code> — jaanch nahi ho payi`); }
-  }
+      return `${i.verdict === "PASS" ? "🟢" : "🔴"} <code>${esc(u.replace(SITE, ""))}</code>\n   ${esc(i.coverageState || "?")}` +
+             (i.lastCrawlTime ? ` · crawl ${ago(i.lastCrawlTime)} pehle` : " · abhi tak crawl nahi");
+    } catch (e) { return `⚪ <code>${esc(u.replace(SITE, ""))}</code> — jaanch nahi ho payi`; }
+  }));
+  const out = res;
   return edit(env, mid, `<b>🔍 Bache hue URL ka taaza haal</b>\n\n${out.join("\n")}\n\n` +
     `<i>Google ka apna record 2-3 din peeche chalta hai. "abhi tak crawl nahi" ka matlab hai ki wo aaya hi nahi — ` +
     `wahan content se zyada backlink kaam karta hai.</i>`, MAIN);
@@ -1301,9 +1316,42 @@ async function chat(env, t) {
   if (!mid) return;
   let pick = understand(t);
   if (!pick) pick = await aiPick(env, t);
-  if (pick && JOBS[pick[0]]) { try { return await JOBS[pick[0]](env, mid, pick[1]); } catch (e) {
-    return edit(env, mid, `❌ ${esc(String(e).slice(0, 200))}`, MAIN); } }
+  if (pick && JOBS[pick[0]]) return runJob(env, mid, pick[0], pick[1]);
   return aiTalk(env, mid, t);
+}
+
+/** CHOWKIDAR — har kaam ka rakhwala.
+ *  Pehle agar koi kaam beech me atak jaata (jaise Google ka jawab na aaye), to bot
+ *  chup ho jaata tha aur user ko sirf "⏳ …" dikhta rehta tha — ghanton tak.
+ *  Ab: har kaam ko 50 second milte hain. Us se zyada laga to bot khud batata hai
+ *  ki kya hua aur aage kya kariye. Bot ab kabhi chup nahi hoga. */
+async function runJob(env, mid, job, arg) {
+  const NAMES = { taaza: "taaza jaanch", checkpend: "bache hue URL ki jaanch", indexing: "Indexing",
+                  gsc: "Search ka data", ga: "Analytics", speed: "Speed test", mauka: "mauke",
+                  smstatus: "sitemap ka haal", linkcheck: "link ki jaanch" };
+  const naam = NAMES[job] || job;
+  let done = false;
+  const guard = (async () => {
+    await new Promise((r) => setTimeout(r, 50000));
+    if (done) return;
+    await edit(env, mid,
+      `⏱ <b>${esc(naam)} 50 second me poori nahi hui.</b>\n\n` +
+      `Aksar iska matlab hai ki Google ya GitHub dheema chal raha hai — bot theek hai.\n\n` +
+      `<b>Kya kariye</b>\n` +
+      `• 1-2 minute ruk kar dobara try kijiye\n` +
+      (job === "taaza" ? "• Poori site ka hisaab chahiye to <b>poora scan</b> chalaiye (GitHub par chalta hai, wahan koi seema nahi)\n" : "") +
+      `• Baar-baar ho to ❤️ Health dabaiye`, MAIN);
+  })();
+  try {
+    const r = await JOBS[job](env, mid, arg);
+    done = true;
+    return r;
+  } catch (e) {
+    done = true;
+    return edit(env, mid,
+      `❌ <b>${esc(naam)} nahi ho payi.</b>\n\n<code>${esc(String(e).slice(0, 200))}</code>\n\n` +
+      `<i>Ye galti bot ne pakad li hai — chup nahi raha. Dobara try kijiye.</i>`, MAIN);
+  }
 }
 
 /** Indexing ka jawab — saaf batata hai ki data kitna purana hai */
@@ -1362,10 +1410,11 @@ async function onCb(env, q) {
     return edit(env, mid, `🚀 Deploy chalu — IndexNow: <code>${esc(d.slice(2))}</code>\nAudit paas hoga tabhi live jaayega.\n<i>Ab is button ko dobara mat dabaiye.</i>`, MENUS.dep.k); }
   if (d === "do:status") return doStatus(env, mid);
   if (d === "do:changes") return doChanges(env, mid, 1);
-  if (d === "do:smstatus") return doSitemapStatus(env, mid);
-  if (d === "do:checkpend") return doCheckPending(env, mid);
-  if (d === "do:taaza") return doFreshCheck(env, mid);
-  if (d === "do:mauka") return doOpportunity(env, mid);
+  // button se bhi chowkidar ke saath — koi kaam chup-chaap na mare
+  if (d === "do:smstatus") return runJob(env, mid, "smstatus", "");
+  if (d === "do:checkpend") return runJob(env, mid, "checkpend", "");
+  if (d === "do:taaza") return runJob(env, mid, "taaza", "");
+  if (d === "do:mauka") return runJob(env, mid, "mauka", "");
   if (d === "do:linkcheck") return doLinkCheck(env, mid);
   if (d === "do:pages") return doPages(env, mid);
   if (d === "do:site") return doSite(env, mid);

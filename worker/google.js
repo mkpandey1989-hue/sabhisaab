@@ -38,23 +38,43 @@ export async function googleToken(env, scope) {
     new TextEncoder().encode(`${header}.${claim}`));
   const jwt = `${header}.${claim}.${bytesToB64u(sig)}`;
 
-  const r = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion: jwt }),
-  });
+  const ac = new AbortController();
+  const tt = setTimeout(() => ac.abort(), 12000);
+  let r;
+  try {
+    r = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion: jwt }),
+      signal: ac.signal,
+    });
+  } catch (e) { clearTimeout(tt); throw new Error("Google login me 12s se zyada lag gaya"); }
+  clearTimeout(tt);
   const d = await r.json();
   if (!d.access_token) throw new Error("Google token nahi mila: " + JSON.stringify(d).slice(0, 200));
   _cache = { token: d.access_token, exp: now + (d.expires_in || 3600), scope };
   return d.access_token;
 }
 
-export async function gapi(env, url, scope, body) {
+/** Har Google call par HARD TIMEOUT.
+ *  Pehle koi timeout tha hi nahi — ek call atak jaati to bot hamesha ke liye chup ho jaata tha,
+ *  aur user ko sirf "⏳ …" dikhta rehta tha. Ab 15 second se zyada koi call nahi chalti. */
+export async function gapi(env, url, scope, body, ms = 15000) {
   const tok = await googleToken(env, scope);
-  const r = await fetch(url, {
-    method: body ? "POST" : "GET",
-    headers: { Authorization: "Bearer " + tok, "content-type": "application/json" },
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), ms);
+  let r;
+  try {
+    r = await fetch(url, {
+      method: body ? "POST" : "GET",
+      headers: { Authorization: "Bearer " + tok, "content-type": "application/json" },
+      body: body ? JSON.stringify(body) : undefined,
+      signal: ac.signal,
+    });
+  } catch (e) {
+    clearTimeout(t);
+    throw new Error(String(e).includes("abort") ? `Google ne ${ms / 1000}s me jawab nahi diya` : String(e));
+  }
+  clearTimeout(t);
   const d = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(`${r.status}: ${JSON.stringify(d).slice(0, 250)}`);
   return d;
