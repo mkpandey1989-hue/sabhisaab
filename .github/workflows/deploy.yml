@@ -259,10 +259,15 @@ jobs:
               print("  (haal nahi mil paaya:", e, ")")
           PY
 
-      - name: Bing ko sitemap ping
+      - name: Bing ka natija saaf batao
         if: ${{ github.event.inputs.indexnow != 'koi-nahi' }}
         run: |
-          code=$(curl -s -o /dev/null -w "%{http_code}" \
-            "https://www.bing.com/ping?sitemap=https%3A%2F%2Fsabhisaab.com%2Fsitemap.xml" || echo 000)
-          echo "Bing sitemap ping -> $code"
-          echo "(IndexNow se Bing ko URL pehle hi ja chuke hain — ye sirf ek aur raasta hai)"
+          # Bing ne sitemap ka "ping" 2022 me hi band kar diya tha (410 Gone).
+          # Google ne bhi June 2023 me band kiya. Ab dono ka sirf ek hi tareeka hai:
+          #   Google -> Search Console API (upar wala step)
+          #   Bing   -> IndexNow (pehla step) + robots.txt me sitemap ki line
+          # Isliye ping ka step hata diya gaya — wo kabhi kaam karta hi nahi tha.
+          echo "Bing ko URL IndexNow se ja chuke hain (upar dekhein)."
+          echo "Bing ka sitemap ping band ho chuka hai — wo ab kaam hi nahi karta."
+          echo "Bing me sitemap ek baar haath se submit karna hota hai, phir wo khud padhta rehta hai."
+          echo "Jaanchne ki jagah: bing.com/webmasters -> IndexNow"

@@ -40,6 +40,15 @@ def save(p, o):
     os.makedirs(STATE_DIR, exist_ok=True)
     with open(p, "w", encoding="utf-8") as f: json.dump(o, f, indent=1, ensure_ascii=False)
 
+def run_gh(path):
+    """GitHub API se chhoti jaankari — Bing/deploy ka haal dikhane ke liye."""
+    tok = os.environ.get("BOT_GH_TOKEN") or os.environ.get("GITHUB_TOKEN") or ""
+    repo = os.environ.get("GH_REPO") or "mkpandey1989-hue/sabhisaab"
+    req = urllib.request.Request("https://api.github.com/repos/%s/%s" % (repo, path),
+        headers={"Authorization": "Bearer " + tok, "Accept": "application/vnd.github+json",
+                 "User-Agent": "sabhisaab-daily"})
+    return json.loads(urllib.request.urlopen(req, timeout=20).read().decode())
+
 def esc(x):
     """Telegram HTML mode ke liye — bina iske ek '&' poora message gira deta hai."""
     return _html.escape(str(x), quote=False)
@@ -447,6 +456,17 @@ def main():
     # ---------- speed ----------
     m, dsk = psi(SITE, "mobile"), psi(SITE, "desktop")
     if not m:
+        # ---- Bing / IndexNow ka haal ----
+        try:
+            r = run_gh("actions/workflows/deploy.yml/runs?per_page=1")
+            x = (r.get("workflow_runs") or [{}])[0]
+            ok = x.get("conclusion") == "success"
+            day.append("\n<b>🅱️ Bing aur doosre search engine</b>")
+            day.append(("✅" if ok else "❌") + " IndexNow — aakhri deploy par URL bheje gaye")
+            day.append("<i>Bing ka sitemap ping band hai (2022 se). Roz ki khabar IndexNow se hi jaati hai.</i>")
+        except Exception:
+            pass
+
         day.append("\n<b>⚡ Speed</b>")
         day.append("PageSpeed se jawab nahi mila." + ("" if os.environ.get("PSI_KEY")
                    else " PSI_KEY secret nahi laga — bina key ke Google quota bahut jaldi khatam kar deta hai."))

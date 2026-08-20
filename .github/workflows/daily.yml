@@ -64,6 +64,8 @@ jobs:
           GSC_PROPERTY: sc-domain:sabhisaab.com
           GSC_BUDGET: '150'
           PSI_KEY: ${{ secrets.PSI_KEY }}
+          BOT_GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: python3 scripts/daily.py
 
       - name: State yaad rakho

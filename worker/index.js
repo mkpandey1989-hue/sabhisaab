@@ -346,17 +346,42 @@ async function doChanges(env, mid, days) {
     if (n) files += +n[1];
     const t = new Date(c.commit.author.date);
     const hhmm = new Date(t.getTime() + 330 * 6e4).toISOString().slice(11, 16);
-    return `• ${hhmm} — ${esc(m.slice(0, 60))}`;
+    return `• ${hhmm} — ${esc(m.slice(0, 60)).replace(/([\w-]+\.zip)/g, "<code>$1</code>")}`;
   });
   return edit(env, mid,
     `<b>📝 ${days === 1 ? "Aaj" : "Pichhle " + days + " din"} ka kaam</b>\n\n` +
-    `Badlaav : <b>${list.length}</b>` + (files ? ` · file : <b>${files}</b>` : "") + "\n\n" +
+    `Badlaav : <b>${list.length}</b>` + (files ? ` · file chadhayi : <b>${files}</b> <i>(kul upload, alag-alag page nahi)</i>` : "") + "\n\n" +
     lines.slice(0, 20).join("\n") + (lines.length > 20 ? `\n…aur ${lines.length - 20}` : "") +
     "\n\n<i>Live hua ya nahi, ye 🚀 Deploy → Pichhle 5 run se dekhiye.</i>", MAIN);
 }
 
 
 /** GSC me sitemap ka asli haal — kitne URL, kab padha, kitne error */
+/** Bing ka poora sach — kya apne aap hota hai, kya haath se */
+async function doBing(env, mid) {
+  await edit(env, mid, "⏳ …");
+  let last = "?";
+  try {
+    const r = await gh(env, `/repos/${env.GH_REPO}/actions/workflows/deploy.yml/runs?per_page=1`);
+    const x = r.data?.workflow_runs?.[0];
+    if (x) last = `${x.conclusion === "success" ? "✅" : "❌"} ${ago(x.updated_at)} pehle`;
+  } catch {}
+  return edit(env, mid,
+    "<b>🅱️ Bing ka haal</b>\n\n" +
+    "<b>Jo apne aap hota hai</b>\n" +
+    "✅ <b>IndexNow</b> — har deploy par saare badle URL Bing, Yandex, Naver aur Seznam ko chale jaate hain.\n" +
+    `   Aakhri deploy: ${last}\n` +
+    "✅ robots.txt me sitemap ki line — Bing khud padhta rehta hai.\n\n" +
+    "<b>Jo apne aap NAHI ho sakta — aur kyun</b>\n" +
+    "Bing ne sitemap ka <b>ping band kar diya hai</b> (2022 se). Google ne bhi 2023 me band kiya. " +
+    "Ab koi bhi tool apne aap Bing ko sitemap nahi bhej sakta — ye Bing ne jaan-boojh kar band kiya, spam rokne ke liye.\n\n" +
+    "Isliye Bing me sitemap <b>ek baar haath se</b> submit karna hota hai. Uske baad Bing khud roz padhta rehta hai — " +
+    "dobara submit karne ki zaroorat nahi.\n\n" +
+    "<b>Jaanchne ki jagah</b>\n" +
+    "bing.com/webmasters → <b>IndexNow</b> — wahan roz ke bheje hue URL dikhte hain. Sitemap ki tareekh purani ho to koi baat nahi.",
+    MAIN);
+}
+
 async function doSitemapStatus(env, mid) {
   await edit(env, mid, "⏳ Google se sitemap ka haal…");
   try {
@@ -916,6 +941,7 @@ const JOBS = {
   pending:   async (env, mid) => { await runWf(env, "pending.yml"); return edit(env, mid, "📋 Pending list ban rahi hai — 1 min.", MAIN); },
   botstatus: (env, mid) => doBotStatus(env, mid),
   smstatus:  (env, mid) => doSitemapStatus(env, mid),
+  bing:      (env, mid) => doBing(env, mid),
   mauka:     (env, mid) => doOpportunity(env, mid),
   checkpend: (env, mid) => doCheckPending(env, mid),
   linkcheck: (env, mid) => doLinkCheck(env, mid),
@@ -947,6 +973,7 @@ function understand(t) {
     return ["check", url];
 
   // ---- live / abhi ----
+  if (has("bing", "yandex", "indexnow", "index now", "seznam", "naver")) return ["bing", ""];
   if (has("live", "abhi kitne", "is waqt", "is samay", "real time", "realtime", "abhi kaun"))
     return ["live", ""];
   if (has("ghante", "ghanta", "hourly", "hour", "kis samay", "kaunse time"))
@@ -1214,7 +1241,10 @@ async function aiTalk(env, mid, t) {
       "- 'Aaj kya update hua' jaisa sawaal aaye to tum GitHub ke commit se bata sakte ho.\n" +
       "- Tum ye bhi kar sakte ho: sitemap ka haal (GSC se), sabse bade mauke (wo query jinpar dikh rahe hain " +
       "par click nahi), bache hue URL ka taaza index status, aur toote link ki jaanch.\n" +
-      "- Har deploy par sitemap ab apne aap Google aur Bing dono ko chala jaata hai — pehle sirf IndexNow jaata tha.\n" +
+      "- Har deploy par: Google ko sitemap (Search Console API se) aur Bing ko IndexNow — dono apne aap.\n" +
+      "- Bing ka sitemap 'ping' 2022 se band hai (Google ka 2023 se). Isliye Bing me sitemap ek baar haath se " +
+      "submit karna padta hai; uske baad Bing khud padhta rehta hai. Ye kami nahi hai, Bing ka apna niyam hai. " +
+      "Bing ko roz ki khabar IndexNow se jaati hai — aur wo chal raha hai.\n" +
       "- Ye sab poochha jaaye to seedha bata do, ghumao mat.",
       t.slice(0, 600), 700);
   if (!out) return edit(env, mid,
