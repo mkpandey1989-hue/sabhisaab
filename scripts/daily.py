@@ -148,9 +148,22 @@ def gsc_totals(svc, start, end):
 
 # ---------------------------------------------------------------- 3-4. index status
 def index_scan(svc, urls, budget, st):
-    cur = st.get("cursor", 0) % max(len(urls), 1)
-    batch = [urls[(cur + i) % len(urls)] for i in range(min(budget, len(urls)))]
-    st["cursor"] = (cur + len(batch)) % max(len(urls), 1)
+    """Google se har URL ka asli index status poochta hai (URL Inspection API).
+
+    Pehle ye seedha kram se chalta tha aur budget 150 tha — 262 URL ki site par
+    ek run me aadhe hi jaanche jaate the, aur NAYE page sabse aakhir me aate the.
+    Isi wajah se naya page index hone ke baad bhi report me purana dikhta tha.
+    Ab: (1) jo URL pehle kabhi nahi jaanche gaye, wo SABSE PEHLE
+        (2) phir jo abhi index nahi hain
+        (3) phir baaki, kram se."""
+    old_st = st.get("status", {})
+    never   = [u for u in urls if u not in old_st]
+    pending = [u for u in urls if u in old_st and not old_st[u].get("ok")]
+    rest    = [u for u in urls if u in old_st and old_st[u].get("ok")]
+    cur = st.get("cursor", 0) % max(len(rest), 1)
+    rest = [rest[(cur + i) % len(rest)] for i in range(len(rest))] if rest else []
+    batch = (never + pending + rest)[:budget]
+    st["cursor"] = (cur + max(0, budget - len(never) - len(pending))) % max(len(rest), 1)
     old = st.get("status", {})
     new, errs = dict(old), 0
     for u in batch:

@@ -62,7 +62,7 @@ jobs:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           GSC_PROPERTY: sc-domain:sabhisaab.com
-          GSC_BUDGET: '150'
+          GSC_BUDGET: '300'   # site 262 URL ki hai — ek hi run me sab jaanch lo
           PSI_KEY: ${{ secrets.PSI_KEY }}
           BOT_GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
           GH_REPO: ${{ github.repository }}

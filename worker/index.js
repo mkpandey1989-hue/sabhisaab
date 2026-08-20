@@ -102,6 +102,7 @@ const MENUS = {
     [{ text: "Sitemap Google ko submit", callback_data: "do:sitemap" }],
     [{ text: "🗺 Sitemap ka haal", callback_data: "do:smstatus" }],
     [{ text: "🔍 Bache hue URL jaanchein", callback_data: "do:checkpend" }],
+    [{ text: "🔎 Abhi ka sach (sabse naye page)", callback_data: "do:taaza" }],
     [{ text: "IndexNow: badle URL", callback_data: "d:badle-hue" }],
     [{ text: "IndexNow: sabhi URL", callback_data: "d:sabhi" }],
     back]) },
@@ -422,6 +423,38 @@ async function doOpportunity(env, mid) {
 }
 
 /** Jo page abhi index nahi hue, unhe ek-ek karke Google se poochho */
+/** Sabse naye page Google se ABHI poochho — record ka intezaar nahi */
+async function doFreshCheck(env, mid) {
+  await edit(env, mid, "⏳ Google se abhi ka sach poochh raha hoon…");
+  let urls = [];
+  try {
+    const r = await gh(env, `/repos/${env.GH_REPO}/contents/site/sitemap.xml`);
+    const sm = atob(r.data.content.replace(/\n/g, ""));
+    const rows = [...sm.matchAll(/<loc>([^<]+)<\/loc>\s*<lastmod>([\d-]+)<\/lastmod>/g)]
+      .map((m) => [m[1], m[2]]);
+    rows.sort((a, b) => (a[1] < b[1] ? 1 : -1));       // sabse naya pehle
+    urls = rows.slice(0, 8).map((x) => x[0]);
+  } catch { return edit(env, mid, "sitemap nahi padh paaya.", MAIN); }
+  const out = [];
+  let pass = 0;
+  for (const u of urls) {
+    try {
+      const x = await gapi(env, "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+        SCOPE_GSC, { inspectionUrl: u, siteUrl: env.GSC_PROPERTY, languageCode: "en" });
+      const i = x.inspectionResult?.indexStatusResult || {};
+      if (i.verdict === "PASS") pass++;
+      out.push(`${i.verdict === "PASS" ? "🟢" : "🔴"} <code>${esc(u.replace(SITE, "") || "/")}</code>\n   ${esc((i.coverageState || "?").slice(0, 46))}`);
+    } catch { out.push(`⚪ <code>${esc(u.replace(SITE, ""))}</code> — jaanch nahi ho payi`); }
+  }
+  return edit(env, mid,
+    `<b>🔎 Abhi ka sach — sabse naye ${urls.length} page</b>\n` +
+    `<i>Ye seedha Google se poochha gaya hai, kisi purane record se nahi.</i>\n\n` +
+    `${out.join("\n")}\n\n` +
+    `Index : <b>${pass}</b> / ${urls.length}\n\n` +
+    `<i>Ek baar me 8 se zyada nahi poochh sakta. Poori site ka hisaab chahiye to <b>poora scan</b> chalaiye — ` +
+    `wo 262 URL jaanchta hai aur 3-5 minute leta hai.</i>`, MAIN);
+}
+
 async function doCheckPending(env, mid) {
   await edit(env, mid, "⏳ bache hue URL Google se jaanch raha hoon…");
   const r = await gh(env, `/repos/${env.GH_REPO}/contents/state/daily.json`);
@@ -944,6 +977,7 @@ const JOBS = {
   bing:      (env, mid) => doBing(env, mid),
   mauka:     (env, mid) => doOpportunity(env, mid),
   checkpend: (env, mid) => doCheckPending(env, mid),
+  taaza:     (env, mid) => doFreshCheck(env, mid),
   linkcheck: (env, mid) => doLinkCheck(env, mid),
   changes:   (env, mid, a) => doChanges(env, mid, +a || 1),
   botupdate: async (env, mid) => {
@@ -1000,6 +1034,8 @@ function understand(t) {
     return ["speed", has("desktop", "computer", "laptop") ? "desktop" : "mobile"];
 
   // ---- indexing ----
+  if (has("naye page", "naya page", "nayi page") && has("index", "chadha", "chadhe", "hua", "hue"))
+    return ["taaza", ""];
   if (has("index", "indexed", "indexing", "kitne page chadhe", "pending url", "crawl", "google ko pata", "kitne baaki"))
     return ["indexing", ""];
   if (has("sitemap")) return has("haal", "status", "kaisa", "error", "kitne url", "dekho", "jaanch")
@@ -1007,6 +1043,9 @@ function understand(t) {
   if (has("mauka", "mauke", "kya sudhaar", "kahan sudhaar", "opportunity", "kaunsi query par kaam",
           "click kaise", "traffic kaise badh", "ranking kaise"))
     return ["mauka", ""];
+  if (has("taaza jaanch", "abhi ka", "live jaanch", "abhi check", "fresh", "taza", "abhi ka sach") ||
+      (has("naye page", "naya page") && has("index", "chadha", "hua")))
+    return ["taaza", ""];
   if (has("bache hue", "pending url", "jo index nahi", "unindexed", "dobara jaanch", "phir se check"))
     return ["checkpend", ""];
   if (has("toota link", "broken link", "link jaanch", "link check", "dead link"))
@@ -1239,6 +1278,8 @@ async function aiTalk(env, mid, t) {
       "Request Indexing dabana (Google ka API hai hi nahi). Ye kaam Manoj ya unka AI karta hai.\n" +
       "- ZIP me ek baar me 22 file tak hi chadh sakti hai — isse zyada par tum pehle hi mana kar dete ho.\n" +
       "- 'Aaj kya update hua' jaisa sawaal aaye to tum GitHub ke commit se bata sakte ho.\n" +
+      "- Indexing wali ginti roz ke scan se aati hai, live nahi hoti. Agar Manoj kahein ki number purana hai, " +
+      "to unhe 'taaza jaanch' batao (sabse naye 8 page Google se abhi poochhta hai) ya 'poora scan' (3-5 min, poori site).\n" +
       "- Tum ye bhi kar sakte ho: sitemap ka haal (GSC se), sabse bade mauke (wo query jinpar dikh rahe hain " +
       "par click nahi), bache hue URL ka taaza index status, aur toote link ki jaanch.\n" +
       "- Har deploy par: Google ko sitemap (Search Console API se) aur Bing ko IndexNow — dono apne aap.\n" +
@@ -1265,25 +1306,37 @@ async function chat(env, t) {
   return aiTalk(env, mid, t);
 }
 
-/** Indexing ka turant jawab — bina scan chalaye, yaaddasht se */
+/** Indexing ka jawab — saaf batata hai ki data kitna purana hai */
 async function doIndexQuick(env, mid) {
   await edit(env, mid, "⏳ …");
   const r = await gh(env, `/repos/${env.GH_REPO}/contents/state/daily.json`);
   if (!r.ok) return edit(env, mid, "Abhi koi record nahi. 📑 Indexing → Poora scan chalayein.", MAIN);
-  let d = {}; try { d = JSON.parse(atob(r.data.content.replace(/\n/g, ""))); } catch {}
+  let d = {}; try { d = JSON.parse(atob(r.data?.content?.replace(/\n/g, "") || "")); } catch {}
   const st = d.status || {};
   const ok = Object.values(st).filter((v) => v && v.ok);
   const no = Object.entries(st).filter(([, v]) => v && !v.ok);
   const why = {};
   no.forEach(([, v]) => { const k = v.why || "?"; why[k] = (why[k] || 0) + 1; });
   const h = (d.hist || []).slice(-5);
+
+  // record kitna purana hai — ye sabse zaroori baat hai
+  let umr = "";
+  try {
+    const c = await gh(env, `/repos/${env.GH_REPO}/commits?path=state/daily.json&per_page=1`);
+    const t = c.data?.[0]?.commit?.author?.date;
+    if (t) umr = ago(t) + " pehle";
+  } catch {}
+
   return edit(env, mid,
-    `<b>📑 Indexing — ${esc(d.day || "")}</b>\n\n` +
+    `<b>📑 Indexing</b>\n` +
+    `<i>Ye Google se ki gayi aakhri jaanch hai — ${esc(umr || d.day || "?")}. Live nahi hai.</i>\n\n` +
     `Indexed : <b>${ok.length}</b>\nBaaki : <b>${no.length}</b>\n\n` +
     (Object.keys(why).length ? "<b>Kis wajah se atke</b>\n" +
       Object.entries(why).map(([k, v]) => `• ${esc(k)} — <b>${v}</b>`).join("\n") + "\n\n" : "") +
     (h.length > 1 ? "<b>Pichhle din</b>\n" + h.map((x) => `• ${x.d} — ${x.ok} indexed`).join("\n") + "\n\n" : "") +
-    (no.length ? "<b>Ye dabaiye</b>\n" + no.slice(0, 10).map(([u]) => `<code>${esc(u)}</code>`).join("\n") : "Sab index hai ✅"),
+    (no.length ? "<b>Ye dabaiye</b>\n" + no.slice(0, 10).map(([u]) => `<code>${esc(u)}</code>`).join("\n") + "\n\n" : "Sab index hai ✅\n\n") +
+    "<i>Abhi ka sach chahiye to likhiye <b>taaza jaanch</b> — Google se seedha poochh lunga. " +
+    "Poori site dobara jaanchni ho to <b>poora scan</b> (3-5 minute).</i>",
     MAIN);
 }
 
@@ -1311,6 +1364,7 @@ async function onCb(env, q) {
   if (d === "do:changes") return doChanges(env, mid, 1);
   if (d === "do:smstatus") return doSitemapStatus(env, mid);
   if (d === "do:checkpend") return doCheckPending(env, mid);
+  if (d === "do:taaza") return doFreshCheck(env, mid);
   if (d === "do:mauka") return doOpportunity(env, mid);
   if (d === "do:linkcheck") return doLinkCheck(env, mid);
   if (d === "do:pages") return doPages(env, mid);
