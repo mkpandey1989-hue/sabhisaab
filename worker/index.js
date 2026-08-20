@@ -636,7 +636,11 @@ function routeOf(name) {
   if (/\.py$/i.test(n)) return "scripts/" + n;
   if (/^(index|google)\.js$|^wrangler\.toml$|^package(-lock)?\.json$/i.test(n)) return "worker/" + n;
   // bina extension wali site files — _headers, _redirects, googleXXXX verification
-  if (/^_(headers|redirects|routes)$/i.test(n)) return "site/" + n;
+  // _redirects JAAN-BOOJH KAR block hai. Cloudflare Pages usme query string (?t=) support
+  // nahi karta, aur ek baar usi galti se poora homepage toot chuka hai. Roadmap ka niyam:
+  // ye file kabhi nahi banani. Isliye bot use lene se hi mana kar deta hai.
+  if (/^_redirects$/i.test(n)) return null;
+  if (/^_(headers|routes)$/i.test(n)) return "site/" + n;
   if (/^google[a-f0-9]{16}\.html$/i.test(n)) return "site/" + n;
   if (/\.(html|webp|png|jpg|jpeg|gif|xml|txt|json|js|ico|svg|webmanifest)$/i.test(n)) return "site/" + n;
   return null;
@@ -864,6 +868,10 @@ async function handleDoc(env, doc) {
       const t = routeOf(p); if (!t) { skip.push(p.split("/").pop()); continue; }
       batch.push([t, data]);
     }
+    if (skip.some((x) => /^_redirects$/i.test(x))) await say(env,
+      "⚠️ <b>ZIP me <code>_redirects</code> thi — wo maine chhod di.</b>\n" +
+      "Cloudflare Pages usme query string support nahi karta; isi galti se pehle homepage toot chuka hai. " +
+      "Baaki file chadha raha hoon.");
     if (!batch.length) return say(env, `ZIP me koi pehchani file nahi mili.\n⚪ chhodi: ${skip.slice(0,10).join(", ")}`);
     if (batch.length > MAX_FILES)
       return say(env,
@@ -923,7 +931,16 @@ async function handleDoc(env, doc) {
   }
 
   const t = routeOf(name);
-  if (!t) return say(env, `Ye file nahi pehchani: <code>${esc(name)}</code>`);
+  if (!t) {
+    if (/^_redirects$/i.test(name)) return say(env,
+      "🛑 <b>_redirects file main nahi lunga.</b>\n\n" +
+      "Cloudflare Pages usme query string (<code>?t=</code>) support nahi karta. " +
+      "Isi galti se ek baar poora homepage toot chuka hai — sabhisaab.com kholne par " +
+      "seedha ek calculator khulne laga tha.\n\n" +
+      "Purane URL ka canonical pehle se sahi hai, isliye ye file zaroori bhi nahi. " +
+      "Redirect chahiye hi to pehle mujhse poochh lijiye.");
+    return say(env, `Ye file nahi pehchani: <code>${esc(name)}</code>`);
+  }
   const r = await putFile(env, t, bytes, `telegram se: ${t}`);
   return say(env, r.ok ? `${r.updated ? "♻️ Update" : "🆕 Nayi file"}\n<code>${t}</code>\n${(doc.file_size/1024).toFixed(0)} KB` : `❌ ${r.status}`, btn);
 }
