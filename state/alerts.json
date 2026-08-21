@@ -42,6 +42,11 @@
   "GitHub|Enterprise managed settings in GitHub Copilot for JetBrains": "2026-08-19",
   "GitHub|Credential revocation and deauthorization by token type": "2026-08-19",
   "GitHub|Track organization code quality trends": "2026-08-19",
-  "GitHub|CodeQL 2.26.3 improves GitHub Actions queries and JavaScript modeling": "2026-08-20"
+  "GitHub|CodeQL 2.26.3 improves GitHub Actions queries and JavaScript modeling": "2026-08-20",
+  "GitHub|Pinning saved views to the repository issues sidebar is generally available and more": "2026-08-21",
+  "GitHub|Windows 11 arm64 VS2026 image generally available": "2026-08-21",
+  "GitHub|Code scanning adds a mitigated alert dismissal reason": "2026-08-21",
+  "GitHub|Separate GitHub Actions path for GitHub Code Quality": "2026-08-21",
+  "GitHub|Track GitHub Code Quality enablement changes in the audit log": "2026-08-21"
  }
 }
