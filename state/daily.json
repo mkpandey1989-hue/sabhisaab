@@ -2,11 +2,11 @@
  "sitemap_day": "2026-08-21",
  "gsc_last": {
   "c": 6,
-  "i": 76,
-  "ctr": 7.894736842105263,
-  "pos": 27.06578947368421
+  "i": 83,
+  "ctr": 7.228915662650602,
+  "pos": 24.867469879518072
  },
- "cursor": 102,
+ "cursor": 140,
  "status": {
   "https://sabhisaab.com/": {
    "ok": true,
@@ -322,7 +322,7 @@
   },
   "https://sabhisaab.com/delivery-date-calculator": {
    "ok": false,
-   "why": "URL is unknown to Google",
+   "why": "Discovered - currently not indexed",
    "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
    "day": "2026-08-21"
   },
@@ -1204,7 +1204,7 @@
   },
   "https://sabhisaab.com/stopwatch-online": {
    "ok": false,
-   "why": "Discovered - currently not indexed",
+   "why": "URL is unknown to Google",
    "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
    "day": "2026-08-21"
   },
@@ -1582,10 +1582,10 @@
   }
  },
  "todo": [
+  "https://sabhisaab.com/delivery-date-calculator",
   "https://sabhisaab.com/fire-number-calculator",
   "https://sabhisaab.com/number-system-converter",
   "https://sabhisaab.com/random-number-generator",
-  "https://sabhisaab.com/stopwatch-online",
   "https://sabhisaab.com/notice-period-buyout-calculator"
  ],
  "ga_last": 0.0,
@@ -1618,5 +1618,5 @@
    "pending": 7
   }
  ],
- "psi_mobile": 80
+ "psi_mobile": 94
 }
