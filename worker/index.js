@@ -1104,7 +1104,9 @@ function understand(t) {
   // isi wajah se "bot update" likhne par bot Aaj ka kaam dikhata tha aur code chadhta hi nahi tha.
   if (has("bot update", "bot ka code", "bot chadha", "bot deploy", "bot updat", "botupdate", "update bot"))
     return ["botupdate", ""];
-  if (has("bot") && has("haal", "kaisa", "kaise ho", "theek", "chal raha", "kya kar", "status", "sab theek"))
+  // "kaisa" / "kaise ho" yahan se hata diya — "BOT BHAI KAISE HO" par poora status chal jaata tha.
+  // Wo haal-chaal hai, command nahi. Ab wo baat-cheet me jaata hai. "bot ka haal" ab bhi chalta hai.
+  if (has("bot") && has("haal", "theek", "chal raha", "kya kar", "status", "sab theek"))
     return ["botstatus", ""];
 
   // "aaj kitne page update kiye", "kya badla", "aaj kya kaam hua" — ginti se pehle
@@ -1169,14 +1171,25 @@ function pickModel(list) {
 }
 
 async function geminiCall(key, model, sys, user, max_tokens) {
-  const r = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
-    { method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: sys }] },
-        contents: [{ role: "user", parts: [{ text: user }] }],
-        generationConfig: { temperature: 0.3, maxOutputTokens: max_tokens },
-      }) });
+  // HARD TIMEOUT — pehle yahan koi timeout nahi tha. GitHub par 15s, Google par 15s,
+  // par Gemini par kuch nahi. Isi wajah se baat-cheet me "⏳ …" ghanton atka rehta tha.
+  const ac = new AbortController();
+  const tm = setTimeout(() => ac.abort(), 12000);
+  let r;
+  try {
+    r = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
+      { method: "POST", headers: { "content-type": "application/json" },
+        signal: ac.signal,
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: sys }] },
+          contents: [{ role: "user", parts: [{ text: user }] }],
+          generationConfig: { temperature: 0.3, maxOutputTokens: max_tokens },
+        }) });
+  } catch (e) {
+    GEM_ERR = /abort/i.test(String(e)) ? "12s me jawab nahi aaya" : String(e).slice(0, 120);
+    return null;
+  } finally { clearTimeout(tm); }
   const d = await r.json().catch(() => ({}));
   if (!r.ok) { GEM_ERR = d?.error?.message || ("HTTP " + r.status); return null; }
   const t = d?.candidates?.[0]?.content?.parts?.map((x) => x.text).filter(Boolean).join("");
@@ -1189,23 +1202,41 @@ async function gemini(env, sys, user, max_tokens = 700) {
   const key = (env.GEMINI_KEY || "").trim();
   if (!key) { GEM_ERR = "key nahi lagi"; return null; }
   GEM_ERR = "";
-  if (GEM_MODEL) { const t = await geminiCall(key, GEM_MODEL, sys, user, max_tokens); if (t) return t; GEM_DEAD.add(GEM_MODEL); GEM_MODEL = ""; }
-  for (const m of ["gemini-3.6-flash", "gemini-flash-latest", "gemini-3.6-flash-lite", "gemini-2.5-flash"]) {
-    if (GEM_DEAD.has(m)) continue;
+
+  // BUDGET — pehle bot 8 model tak ek-ek karke try karta tha, bina timeout ke.
+  // Free key par rate-limit lage to saare 8 fail hote the aur tab tak Worker mar jaata tha.
+  // Ab: zyada se zyada 2 koshish, aur kul 25 second. Usse aage jaana hi nahi.
+  const tEnd = Date.now() + 25000;
+  let tries = 0;
+  const rateLimited = () => /429|quota|rate limit|RESOURCE_EXHAUSTED/i.test(GEM_ERR || "");
+  const attempt = async (m) => {
+    if (tries >= 2 || Date.now() > tEnd) return "STOP";
+    tries++;
     const t = await geminiCall(key, m, sys, user, max_tokens);
     if (t) { GEM_MODEL = m; return t; }
+    // key ka quota khatam hai to doosra model bhi usi key par fail hoga — waqt mat barbaad karo
+    if (rateLimited()) return "STOP";
     GEM_DEAD.add(m);
+    return null;
+  };
+
+  if (GEM_MODEL) {
+    const t = await attempt(GEM_MODEL);
+    if (t === "STOP") return null;
+    if (t) return t;
+    GEM_MODEL = "";
   }
-  // naam badal gaye hon to Google se hi list mangwa lo
+  for (const m of ["gemini-3.6-flash", "gemini-flash-latest", "gemini-3.6-flash-lite", "gemini-2.5-flash"]) {
+    if (GEM_DEAD.has(m)) continue;
+    const t = await attempt(m);
+    if (t === "STOP") return null;
+    if (t) return t;
+  }
+  // naam badal gaye hon to Google se hi list mangwa lo — sirf tab jab abhi bhi waqt bacha ho
+  if (Date.now() > tEnd || tries >= 2) return null;
   const list = (await geminiModels(key)).filter((m) => !GEM_DEAD.has(m));
-  for (let k = 0; k < 3 && list.length; k++) {
-    const pick = pickModel(list);
-    if (!pick) break;
-    const t = await geminiCall(key, pick, sys, user, max_tokens);
-    if (t) { GEM_MODEL = pick; return t; }
-    GEM_DEAD.add(pick);
-    list.splice(list.indexOf(pick), 1);
-  }
+  const pick = pickModel(list);
+  if (pick) { const t = await attempt(pick); if (t && t !== "STOP") return t; }
   return null;
 }
 
@@ -1306,7 +1337,14 @@ async function aiTalk(env, mid, t) {
       "4. Hamesha SAB HISAAB ki apni sthiti par baat karo. Agar aage badhne ki salah deni ho to yaad rakho ki " +
       "asli rukawat backlink hai, content nahi.\n" +
       "5. Koi number apne se MAT banao. Sirf upar diye aankde use karo. Pata na ho to keh do 'ye number mere paas nahi, /menu se dekh lijiye'.\n" +
-      "6. Markdown ka # heading mat lagao. Seedha likho.\n\n" +
+      "6. Markdown ka # heading mat lagao. Seedha likho.\n" +
+      "7. Manoj mazak karein, taana maarein ya haal-chaal poochhein (jaise 'kaise ho', 'so gaya kya', " +
+      "'dusra chowkidar rakh lete hain') to USI TARAH halke-phulke andaaz me jawab do — 2-3 line, " +
+      "Manoj bhai kehkar. Menu ya report thoop mat do. Agar taana bot ke atakne par ho to imaandari se " +
+      "maano ki der hui, safai mat do.\n" +
+      "8. 'Kya karna chahiye', 'kya implement karein', 'aage kya' — aise sawaal par 2-3 THOS kaam batao " +
+      "jo Manoj is hafte kar sakein, kram ke saath. Ghisi-piti list nahi. Yaad rakho: 3-4 hafte naya page " +
+      "nahi banana hai, aur asli rukawat backlink hai.\n\n" +
       "BOT (yaani tum) ke baare me — agar Manoj tumhare baare me poochhein:\n" +
       "- Tum Telegram par chalte ho, Cloudflare Worker par. Tum ye kar sakte ho: GSC aur GA4 ki report, " +
       "indexing ka haal, kisi URL ka index status (/check), speed, audit, deploy, sitemap submit, " +
@@ -1326,20 +1364,69 @@ async function aiTalk(env, mid, t) {
       "- Ye sab poochha jaaye to seedha bata do, ghumao mat.",
       t.slice(0, 600), 700);
   if (!out) return edit(env, mid,
-    "Ye baat samajh nahi aayi.\n\nAise poochh sakte hain:\n• <i>7 din ke click batao</i>\n• <i>kitne page index hue</i>\n• <i>speed kaisi hai</i>\n• <i>/check /nsc-calculator</i>\n\nYa 📖 Poora menu dabaiye.", MAIN);
+    "🟠 <b>AI abhi jawab nahi de paayi.</b>\n" +
+    (GEM_ERR ? "Wajah: <code>" + esc(String(GEM_ERR).slice(0, 120)) + "</code>\n" : "") +
+    "\nSaare report wale kaam abhi bhi chalte hain:\n" +
+    "• <i>7 din ke click batao</i>\n• <i>kitne page index hue</i>\n• <i>speed kaisi hai</i>\n• <i>/check /nsc-calculator</i>\n\n" +
+    "Ya 📖 Poora menu dabaiye.", MAIN);
   return edit(env, mid, md2tg(out.trim()).slice(0, 3400) +
     "\n\n<i>— " + esc(LAST_BRAIN || "AI") + " · jaanch ke liye /menu</i>", MAIN);
 }
 
 /** Poora raasta: pehle shabd, phir AI se kaam chuno, phir AI se baat */
+/** Nirri baat-cheet, mazak, haal-chaal, ya salah ka sawaal.
+ *  Ye seedha aiTalk par jaana chahiye — koi report/scan nahi chalni chahiye.
+ *  Pehle "BOT BHAI KAISE HO" par poora scan chal jaata tha. */
+function smallTalk(t) {
+  const x = " " + t.toLowerCase().replace(/[?.,!|]/g, " ").replace(/\s+/g, " ").trim() + " ";
+  // job ka pakka ishaara ho to baat-cheet nahi
+  if (/\b(index|speed|audit|deploy|sitemap|gsc|click|traffic|scan|report|purge|rollback|commit|health|pending)\b/.test(x)) return false;
+  // 4 shabd se chhota aur koi job-shabd nahi → sirf haal-chaal
+  if (x.trim().split(" ").length <= 3) return true;
+  // haal-chaal, mazak, taana
+  if (/\b(kaise ho|kaisa hai|kaisi ho|kaise hain|kya haal|kya kar rahe|so gaya|soya|so rahe|sote|jaag|sun rahe|zinda|thanks|shukriya|dhanyavaad|shabash|badhiya|mazak|hello|hey|namaste|salaam|good morning|good night|bakwas|bekar|nikamma|chhod do|nikal do|rakh lete|rakhte hai|dusra|doosra)\b/.test(x)) return true;
+  // chowkidar/bot ki shikayat
+  if (/\b(chokidar|chowkidar|pehredaar)\b/.test(x)) return true;
+  if (/\bkaam (nahi|nhi|na) kar/.test(x)) return true;
+  // salah maangna
+  return /\b(karna chahiye|karni chahiye|karein kya|impl[ie]ment|salah|sujhav|suggestion|raay|kya karun|kya karoon|aage kya|ab kya)\b/.test(x);
+}
+
 async function chat(env, t) {
   const r = await say(env, "⏳ …");
   const mid = r?.result?.message_id;
   if (!mid) return;
-  let pick = understand(t);
-  if (!pick) pick = await aiPick(env, t);
-  if (pick && JOBS[pick[0]]) return runJob(env, mid, pick[0], pick[1]);
-  return aiTalk(env, mid, t);
+
+  // CHOWKIDAR — baat-cheet ke raaste par bhi. Pehle chowkidar sirf runJob par tha,
+  // isliye jab bot se BAAT ki jaati thi to "⏳ …" hamesha ke liye atak jaata tha.
+  let done = false;
+  const guard = (async () => {
+    await new Promise((s) => setTimeout(s, 30000));
+    if (done) return;
+    await edit(env, mid,
+      "⏱ <b>AI se jawab 30 second me nahi aaya.</b>\n\n" +
+      "Aksar iska matlab hai ki Gemini ki free limit bhar gayi hai — bot theek hai.\n\n" +
+      "<b>Kya kariye</b>\n" +
+      "• 1-2 minute ruk kar dobara poochhiye\n" +
+      "• Koi bhi report abhi bhi chalti hai — 📖 <b>/menu</b> dabaiye\n" +
+      "• Baar-baar ho to ❤️ Health dabaiye (wahan Gemini ka haal dikhta hai)", MAIN);
+  })();
+
+  try {
+    // Kram zaroori hai: pehle keyword (sabse pakka, 27 purane command isi se chalte hain),
+    // uske baad hi baat-cheet ki jaanch. Warna "aaj kaisa raha" jaisa command toot jaata hai.
+    let pick = understand(t);
+    if (!pick && !smallTalk(t)) pick = await aiPick(env, t);
+    if (pick && JOBS[pick[0]]) { done = true; return runJob(env, mid, pick[0], pick[1]); }
+    const out = await aiTalk(env, mid, t);
+    done = true;
+    return out;
+  } catch (e) {
+    done = true;
+    return edit(env, mid,
+      "❌ <b>Jawab nahi ban paaya.</b>\n\n<code>" + esc(String(e).slice(0, 200)) + "</code>\n\n" +
+      "<i>Bot chup nahi raha — galti pakad li. Dobara poochhiye ya /menu dabaiye.</i>", MAIN);
+  }
 }
 
 /** CHOWKIDAR — har kaam ka rakhwala.
