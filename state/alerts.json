@@ -4,6 +4,11 @@
    "text": "🔴 Mobile speed gir gaya — 94 se 80",
    "since": "2026-08-21",
    "days": 1
+  },
+  "🔴 Mobile speed gir gaya — 94 se 79": {
+   "text": "🔴 Mobile speed gir gaya — 94 se 79",
+   "since": "2026-08-22",
+   "days": 1
   }
  },
  "seen_news": {
@@ -53,6 +58,9 @@
   "GitHub|Windows 11 arm64 VS2026 image generally available": "2026-08-21",
   "GitHub|Code scanning adds a mitigated alert dismissal reason": "2026-08-21",
   "GitHub|Separate GitHub Actions path for GitHub Code Quality": "2026-08-21",
-  "GitHub|Track GitHub Code Quality enablement changes in the audit log": "2026-08-21"
+  "GitHub|Track GitHub Code Quality enablement changes in the audit log": "2026-08-21",
+  "GitHub|Better tools for managing blocked users": "2026-08-22",
+  "GitHub|The new GitHub Copilot experience in Slack": "2026-08-22",
+  "GitHub|Shared agentic work with GitHub Copilot in Microsoft Teams": "2026-08-22"
  }
 }
