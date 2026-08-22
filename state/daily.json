@@ -6,7 +6,7 @@
   "ctr": 4.545454545454546,
   "pos": 25.829545454545453
  },
- "cursor": 178,
+ "cursor": 216,
  "status": {
   "https://sabhisaab.com/": {
    "ok": true,
@@ -460,7 +460,7 @@
   },
   "https://sabhisaab.com/fire-number-calculator": {
    "ok": false,
-   "why": "URL is unknown to Google",
+   "why": "Discovered - currently not indexed",
    "robots": "ROBOTS_TXT_STATE_UNSPECIFIED",
    "day": "2026-08-22"
   },
@@ -1583,6 +1583,7 @@
  },
  "todo": [
   "https://sabhisaab.com/delivery-date-calculator",
+  "https://sabhisaab.com/fire-number-calculator",
   "https://sabhisaab.com/number-system-converter",
   "https://sabhisaab.com/random-number-generator",
   "https://sabhisaab.com/stopwatch-online",
@@ -1624,5 +1625,5 @@
    "pending": 7
   }
  ],
- "psi_mobile": 79
+ "psi_mobile": 90
 }
