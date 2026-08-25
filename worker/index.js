@@ -980,6 +980,331 @@ async function siteFacts(env) {
   return f;
 }
 
+/* ---------------------------------------------------------------------
+   "KYUN" — Google ne crawl karke chhod kyun diya?
+   Bot ab sirf 🔴/🟢 nahi dikhata. Wo teen jagah se sach ikattha karta hai:
+     1. Google se live URL Inspection (coverageState, aakhri crawl, canonical)
+     2. Page ki apni haalat — GitHub se HTML padhkar (shabd, table, FAQ, title)
+     3. Apne record se (daily.json) — kab se atka hai
+   Phir saaf Hinglish me wajah aur agla kadam batata hai.
+   AI na chale tab bhi jawab aata hai — niche wala niyam-wala hissa chalta hai.
+--------------------------------------------------------------------- */
+function wajahSaaf(o) {
+  const s = String(o.state || "").toLowerCase();
+  if (/submitted and indexed|indexed, not submitted/.test(s))
+    return ["🟢", "Ye page Google me hai. Koi dikkat nahi."];
+  if (/crawled/.test(s))
+    return ["🔴", "Google ne page KHOLA aur PADHA — phir rakha nahi. " +
+      "Ye aksar content ki galti nahi hoti. Iska matlab hai domain par bharosa kam hai. " +
+      "Is faisle ko sirf bahari backlink palat sakta hai, page dobara likhne se nahi."];
+  if (/discovered/.test(s))
+    return ["🟠", "Google ko URL ka pata hai par usne page KHOLA HI NAHI. " +
+      "Crawl budget ki kami hai — naye domain par aam baat. Sitemap theek hai, baari ka intezaar hai."];
+  if (/unknown to google/.test(s))
+    return ["⚪", "Google ko is URL ka abhi tak pata hi nahi chala. GSC me Request Indexing dabaiye."];
+  if (/blocked|noindex|excluded/.test(s))
+    return ["⛔", "Koi rukawat lagi hai (robots ya noindex). Ye technical dikkat hai — turant dekhni chahiye."];
+  if (/duplicate|alternate|canonical/.test(s))
+    return ["🟣", "Google ise kisi doosre page ki copy maan raha hai. Canonical milana hoga."];
+  return ["🔵", o.state || "Google ne saaf wajah nahi di."];
+}
+
+async function kyunEk(env, u) {
+  const o = { u, slug: u.replace(SITE, "") || "/", state: "?", crawl: "", canon: "", shabd: 0,
+              table: 0, faq: 0, title: 0, mila: false };
+  try {
+    const x = await gapi(env, "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+      SCOPE_GSC, { inspectionUrl: u, siteUrl: env.GSC_PROPERTY, languageCode: "en" }, 15000);
+    const i = x.inspectionResult?.indexStatusResult || {};
+    o.state = i.coverageState || "?";
+    o.crawl = i.lastCrawlTime ? ago(i.lastCrawlTime) + " pehle" : "kabhi nahi";
+    o.canon = (i.googleCanonical || "").replace(SITE, "");
+  } catch { o.state = "Google se jawab nahi aaya"; }
+  try {
+    const f = o.slug === "/" ? "index" : o.slug.replace(/^\//, "").replace(/\/$/, "");
+    const r = await gh(env, `/repos/${env.GH_REPO}/contents/site/${f}.html`);
+    if (r.ok && r.data?.content) {
+      const h = atob(r.data.content.replace(/\n/g, ""));
+      o.mila = true;
+      const body = h.replace(/<script[\s\S]*?<\/script>/gi, " ")
+                    .replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ");
+      o.shabd = (body.match(/[A-Za-z0-9]+/g) || []).length;
+      o.table = (h.match(/<table/gi) || []).length;
+      o.faq = (h.match(/<details/gi) || []).length;
+      o.title = ((h.match(/<title>([\s\S]*?)<\/title>/i) || [])[1] || "").trim().length;
+    }
+  } catch {}
+  return o;
+}
+
+async function doKyun(env, mid, arg) {
+  await edit(env, mid, "⏳ Google se poochh raha hoon, aur page bhi khud padh raha hoon…");
+  let urls = [];
+  const a = String(arg || "").trim();
+  if (a && /[a-z]/i.test(a) && a !== "kyun") {
+    urls = [a.startsWith("http") ? a : SITE + (a.startsWith("/") ? a : "/" + a)];
+  } else {
+    const r = await gh(env, `/repos/${env.GH_REPO}/contents/state/daily.json`);
+    if (r.ok) {
+      try {
+        const d = JSON.parse(atob(r.data?.content?.replace(/\n/g, "") || ""));
+        urls = Object.entries(d.status || {}).filter(([, v]) => v && !v.ok).map(([x]) => x).slice(0, 5);
+      } catch {}
+    }
+  }
+  if (!urls.length)
+    return edit(env, mid, "🟢 <b>Sab page index hain — koi atka hua nahi.</b>\n\n" +
+      "Kisi ek page ki wajah jaanni ho to likhiye:\n<i>kyun /sip-calculator</i>", MAIN);
+
+  const info = await Promise.all(urls.map((u) => kyunEk(env, u)));
+  let out = "<b>🔎 Kyun nahi hua — asli wajah</b>\n\n";
+  for (const o of info) {
+    const [ic, why] = wajahSaaf(o);
+    out += `${ic} <code>${esc(o.slug)}</code>\n`;
+    out += `   Google kehta hai: ${esc(o.state)}\n`;
+    out += `   Aakhri crawl: ${esc(o.crawl || "?")}\n`;
+    if (o.mila) out += `   Page me: ${o.shabd} shabd · ${o.table} table · ${o.faq} FAQ\n`;
+    if (o.canon && o.canon !== o.slug) out += `   ⚠️ Google ka canonical alag: <code>${esc(o.canon)}</code>\n`;
+    out += `   👉 ${esc(why)}\n\n`;
+  }
+
+  // Ab AI se ek chhoti si samajh — par AI na chale to bhi upar wala jawab ja chuka hai
+  const patla = info.filter((o) => o.mila && o.shabd < 900);
+  const facts = info.map((o) => `${o.slug} | ${o.state} | ${o.shabd} shabd | ${o.table} table | ${o.faq} FAQ`).join("\n");
+  const ai = await think(env,
+    "Tum Manoj ke SEO sahayak ho. Site sabhisaab.com — Hinglish calculator site, 264 page, 183 tool.\n" +
+    "Neeche un page ka asli Google data hai jo index nahi hue.\n\n" +
+    "NIYAM:\n" +
+    "1. Hinglish me, 5-7 line se zyada nahi.\n" +
+    "2. Koi number apne se mat banao — sirf neeche diye aankde.\n" +
+    "3. 'Crawled - currently not indexed' ka matlab content kharab hona NAHI hai. " +
+    "In page par 1300+ shabd, table aur FAQ pehle se hain. Asli wajah domain ki sakh (authority) kam hona hai.\n" +
+    "4. 'SEO karo', 'achha content likho', 'social media marketing' jaisi ghisi-piti salah BILKUL mat do.\n" +
+    "5. Do-teen THOS kaam batao jo Manoj is hafte kar sakein. Yaad rakho: asli rukawat BACKLINK hai, " +
+    "aur 3-4 hafte naya page nahi banana hai.\n" +
+    "6. Heading (#) mat lagao.",
+    "In page ka data:\n" + facts, 350);
+  if (ai) out += "<b>Meri samajh</b>\n" + md2tg(ai.trim()) + "\n";
+  else if (patla.length)
+    out += "<b>Meri samajh</b>\n" + patla.length + " page 900 shabd se chhote hain — " +
+      "pehle unhe bada kariye. Baaki par content ki dikkat nahi, backlink ki hai.\n";
+  else
+    out += "<b>Meri samajh</b>\nIn page par content ki dikkat nahi hai — shabd, table aur FAQ poore hain. " +
+      "Asli rukawat backlink hai. Quora par 2-3 asli jawab, phir kisi local news ya agri portal ko email — " +
+      "wahi ye faisla palatega.\n";
+
+  return edit(env, mid, out.slice(0, 3800), MAIN);
+}
+
+/* ---------------------------------------------------------------------
+   GOOGLEBOT — "Google site par kab aaya, kya kar gaya"
+
+   SAAF BAAT jo har jagah likhi honi chahiye: Google ke paas "Crawl stats"
+   ka koi public API HAI HI NAHI. Kitni request aayi, kitna KB utra, kaun sa
+   response code mila — wo sirf Search Console ki website par dikhta hai.
+   Jo API se milta hai wo ek hi cheez hai: har page par Google aakhri baar
+   KAB aaya (lastCrawlTime). Usi se ye report banti hai — andaaza nahi,
+   Google ka apna diya hua samay.
+--------------------------------------------------------------------- */
+async function doCrawl(env, mid, arg) {
+  const a = String(arg || "").trim();
+
+  // Kisi ek page ka poochha ho to seedha Google se abhi poochho
+  if (a && /[a-z]/i.test(a)) {
+    const full = a.startsWith("http") ? a : SITE + (a.startsWith("/") ? a : "/" + a);
+    await edit(env, mid, "⏳ Google se poochh raha hoon…");
+    try {
+      const x = await gapi(env, "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+        SCOPE_GSC, { inspectionUrl: full, siteUrl: env.GSC_PROPERTY, languageCode: "en" }, 15000);
+      const i = x.inspectionResult?.indexStatusResult || {};
+      return edit(env, mid,
+        `<b>🤖 Googlebot — ${esc(full.replace(SITE, "") || "/")}</b>\n\n` +
+        `Aakhri baar aaya : <b>${i.lastCrawlTime ? esc(ago(i.lastCrawlTime)) + " pehle" : "kabhi nahi"}</b>\n` +
+        `Kaise aaya : ${esc(i.crawledAs || "?")}\n` +
+        `Page mila : ${esc(i.pageFetchState || "?")}\n` +
+        `robots.txt : ${esc(i.robotsTxtState || "?")}\n` +
+        `Uska faisla : ${esc(i.coverageState || "?")}\n\n` +
+        (i.verdict === "PASS" ? "<i>Rakh liya.</i>" : "<i>Wajah ke liye likhiye: kyun " + esc(full.replace(SITE, "")) + "</i>"),
+        MAIN);
+    } catch (e) { return edit(env, mid, `❌ ${esc(String(e).slice(0, 250))}`, MAIN); }
+  }
+
+  // Poori site ka hisaab — roz ke scan ke record se
+  await edit(env, mid, "⏳ record dekh raha hoon…");
+  const r = await gh(env, `/repos/${env.GH_REPO}/contents/state/daily.json`);
+  if (!r.ok) return edit(env, mid, "Record nahi mila. Pehle <i>poora scan karo</i> chalaiye.", MAIN);
+  let d = {};
+  try { d = JSON.parse(atob(r.data?.content?.replace(/\n/g, "") || "")); } catch {}
+  const st = d.status || {};
+  const ab = Date.now();
+  let d1 = 0, d7 = 0, kul = 0;
+  const naye = [];
+  for (const [u, v] of Object.entries(st)) {
+    const c = v && v.crawl;
+    if (!c) continue;
+    const g = (ab - new Date(c)) / 36e5;
+    if (!isFinite(g)) continue;
+    kul++;
+    if (g <= 24) { d1++; naye.push([g, u]); }
+    if (g <= 168) d7++;
+  }
+  if (!kul)
+    return edit(env, mid,
+      "<b>🤖 Googlebot</b>\n\nAbhi crawl ka samay record me nahi hai.\n\n" +
+      "Ye agle <i>poora scan karo</i> ke baad judega.\n" +
+      "Abhi kisi ek page ka poochhna ho to likhiye:\n<i>google kab aaya /sip-calculator</i>", MAIN);
+
+  naye.sort((x, y) => x[0] - y[0]);
+  let o = "<b>🤖 Googlebot — kab aaya, kya kiya</b>\n";
+  o += `<i>Record ka din: ${esc(d.day || "?")}</i>\n\n`;
+  o += `Pichhle 24 ghante me aaya : <b>${d1}</b> page par\n`;
+  o += `Pichhle 7 din me aaya : <b>${d7}</b> page par\n`;
+  o += `Jinka samay pata hai : ${kul} page\n\n`;
+  if (naye.length) {
+    o += "<b>Sabse naya crawl</b>\n";
+    for (const [g, u] of naye.slice(0, 6)) {
+      const jab = g < 1 ? Math.round(g * 60) + " min" : Math.round(g) + " ghante";
+      o += `• <code>${esc((u.replace(SITE, "") || "/").slice(0, 40))}</code> — ${jab} pehle\n`;
+    }
+    o += "\n";
+  }
+  if (d1 === 0)
+    o += "🟠 <b>24 ghante me Google kisi page par nahi aaya.</b>\n" +
+         "Naye domain par ye aam baat hai. Do-teen din tak yahi rahe tab sochna.\n\n";
+  o += "<i>Kitni request aayi, kitna KB utra — wo sirf Search Console ki website par " +
+       "dikhta hai, kisi API me nahi milta. Isliye wo main nahi bata sakta.</i>";
+  return edit(env, mid, o.slice(0, 3800), MAIN);
+}
+
+/* ---------------------------------------------------------------------
+   GOOGLE KI NAYI POLICY — roz ki khabar wali nazar
+   Roz ka scan Google Search Central, AdSense, Bing, Cloudflare aur GitHub
+   ke feed padhta hai. Jo khabar site se seedhi judi ho (policy, core update,
+   AdSense, spam, structured data, penalty...) wo alert banti hai. Yahan
+   se aap kabhi bhi poochh sakte hain ki aakhri kya-kya aaya tha.
+--------------------------------------------------------------------- */
+async function doGnews(env, mid) {
+  await edit(env, mid, "⏳ khabar dekh raha hoon…");
+  const r = await gh(env, `/repos/${env.GH_REPO}/contents/state/alerts.json`);
+  if (!r.ok) return edit(env, mid, "Khabar ka record nahi mila.", MAIN);
+  let d = {};
+  try { d = JSON.parse(atob(r.data?.content?.replace(/\n/g, "") || "")); } catch {}
+  const seen = d.seen_news || {};
+  const list = Object.entries(seen)
+    .map(([k, v]) => ({ src: k.split("|")[0], t: k.split("|").slice(1).join("|"), d: v }))
+    .sort((a, b) => String(b.d).localeCompare(String(a.d)))
+    .slice(0, 12);
+  if (!list.length)
+    return edit(env, mid, "<b>📰 Google ki khabar</b>\n\nAbhi tak koi nayi khabar record me nahi.", MAIN);
+  let o = "<b>📰 Google aur baaki jagah ki taaza khabar</b>\n\n";
+  for (const x of list)
+    o += `• <b>${esc(x.src)}</b> · ${esc(x.d)}\n  ${esc(String(x.t).slice(0, 90))}\n`;
+  o += "\n<i>Jo khabar site se seedhi judi hoti hai (policy, core update, AdSense, " +
+       "spam, structured data, penalty) wo roz ki report me apne aap alert banti hai.</i>";
+  return edit(env, mid, o.slice(0, 3800), MAIN);
+}
+
+/* ---------------------------------------------------------------------
+   TECHNICAL REPORT — engineer wali nazar se poori site ek hi jagah.
+   Ye report roz wali report se alag hai. Roz wali batati hai "kya hua".
+   Ye batati hai "system kis haal me hai" — indexing kis wajah se ruki hai,
+   audit ka haal, sitemap kitna taaza hai, aur SABSE ZAROORI: automation
+   (8 workflow) me se kaun chal raha hai aur kaun chup ho gaya.
+   Pehle ye aakhri baat kahin dikhti hi nahi thi.
+--------------------------------------------------------------------- */
+async function doTech(env, mid) {
+  await edit(env, mid, "⏳ technical report bana raha hoon…");
+  const R = `/repos/${env.GH_REPO}`;
+  const [dj, runs, smf] = await Promise.all([
+    gh(env, `${R}/contents/state/daily.json`),
+    gh(env, `${R}/actions/runs?per_page=60`),
+    gh(env, `${R}/contents/site/sitemap.xml`),
+  ]);
+
+  let d = {};
+  if (dj.ok) { try { d = JSON.parse(atob(dj.data?.content?.replace(/\n/g, "") || "")); } catch {} }
+
+  let o = "<b>🧰 TECHNICAL REPORT</b>\n";
+  o += "<i>Record ka din: " + esc(d.day || "?") + "</i>\n\n";
+
+  /* --- 1. Indexing, wajah ke hisaab se --- */
+  const st = d.status || {};
+  const kul = Object.keys(st).length;
+  if (kul) {
+    const grp = {};
+    for (const v of Object.values(st)) {
+      const w = (v && v.why) || "?";
+      grp[w] = (grp[w] || 0) + 1;
+    }
+    const ok = Object.values(st).filter((v) => v && v.ok).length;
+    o += "<b>1 · INDEXING</b>\n";
+    o += `${ok}/${kul} index (${Math.round((ok / kul) * 100)}%)\n`;
+    for (const [w, c] of Object.entries(grp).sort((a, b) => b[1] - a[1]))
+      o += `   ${c} × ${esc(w)}\n`;
+    o += "\n";
+  }
+
+  /* --- 2. Audit aur speed --- */
+  o += "<b>2 · AUDIT &amp; SPEED</b>\n";
+  o += `Audit: ERROR ${d.aud_e ?? "?"} · WARNING ${d.aud_w ?? "?"}\n`;
+  o += `Mobile speed: ${d.psi_mobile ?? "?"}` + (d.psi_mobile && d.psi_mobile < 90 ? " (lakshya 90)" : "") + "\n\n";
+
+  /* --- 3. Sitemap kitna taaza --- */
+  if (smf.ok) {
+    try {
+      const x = atob(smf.data.content.replace(/\n/g, ""));
+      const loc = (x.match(/<loc>/g) || []).length;
+      const lm = [...x.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map((m) => m[1].slice(0, 10)).sort();
+      const alag = new Set(lm).size;
+      o += "<b>3 · SITEMAP</b>\n";
+      o += `${loc} URL · ${alag} alag-alag lastmod\n`;
+      if (lm.length) o += `Sabse purana: ${esc(lm[0])} · sabse naya: ${esc(lm[lm.length - 1])}\n`;
+      if (alag === 1 && loc > 5) o += "⚠️ Saare lastmod ek hi din ke hain — Google ko ye ajeeb lagta hai\n";
+      o += "\n";
+    } catch {}
+  }
+
+  /* --- 4. Automation zinda hai ya nahi — ye sabse kaam ka hissa hai --- */
+  o += "<b>4 · AUTOMATION (8 workflow)</b>\n";
+  if (runs.ok && runs.data?.workflow_runs) {
+    const pehla = {};
+    for (const r of runs.data.workflow_runs) if (!pehla[r.name]) pehla[r.name] = r;
+    const CHAHIYE = {
+      "Chaukidaar": 1, "Daily report": 36, "Pending kaam": 36,
+      "Hafte ki jaanch": 200, "Audit aur Deploy": 0, "Sab Hisaab audit": 0,
+      "Telegram bot deploy": 0, "Natija Telegram par": 0,
+    };
+    for (const [naam, ghantaHad] of Object.entries(CHAHIYE)) {
+      const r = pehla[naam];
+      if (!r) { o += `   ⚪ ${esc(naam)} — koi run nahi mila\n`; continue; }
+      const ghante = (Date.now() - new Date(r.created_at)) / 36e5;
+      const kabTak = ghante < 1 ? Math.round(ghante * 60) + " min" : Math.round(ghante) + " ghante";
+      const buri = r.conclusion && r.conclusion !== "success";
+      const purani = ghantaHad > 0 && ghante > ghantaHad;
+      const ic = buri ? "❌" : purani ? "🟠" : "✅";
+      o += `   ${ic} ${esc(naam)} — ${kabTak} pehle`;
+      if (buri) o += ` (${esc(r.conclusion)})`;
+      else if (purani) o += " (dair ho gayi)";
+      o += "\n";
+    }
+  } else {
+    o += "   GitHub se run ka record nahi mila\n";
+  }
+  o += "\n";
+
+  /* --- 5. Ab kya karna chahiye — niyam se, andaaza nahi --- */
+  const kaam = [];
+  const pend = kul ? kul - Object.values(st).filter((v) => v && v.ok).length : 0;
+  if ((d.aud_e ?? 0) > 0) kaam.push("Audit me " + d.aud_e + " ERROR hai — deploy ruka rahega. Pehle yahi.");
+  if ((d.psi_mobile ?? 100) < 85) kaam.push("Mobile speed " + d.psi_mobile + " — 8 image 150 KB se badi hain, unhe chhota kariye.");
+  if (pend > 0) kaam.push(pend + " page index nahi hue — wajah ke liye likhiye: kyun");
+  if (!kaam.length) kaam.push("Technical taraf se sab saaf hai. Ab sirf backlink par kaam bacha hai.");
+  o += "<b>5 · AB KYA</b>\n";
+  kaam.slice(0, 4).forEach((k, i) => { o += `   ${i + 1}. ${esc(k)}\n`; });
+
+  return edit(env, mid, o.slice(0, 3900), MAIN);
+}
+
 /** Sab kaam ek jagah — shabd wala tarika aur AI, dono isi list se chalte hain */
 const JOBS = {
   gsc:       (env, mid, a) => doGsc(env, mid, +a || 7),
@@ -1009,6 +1334,10 @@ const JOBS = {
   bing:      (env, mid) => doBing(env, mid),
   mauka:     (env, mid) => doOpportunity(env, mid),
   checkpend: (env, mid) => doCheckPending(env, mid),
+  kyun:      (env, mid, a) => doKyun(env, mid, a),
+  tech:      (env, mid) => doTech(env, mid),
+  crawl:     (env, mid, a) => doCrawl(env, mid, a),
+  gnews:     (env, mid) => doGnews(env, mid),
   taaza:     (env, mid) => doFreshCheck(env, mid),
   linkcheck: (env, mid) => doLinkCheck(env, mid),
   changes:   (env, mid, a) => doChanges(env, mid, +a || 1),
@@ -1026,7 +1355,16 @@ const JOBS = {
 /** Bina AI ke — sirf shabd dekhkar. Ye hamesha chalta hai, kabhi quota khatam nahi hota. */
 function understand(t) {
   const x = " " + t.toLowerCase().replace(/[?.,!|]/g, " ").replace(/\s+/g, " ") + " ";
-  const has = (...w) => w.some((k) => x.includes(" " + k) || x.includes(k + " "));
+  // has() ab shabd ke SHURU se match karta hai, beech se nahi.
+  // Pehle "uttar pradesh" me chhupa "desh" desh-report chala deta tha,
+  // aur "delivery-date" me chhupa "live" live-report. Aage se aisa nahi.
+  // Aadha shabd jaan-boojh kar rakha gaya hai (jaise "traffic kaise badh"),
+  // wo abhi bhi chalta hai kyunki shuruaat se milta hai.
+  const has = (...w) => w.some((k) => {
+    for (let i = x.indexOf(k); i !== -1; i = x.indexOf(k, i + 1))
+      if (i === 0 || x[i - 1] === " ") return true;
+    return false;
+  });
   let num = (x.match(/\b(\d{1,3})\s*(din|day)\b/) || [])[1];
   if (!num && has("kal", "yesterday", "aaj", "today")) num = "1";
   if (!num && has("teen mahine", "3 mahine", "quarter", "tim'ahi")) num = "90";
@@ -1035,6 +1373,17 @@ function understand(t) {
 
   // ---- kisi URL ki jaanch ----
   const url = (t.match(/\/[a-z0-9][a-z0-9-]{3,}/i) || [])[0];
+
+  // "google kab aaya", "googlebot kab aaya tha", "crawl karne kab aaya"
+  // Ye SABSE UPAR hai — warna URL wala aur indexing wala niyam pehle pakad lete the.
+  if (has("googlebot", "google bot", "bot kab", "kab aaya", "kab aaya tha",
+          "kab aata hai", "crawl kab", "kab crawl", "crawl karne"))
+    return ["crawl", url || ""];
+  // Nayi policy / khabar
+  if (has("nayi policy", "naya policy", "new policy", "policy badli", "policy aayi",
+          "google ki khabar", "koi khabar", "taaza khabar", "update aaya", "core update"))
+    return ["gnews", ""];
+
   if (url && has("index", "indexed", "crawl", "chadha", "hua", "google", "jaanch", "check", "dekho"))
     return ["check", url];
 
@@ -1068,6 +1417,15 @@ function understand(t) {
   // ---- indexing ----
   if (has("naye page", "naya page", "nayi page") && has("index", "chadha", "chadhe", "hua", "hue"))
     return ["taaza", ""];
+  // "kyun index nahi hua", "google ne chhod kyun diya", "kya kami hai"
+  // Ye indexing wale niyam se PEHLE aata hai, warna "index" shabd pakda jaata
+  // aur seedhi ginti dikh jaati — wajah kabhi na milti.
+  if (has("kyun", "kyu", "kyon", "kyoon", "wajah", "kya kami", "kami kya", "kami hai",
+          "chhod diya", "chhoda", "reject", "mana kar") &&
+      (url || has("index", "crawl", "google", "page", "url", "chhod", "nahi hua", "nahi ho")))
+    return ["kyun", url || ""];
+  if (has("index nahi hua", "index nahi ho", "index kyu", "index kyun", "crawl karke chhod"))
+    return ["kyun", url || ""];
   if (has("index", "indexed", "indexing", "kitne page chadhe", "pending url", "crawl", "google ko pata", "kitne baaki"))
     return ["indexing", ""];
   if (has("sitemap")) return has("haal", "status", "kaisa", "error", "kitne url", "dekho", "jaanch")
@@ -1117,6 +1475,11 @@ function understand(t) {
     return has("google", "index", "crawl", "search") ? ["indexing", ""] : ["pages", ""];
   if (has("site chal", "site down", "site khul", "site theek", "server", "uptime"))
     return ["sitecheck", ""];
+  // Technical report — "workflow" wale niyam se PEHLE, warna "technical report"
+  // me chhupa koi shabd usse pakda ja sakta hai.
+  if (has("technical", "technikal", "tech report", "system report", "poori jaanch",
+          "gehri jaanch", "engineering", "system ka haal"))
+    return ["tech", ""];
   if (has("workflow", "pichhle run", "last run", "kya chala"))
     return ["status", ""];
   if (has("poora scan", "report banao", "scan karo", "naya scan", "poori report"))
@@ -1124,7 +1487,8 @@ function understand(t) {
 
   // "aaj kuch hua kya", "kal ek bhi nahi", "kuch aaya kya" — seedha GSC
   if (has("aaj", "kal", "today", "yesterday") &&
-      has("hua", "huwa", "aaya", "ek bhi", "kuch nahi", "nahi huwa", "nahi hua", "kaisa raha"))
+      has("hua", "huwa", "aaya", "ek bhi", "kuch nahi", "nahi huwa", "nahi hua",
+          "kaisa raha", "kaisa tha", "kaisa gaya", "kaisi rahi"))
     return ["gsc", num || "1"];
 
   // ---- GSC / GA ka aam data ----
@@ -1134,9 +1498,43 @@ function understand(t) {
     return ["ga", num || "7"];
 
   // ---- sirf din ka zikr ----
-  if (num && has("data", "haal", "batao", "dikhao", "report", "kaisa", "kaisi", "kya hua"))
+  // Pehle yahan sirf "kaisa" kaafi tha, isliye "aaj ka mausam kaisa hai" par bhi
+  // Search report chal jaati thi. Ab do darwaze hain:
+  //   (a) pakka data-shabd ho — tab "aaj/kal" bhi chalta hai
+  //   (b) sirf "haal/batao/kaisa" ho — tab samay saaf likha hona chahiye (7 din, hafte, mahine)
+  if (num && has("data", "aankde", "aankda", "search data", "report", "stats"))
+    return ["gsc", num];
+  const pakkaSamay = /\b\d{1,3}\s*(din|day)\b/.test(x) ||
+    has("hafte", "hafta", "week", "saptah", "mahine", "mahina", "month", "maheene",
+        "quarter", "teen mahine", "3 mahine");
+  if (num && pakkaSamay && has("haal", "batao", "dikhao", "kaisa", "kaisi", "kya hua"))
     return ["gsc", num];
   return null;
+}
+
+/* ---------------------------------------------------------------------
+   YAADDASHT — bot ko pichhli baat yaad rehti hai
+   Pehle har message akela tha. "haan wahi kar do" par bot poochhta tha
+   "kya karun?". Ab aakhri 6 baatein Cloudflare ke apne cache me rehti hain.
+   Isme koi naya setup nahi lagta — KV namespace banane ki zaroorat nahi.
+   Ye pakki yaaddasht nahi hai: 1 ghante me apne aap mit jaati hai.
+--------------------------------------------------------------------- */
+const YAAD_KEY = "https://sabhisaab.bot/yaad";
+async function yaadPadho() {
+  try {
+    const r = await caches.default.match(new Request(YAAD_KEY));
+    if (!r) return [];
+    const d = await r.json();
+    if (!Array.isArray(d)) return [];
+    return d.filter((x) => x && Date.now() - (x.t || 0) < 36e5).slice(-6);
+  } catch { return []; }
+}
+async function yaadLikho(list) {
+  try {
+    await caches.default.put(new Request(YAAD_KEY),
+      new Response(JSON.stringify(list.slice(-6)), {
+        headers: { "content-type": "application/json", "cache-control": "max-age=3600" } }));
+  } catch {}
 }
 
 const AI_FAST = ["@cf/meta/llama-3.2-3b-instruct", "@cf/meta/llama-3.1-8b-instruct"];
@@ -1170,11 +1568,11 @@ function pickModel(list) {
   return ok[0] || list[0] || "";
 }
 
-async function geminiCall(key, model, sys, user, max_tokens) {
+async function geminiCall(key, model, sys, user, max_tokens, ms = 12000) {
   // HARD TIMEOUT — pehle yahan koi timeout nahi tha. GitHub par 15s, Google par 15s,
   // par Gemini par kuch nahi. Isi wajah se baat-cheet me "⏳ …" ghanton atka rehta tha.
   const ac = new AbortController();
-  const tm = setTimeout(() => ac.abort(), 12000);
+  const tm = setTimeout(() => ac.abort(), ms);
   let r;
   try {
     r = await fetch(
@@ -1187,7 +1585,7 @@ async function geminiCall(key, model, sys, user, max_tokens) {
           generationConfig: { temperature: 0.3, maxOutputTokens: max_tokens },
         }) });
   } catch (e) {
-    GEM_ERR = /abort/i.test(String(e)) ? "12s me jawab nahi aaya" : String(e).slice(0, 120);
+    GEM_ERR = /abort/i.test(String(e)) ? (ms / 1000) + "s me jawab nahi aaya" : String(e).slice(0, 120);
     return null;
   } finally { clearTimeout(tm); }
   const d = await r.json().catch(() => ({}));
@@ -1197,7 +1595,21 @@ async function geminiCall(key, model, sys, user, max_tokens) {
   return t.trim();
 }
 
-const GEM_DEAD = new Set();   // jo model mana kar chuke, unpar samay barbaad mat karo
+// Jo model mana kar chuke, unpar samay barbaad mat karo — PAR hamesha ke liye nahi.
+// Pehle ye Set tha jo kabhi khaali nahi hota tha: ek baar ka network jhatka bhi model ko
+// poore Worker isolate ki zindagi bhar (ghanton) ke liye blacklist kar deta tha.
+// Ab 10 minute ka ban hai, uske baad model dobara mauka paata hai.
+const GEM_DEAD_MS = 6e5;
+const GEM_DEAD_MAP = new Map();
+const GEM_DEAD = {
+  add(m) { GEM_DEAD_MAP.set(m, Date.now()); },
+  has(m) {
+    const t = GEM_DEAD_MAP.get(m);
+    if (t == null) return false;
+    if (Date.now() - t > GEM_DEAD_MS) { GEM_DEAD_MAP.delete(m); return false; }
+    return true;
+  },
+};
 async function gemini(env, sys, user, max_tokens = 700) {
   const key = (env.GEMINI_KEY || "").trim();
   if (!key) { GEM_ERR = "key nahi lagi"; return null; }
@@ -1210,9 +1622,12 @@ async function gemini(env, sys, user, max_tokens = 700) {
   let tries = 0;
   const rateLimited = () => /429|quota|rate limit|RESOURCE_EXHAUSTED/i.test(GEM_ERR || "");
   const attempt = async (m) => {
-    if (tries >= 2 || Date.now() > tEnd) return "STOP";
+    // Pehle seema 2 koshish thi. Uska matlab tha ki list ke teesre-chauthe model tak
+    // bot kabhi pahunchta hi nahi tha. Ab 3 koshish — par doosri-teesri chhoti (8s),
+    // taaki 25 second ka kul budget na toote aur 30s ka chowkidar shant rahe.
+    if (tries >= 3 || Date.now() > tEnd) return "STOP";
     tries++;
-    const t = await geminiCall(key, m, sys, user, max_tokens);
+    const t = await geminiCall(key, m, sys, user, max_tokens, tries === 1 ? 12000 : 8000);
     if (t) { GEM_MODEL = m; return t; }
     // key ka quota khatam hai to doosra model bhi usi key par fail hoga — waqt mat barbaad karo
     if (rateLimited()) return "STOP";
@@ -1226,18 +1641,31 @@ async function gemini(env, sys, user, max_tokens = 700) {
     if (t) return t;
     GEM_MODEL = "";
   }
-  for (const m of ["gemini-3.6-flash", "gemini-flash-latest", "gemini-3.6-flash-lite", "gemini-2.5-flash"]) {
+  // Abhi Gemini ka naya version 3.5 hai. Pehle yahan 3.6 likha tha — wo model
+  // exist hi nahi karta, isliye har baar pehli koshish bekaar jaati thi.
+  for (const m of ["gemini-3.5-flash", "gemini-flash-latest", "gemini-3.5-flash-lite", "gemini-2.5-flash"]) {
     if (GEM_DEAD.has(m)) continue;
     const t = await attempt(m);
     if (t === "STOP") return null;
     if (t) return t;
   }
   // naam badal gaye hon to Google se hi list mangwa lo — sirf tab jab abhi bhi waqt bacha ho
-  if (Date.now() > tEnd || tries >= 2) return null;
+  if (Date.now() > tEnd || tries >= 3) return null;
   const list = (await geminiModels(key)).filter((m) => !GEM_DEAD.has(m));
   const pick = pickModel(list);
   if (pick) { const t = await attempt(pick); if (t && t !== "STOP") return t; }
   return null;
+}
+
+/* Chhoti baat (haal-chaal, mazak, ek line ka sawaal) ke liye pehle
+   Cloudflare AI — wo roz 10,000 neuron muft deta hai. Gemini ka thoda sa
+   free quota tab bachta hai jab uski asli zaroorat ho (jaise "kyun" wali
+   jaanch). Pehle har "kaise ho" par bhi Gemini kharch ho raha tha. */
+async function thinkSasta(env, sys, user, max_tokens = 320) {
+  const c = await aiRun(env, [{ role: "system", content: sys }, { role: "user", content: user }],
+                        max_tokens, AI_FAST);
+  if (c) { LAST_BRAIN = "Cloudflare AI"; return c; }
+  return think(env, sys, user, max_tokens, true);
 }
 
 async function aiRun(env, messages, max_tokens = 320, models = AI_GOOD) {
@@ -1284,6 +1712,10 @@ async function aiPick(env, t) {
       "ga = website par kitne log aaye (x me din) | live = abhi kitne log hain\n" +
       "ghante = ghante ke hisaab se | kahanse = traffic kis raaste se aaya\n" +
       "indexing = kitne page Google me chadhe, kitne baaki\n" +
+      "kyun = kisi page ke index NA hone ki asli wajah (x me slug, ya khaali)\n" +
+      "tech = poori technical report — indexing ki wajah, audit, sitemap, saare workflow zinda hain ya nahi\n" +
+      "crawl = Googlebot site par kab aaya, kis page par (x me slug, ya khaali)\n" +
+      "gnews = Google/AdSense/Bing ki nayi policy aur khabar\n" +
       "check = ek khaas URL index hua ya nahi (x me us page ka slug)\n" +
       "speed = website kitni tez hai (x me mobile ya desktop)\n" +
       "audit = site me kitne error/warning | auditrun = naya audit chalao\n" +
@@ -1312,10 +1744,17 @@ async function aiPick(env, t) {
 /** Aam sawaal ka jawab — sirf asli aankdon ke saath, apne se number nahi */
 async function aiTalk(env, mid, t) {
   const f = await siteFacts(env);
-  const out = await think(env,
+  const yaad = await yaadPadho();
+  const halki = smallTalk(t);   // haal-chaal? to sasta dimaag, Gemini bachao
+  const pehle = yaad.length
+    ? "PICHHLI BAAT-CHEET (sabse nayi sabse neeche) — isse jodkar jawab do:\n" +
+      yaad.map((x) => "Manoj: " + x.q + "\nTum: " + x.a).join("\n") +
+      "\n\nAB KA SAWAAL:\n"
+    : "";
+  const out = await (halki ? thinkSasta : think)(env,
       "Tum 'Sab Hisaab' ke maalik Manoj ke apne sahayak ho. Unki website sabhisaab.com hai.\n\n" +
       "SITE KA SACH:\n" +
-      "- Hinglish calculator site, 154 tool, 38 guide, 24 lekh. Cloudflare Pages par, GitHub Actions se deploy.\n" +
+      "- Hinglish calculator site: 264 page, 183 tool, 38 guide, 24 lekh. Cloudflare Pages par, GitHub Actions se deploy.\n" +
       "- Sab kuch pehle se laga hua hai: sitemap, schema (FAQ/Breadcrumb/WebApplication), canonical, IndexNow, " +
       "security headers grade A, consent banner, internal linking, hub pages, GSC aur GA4 juda hua.\n" +
       "- " + f.indexed + " page Google me index hain, " + f.pending + " baaki. Audit me ERROR " + f.err + ", WARNING " + f.warn + ".\n" +
@@ -1338,6 +1777,11 @@ async function aiTalk(env, mid, t) {
       "asli rukawat backlink hai, content nahi.\n" +
       "5. Koi number apne se MAT banao. Sirf upar diye aankde use karo. Pata na ho to keh do 'ye number mere paas nahi, /menu se dekh lijiye'.\n" +
       "6. Markdown ka # heading mat lagao. Seedha likho.\n" +
+      "6b. Upar pichhli baat-cheet di ho to usse jodkar jawab do. 'wahi', 'usko', 'haan', " +
+      "'wo wala' jaise shabd ka matlab pichhli baat se samajh lo — dobara mat poochho ki kya.\n" +
+      "6c. Kabhi mat kaho 'mujhe nahi pata' ya 'ye mere dayre se bahar hai'. Upar diye aankdon se " +
+      "jitna ban sake batao, aur agla kadam batao. Kisi page ke index na hone ki WAJAH poochhi jaaye " +
+      "to kaho ki '<i>kyun</i>' likhne par tum Google se poochhkar asli wajah bata doge.\n" +
       "7. Manoj mazak karein, taana maarein ya haal-chaal poochhein (jaise 'kaise ho', 'so gaya kya', " +
       "'dusra chowkidar rakh lete hain') to USI TARAH halke-phulke andaaz me jawab do — 2-3 line, " +
       "Manoj bhai kehkar. Menu ya report thoop mat do. Agar taana bot ke atakne par ho to imaandari se " +
@@ -1362,12 +1806,16 @@ async function aiTalk(env, mid, t) {
       "submit karna padta hai; uske baad Bing khud padhta rehta hai. Ye kami nahi hai, Bing ka apna niyam hai. " +
       "Bing ko roz ki khabar IndexNow se jaati hai — aur wo chal raha hai.\n" +
       "- Ye sab poochha jaaye to seedha bata do, ghumao mat.",
-      t.slice(0, 600), 700);
+      pehle + t.slice(0, 600), halki ? 320 : 700);
+  if (out) await yaadLikho([...yaad, { q: t.slice(0, 200), a: String(out).slice(0, 300), t: Date.now() }]);
   if (!out) return edit(env, mid,
     "🟠 <b>AI abhi jawab nahi de paayi.</b>\n" +
     (GEM_ERR ? "Wajah: <code>" + esc(String(GEM_ERR).slice(0, 120)) + "</code>\n" : "") +
     "\nSaare report wale kaam abhi bhi chalte hain:\n" +
-    "• <i>7 din ke click batao</i>\n• <i>kitne page index hue</i>\n• <i>speed kaisi hai</i>\n• <i>/check /nsc-calculator</i>\n\n" +
+    "• <i>7 din ke click batao</i>\n• <i>kitne page index hue</i>\n• <i>speed kaisi hai</i>\n" +
+    "• <i>kyun index nahi hua</i>  ← asli wajah, Google se seedhi\n" +
+    "• <i>technical report</i>  ← poore system ka haal\n" +
+    "• <i>google kab aaya</i>  ← Googlebot ka hisaab\n• <i>/check /nsc-calculator</i>\n\n" +
     "Ya 📖 Poora menu dabaiye.", MAIN);
   return edit(env, mid, md2tg(out.trim()).slice(0, 3400) +
     "\n\n<i>— " + esc(LAST_BRAIN || "AI") + " · jaanch ke liye /menu</i>", MAIN);
@@ -1437,7 +1885,9 @@ async function chat(env, t) {
 async function runJob(env, mid, job, arg) {
   const NAMES = { taaza: "taaza jaanch", checkpend: "bache hue URL ki jaanch", indexing: "Indexing",
                   gsc: "Search ka data", ga: "Analytics", speed: "Speed test", mauka: "mauke",
-                  smstatus: "sitemap ka haal", linkcheck: "link ki jaanch" };
+                  smstatus: "sitemap ka haal", linkcheck: "link ki jaanch",
+                  kyun: "wajah ki jaanch", tech: "technical report",
+                  crawl: "Googlebot ki jaanch", gnews: "khabar" };
   const naam = NAMES[job] || job;
   let done = false;
   const guard = (async () => {

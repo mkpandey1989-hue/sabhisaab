@@ -6,9 +6,14 @@ on:
                               # dono ka time ek hi tha, isliye Sunday ko do report aati thin.
   workflow_dispatch:
 
+concurrency:
+  group: sabhisaab-pending
+  cancel-in-progress: false
+
 jobs:
   pending:
     runs-on: ubuntu-latest
+    timeout-minutes: 15        # pehle koi seema nahi thi
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -26,7 +31,30 @@ jobs:
           EOF
           python3 scripts/audit.py || true
       - name: Pending list Telegram par
+        timeout-minutes: 10
         env:
           TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python3 scripts/watch.py pending
+
+      # Pehle ye fail hone par Telegram par kuch nahi aata tha
+      - name: Fail hua to Telegram par batao
+        if: failure()
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SRV: ${{ github.server_url }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.run_id }}
+        run: |
+          python3 - <<'EOPY'
+          import os, json, urllib.request
+          msg = ("\u274C <b>Pending kaam ki list fail ho gayi.</b>\n\n"
+                 "Log: %s/%s/actions/runs/%s"
+                 % (os.environ["SRV"], os.environ["REPO"], os.environ["RUN"]))
+          body = json.dumps({"chat_id": os.environ["TG_CHAT"], "text": msg,
+                             "parse_mode": "HTML", "disable_web_page_preview": True}).encode()
+          urllib.request.urlopen(urllib.request.Request(
+              "https://api.telegram.org/bot%s/sendMessage" % os.environ["TG_TOKEN"],
+              data=body, headers={"Content-Type": "application/json"}), timeout=25).read()
+          EOPY

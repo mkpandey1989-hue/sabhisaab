@@ -16,30 +16,109 @@ on:
 permissions:
   contents: write
 
+# BADLAAV: pehle yahan cancel-in-progress: true tha.
+# Uska matlab tha — agla run purane ko MAAR deta tha. Aur kisi bhi step par
+# timeout na hone ki wajah se ek atka hua run 6 GHANTE tak zinda reh sakta tha.
+# Us poore samay har naya run cancel hota raha. Isi wajah se chowkidar
+# 48 baar ki jagah din me sirf ek-do baar chal paata tha.
+# Ab: naya run purane ko maarta nahi, line me lag jaata hai.
 concurrency:
   group: sabhisaab-watch
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   watch:
     runs-on: ubuntu-latest
+    timeout-minutes: 12          # atka to 12 minute me marega, 6 ghante me nahi
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
 
       - name: Nigraani
+        timeout-minutes: 8
         env:
           TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python3 scripts/watch.py ${{ github.event.inputs.mode || 'watch' }}
 
+      # Aaj ki daily report aayi ya nahi — din me sirf EK baar jaanchta hai.
+      # Pehle daily.yml chup-chaap fail ho jaati thi aur kisi ko pata hi nahi chalta tha.
+      - name: Aaj ki report aayi ya nahi
+        if: always()
+        continue-on-error: true
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os, json, datetime, urllib.request
+          IST = datetime.timezone(datetime.timedelta(hours=5, minutes=30))
+          now = datetime.datetime.now(IST)
+          # Sirf 11:07 IST wale run par — taaki din bhar tokta na rahe
+          if not (now.hour == 11 and now.minute < 20):
+              print("abhi jaanchne ka samay nahi"); raise SystemExit
+          try:
+              d = json.load(open("state/daily.json"))
+          except Exception:
+              d = {}
+          aaj = now.date().isoformat()
+          if d.get("day") == aaj:
+              print("report aa chuki hai"); raise SystemExit
+          msg = ("\U0001F7E0 <b>Aaj ki report nahi aayi.</b>\n\n"
+                 "Record me aakhri din: <b>%s</b> (aaj %s hai).\n\n"
+                 "Daily report ka workflow ya to chala nahi, ya beech me fail ho gaya. "
+                 "GitHub ke schedule 2-3 ghante late bhi chalte hain.\n\n"
+                 "<b>Kya kariye</b>\n"
+                 "\u2022 Telegram par likhiye: <i>poora scan karo</i>\n"
+                 "\u2022 Ya Actions me Daily report \u2192 Run workflow"
+                 % (d.get("day", "pata nahi"), aaj))
+          body = json.dumps({"chat_id": os.environ["TG_CHAT"], "text": msg,
+                             "parse_mode": "HTML", "disable_web_page_preview": True}).encode()
+          urllib.request.urlopen(urllib.request.Request(
+              "https://api.telegram.org/bot%s/sendMessage" % os.environ["TG_TOKEN"],
+              data=body, headers={"Content-Type": "application/json"}), timeout=25).read()
+          print(msg)
+          PY
+
+      # Pehle yahan `git push --quiet || true` tha. Push fail hone par state
+      # chup-chaap gayab ho jaata tha aur job phir bhi "success" dikhti thi.
+      # Ab 3 baar koshish, aur na chale to log me saaf warning.
       - name: Yaad rakho
         if: always()
         run: |
           git config user.name "Sab Hisaab bot"
           git config user.email "contact@sabhisaab.com"
           git add state/ 2>/dev/null || true
-          git diff --cached --quiet || git commit -m "watch state $(date -u +%F-%H%M)"
-          git pull --rebase --autostash --quiet || true
-          git push --quiet || true
+          if git diff --cached --quiet; then
+            echo "kuch nahi badla"; exit 0
+          fi
+          git commit -m "watch state $(date -u +%F-%H%M)" --quiet
+          for i in 1 2 3; do
+            if git pull --rebase --autostash --quiet && git push --quiet; then
+              echo "push ho gaya (koshish $i)"; exit 0
+            fi
+            echo "push fail — koshish $i"; sleep $((i * 5))
+          done
+          echo "::warning::state push nahi ho paaya"
+
+      - name: Fail hua to Telegram par batao
+        if: failure()
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SRV: ${{ github.server_url }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.run_id }}
+        run: |
+          python3 - <<'PY'
+          import os, json, urllib.request
+          msg = ("\u274C <b>Chaukidaar fail ho gaya.</b>\n\n"
+                 "Iska matlab site ki nigraani abhi ruki hui hai.\n"
+                 "Log: %s/%s/actions/runs/%s" % (os.environ["SRV"], os.environ["REPO"], os.environ["RUN"]))
+          body = json.dumps({"chat_id": os.environ["TG_CHAT"], "text": msg,
+                             "parse_mode": "HTML", "disable_web_page_preview": True}).encode()
+          urllib.request.urlopen(urllib.request.Request(
+              "https://api.telegram.org/bot%s/sendMessage" % os.environ["TG_TOKEN"],
+              data=body, headers={"Content-Type": "application/json"}), timeout=25).read()
+          PY

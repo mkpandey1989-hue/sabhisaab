@@ -171,9 +171,13 @@ def index_scan(svc, urls, budget, st):
             r = svc.urlInspection().index().inspect(body={
                 "inspectionUrl": u, "siteUrl": PROP, "languageCode": "en"}).execute()
             idx = r["inspectionResult"]["indexStatusResult"]
+            # lastCrawlTime — Google is page par aakhri baar KAB aaya tha.
+            # Pehle ye jawab me aata tha par phenk diya jaata tha. Ab sambhal
+            # kar rakhte hain, isi se "Googlebot kab aaya" wali report banti hai.
             new[u] = {"ok": idx.get("verdict") == "PASS",
                       "why": idx.get("coverageState", "?"),
                       "robots": idx.get("robotsTxtState", ""),
+                      "crawl": idx.get("lastCrawlTime", ""),
                       "day": dstr(today())}
         except Exception as e:
             errs += 1
@@ -183,6 +187,34 @@ def index_scan(svc, urls, budget, st):
     lost   = [u for u in batch if not new.get(u, {}).get("ok") and old.get(u, {}).get("ok")]
     st["status"] = new
     return new, gained, lost, len(batch), errs
+
+def googlebot(status):
+    """Googlebot kab-kab aaya — URL Inspection ke lastCrawlTime se.
+
+    SAAF BAAT: Google ke paas "Crawl stats" ka koi public API HAI HI NAHI.
+    Kitni request aayi, kitna KB utra, kaun sa response code mila — wo sirf
+    Search Console ki website par dikhta hai, API se nahi milta.
+    Jo mil sakta hai wo yahi hai: har page par Google aakhri baar kab aaya.
+    Usi se hum ginte hain ki kal/aaj Google kitne page par aaya."""
+    now = datetime.datetime.now(datetime.timezone.utc)
+    d1 = d7 = 0
+    naye = []
+    for u, v in status.items():
+        c = (v or {}).get("crawl") or ""
+        if not c:
+            continue
+        try:
+            t = datetime.datetime.fromisoformat(c.replace("Z", "+00:00"))
+        except Exception:
+            continue
+        ghante = (now - t).total_seconds() / 3600.0
+        if ghante <= 24:
+            d1 += 1
+            naye.append((ghante, u))
+        if ghante <= 168:
+            d7 += 1
+    naye.sort()
+    return d1, d7, naye[:5], sum(1 for v in status.values() if (v or {}).get("crawl"))
 
 def coverage(status):
     c = {}
@@ -242,13 +274,22 @@ def psi(url, strategy):
 # ---------------------------------------------------------------- 8. khabar (RSS)
 FEEDS = [
     ("Google Search",  "https://developers.google.com/search/blog/feed.xml"),
+    ("Google AdSense", "https://adsense.googleblog.com/feeds/posts/default"),
     ("Bing Webmaster", "https://blogs.bing.com/webmaster/feed"),
     ("Cloudflare",     "https://developers.cloudflare.com/changelog/index.xml"),
     ("GitHub",         "https://github.blog/changelog/feed/"),
 ]
+# Ye wo shabd hain jinpar khabar ko ALERT maana jaata hai. Pehli list me
+# AdSense, penalty, algorithm aur structured data ke shabd the hi nahi —
+# isliye site se seedhe jude badlaav chhoot jaate the.
 HOT = ("deprecat", "retir", "shut down", "sunset", "breaking", "policy", "spam",
        "core update", "limit", "quota", "pricing", "price", "removed", "migrate",
-       "end of life", "discontinu")
+       "end of life", "discontinu",
+       "adsense", "monetiz", "ads.txt", "publisher", "ad policy",
+       "algorithm", "ranking update", "helpful content", "site reputation",
+       "structured data", "rich result", "schema", "penalt", "manual action",
+       "core web vital", "indexing", "crawl", "sitemap", "robots.txt",
+       "search console", "guideline", "requirement")
 
 def news(seen):
     out, new_seen = [], dict(seen)
@@ -413,6 +454,23 @@ def main():
             day.append("\n<b>Pichhle din — indexed / pending</b>")
             for h in w:
                 day.append(f"• {h['d']} — {h['ok']} / {h.get('pending', 0)}")
+
+        # ---- Googlebot kab aaya, kya kar gaya ----
+        g1, g7, naye, kul_c = googlebot(status)
+        if kul_c:
+            day.append("\n<b>🤖 Googlebot</b>")
+            day.append(f"Pichhle 24 ghante me aaya : <b>{g1}</b> page par")
+            day.append(f"Pichhle 7 din me aaya : <b>{g7}</b> page par")
+            if naye:
+                day.append("Sabse naya crawl —")
+                for gh, u in naye:
+                    jab = f"{int(gh*60)} min" if gh < 1 else f"{int(gh)} ghante"
+                    day.append(f"• {esc(u.replace(SITE,'') or '/')[:44]} — {jab} pehle")
+            if g1 == 0:
+                imp.append("🟠 <b>Pichhle 24 ghante me Googlebot kisi page par nahi aaya.</b>\n"
+                           "Ghabraane ki baat nahi — naye domain par Google har roz nahi aata. "
+                           "Do-teen din tak yahi rahe to sitemap aur robots.txt jaanchne honge.")
+            day.append("<i>Note: kitni request/KB — wo sirf GSC ki site par dikhta hai, API me nahi.</i>")
 
         cov = coverage(status)
         if cov:

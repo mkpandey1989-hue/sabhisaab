@@ -8,6 +8,7 @@ on:
 jobs:
   health:
     runs-on: ubuntu-latest
+    timeout-minutes: 15        # pehle koi seema nahi thi
     steps:
       - uses: actions/checkout@v4
 
