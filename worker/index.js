@@ -75,6 +75,7 @@ const MAIN = kb([
   [{ text: "🛠 Audit", callback_data: "m:aud" }, { text: "🚀 Deploy", callback_data: "m:dep" }],
   [{ text: "☁️ Cloudflare", callback_data: "m:cf" }, { text: "📁 Files", callback_data: "m:file" }],
   [{ text: "📋 Pending kaam", callback_data: "do:pending" }, { text: "❤️ Health", callback_data: "do:health" }],
+  [{ text: "🧰 Technical report", callback_data: "do:tech" }, { text: "📰 Khabar", callback_data: "do:gnews" }],
   [{ text: "📖 Madad", callback_data: "do:help" }],
 ]);
 const back = [{ text: "⬅️ Wapas", callback_data: "m:main" }];
@@ -110,6 +111,8 @@ const MENUS = {
     [{ text: "🗺 Sitemap ka haal", callback_data: "do:smstatus" }],
     [{ text: "🔍 Bache hue URL jaanchein", callback_data: "do:checkpend" }],
     [{ text: "🔎 Abhi ka sach (sabse naye page)", callback_data: "do:taaza" }],
+    [{ text: "❓ Kyun index nahi hua", callback_data: "do:kyun" }],
+    [{ text: "🤖 Googlebot kab aaya", callback_data: "do:crawl" }],
     [{ text: "IndexNow: badle URL", callback_data: "d:badle-hue" }],
     [{ text: "IndexNow: sabhi URL", callback_data: "d:sabhi" }],
     back]) },
@@ -1974,6 +1977,10 @@ async function onCb(env, q) {
   if (d === "do:checkpend") return runJob(env, mid, "checkpend", "");
   if (d === "do:taaza") return runJob(env, mid, "taaza", "");
   if (d === "do:mauka") return runJob(env, mid, "mauka", "");
+  if (d === "do:kyun") return runJob(env, mid, "kyun", "");
+  if (d === "do:tech") return runJob(env, mid, "tech", "");
+  if (d === "do:crawl") return runJob(env, mid, "crawl", "");
+  if (d === "do:gnews") return runJob(env, mid, "gnews", "");
   if (d === "do:linkcheck") return doLinkCheck(env, mid);
   if (d === "do:pages") return doPages(env, mid);
   if (d === "do:site") return doSite(env, mid);
@@ -2015,6 +2022,22 @@ Sab kuch <b>Menu ke button</b> se. Type karne ki zaroorat nahi.
 <i>speed kaisi hai</i>
 <i>top query kya hai</i>
 <i>nsc-calculator index hua kya</i>
+
+<b>Gehri jaanch — naye kaam</b>
+<i>kyu nahi index huwa kya kami hai</i>
+   Google se asli wajah + page ki apni haalat
+<i>kyun /fire-number-calculator</i>
+   sirf ek page ki wajah
+<i>google kab aaya</i>
+   Googlebot 24 ghante/7 din me kitne page par aaya
+<i>google kab aaya /sip-calculator</i>
+   ek page par aakhri crawl, kaise aaya, kya faisla
+<i>technical report</i>
+   indexing ki wajah, audit, sitemap, saare workflow zinda hain ya nahi
+<i>google ki koi nayi policy aayi kya</i>
+   Google/AdSense/Bing ki taaza khabar
+
+Bot ko pichhli 6 baatein yaad rehti hain — "haan wahi karo" bhi samajh leta hai.
 
 <b>File chadhana</b>
 HTML ya ZIP bhej dijiye — bot khud sahi folder me daal dega.
