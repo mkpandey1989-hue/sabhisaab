@@ -27,7 +27,9 @@ concurrency:
 jobs:
   daily:
     runs-on: ubuntu-latest
-    timeout-minutes: 30        # pehle koi seema nahi thi — atka run 6 ghante chalta tha
+    timeout-minutes: 60        # pehle koi seema nahi thi — atka run 6 ghante chalta tha.
+                               # 30 rakha tha to asli scan hi kat gaya — 262 URL Google se
+                               # poochne me 25-40 minute lagte hain. Ab 60.
     steps:
       - uses: actions/checkout@v4
 
@@ -85,7 +87,9 @@ jobs:
 
       - name: Poora scan aur report
         if: steps.guard.outputs.skip != 'yes'
-        timeout-minutes: 22
+        # 22 minute bahut kam tha — 25 Aug ko isi wajah se run #44 kata tha (23m 28s).
+        # Ye seema sirf ATKE hue run ke liye hai, dheeme ke liye nahi.
+        timeout-minutes: 50
         env:
           GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
           GOOGLE_SA_JSON_B64: ${{ secrets.GOOGLE_SA_JSON_B64 }}
