@@ -7,8 +7,15 @@ from lib import cfg, log, url_of
 
 def submit(urls):
     C = cfg()
+    # PEHLE: yahan `return True` tha — yaani band hone par bhi "safal" bata deta tha.
+    # Isi wajah se mahino tak pata hi nahi chala ki Bing ko ek bhi URL nahi ja raha.
+    # Ab False lautta hai taki calling code ko galatfehmi na ho.
     if not C.get("bing_enabled"):
-        log("Bing API: band hai (config me bing_enabled=false)"); return True
+        log("Bing API: BAND hai (config me bing_enabled=false) — %d URL NAHI bheje gaye"
+            % len(urls)); return False
+    if not (C.get("bing_api_key") or "").strip() or C.get("bing_api_key") == "x":
+        log("Bing API: asli key nahi mili (bing_api_key khaali ya 'x') — "
+            "%d URL NAHI bheje gaye" % len(urls)); return False
     ep = "https://ssl.bing.com/webmaster/api.svc/json/SubmitUrlbatch?apikey=" + C["bing_api_key"]
     urls = [u for u in urls if u.startswith("http")][:500]
     if not urls:

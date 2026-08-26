@@ -1,0 +1,240 @@
+name: Search engine ko khabar (Bing + IndexNow)
+
+# KYUN BANI:
+#   Bing ko sitemap ke 262 me se sirf 115 URL ka pata tha (91 indexed, 24 me se
+#   21 to kabhi crawl hi nahi hue). Wajah: Bing URL Submission API har config me
+#   bing_enabled=false thi, aur IndexNow sirf deploy.yml se manually chalti thi.
+#   Ye workflow roz apne aap dono ko khabar bhejti hai.
+#
+# KISI PURANI WORKFLOW KO HAATH NAHI LAGAYA GAYA.
+#   notify.yml / deploy.yml / audit.yml / bot.yml / daily.yml / pending.yml /
+#   watch.yml / health.yml — sab jaise the waise hain. Ye ekdum alag file hai.
+#   Band karna ho to bas isi file ko delete kar dena, baaki kuch nahi bigdega.
+
+on:
+  schedule:
+    - cron: '53 3 * * *'      # roz ~9:30 AM IST. pending.yml 3:23 par chalti hai,
+                              # isliye 30 minute baad rakha — takraav na ho.
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Kaunse URL bhejein?'
+        type: choice
+        required: true
+        default: naye
+        options:
+          - naye        # sitemap me pichhle 3 din me badle hue URL
+          - sabhi       # poore 262 URL (pehli baar isse chalao)
+
+concurrency:
+  group: sabhisaab-ping
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: URL chuno (sitemap ke lastmod se)
+        id: pick
+        env:
+          MODE: ${{ github.event.inputs.mode || 'naye' }}
+        run: |
+          python3 - <<'EOPY'
+          import re, os, datetime
+          mode = os.environ.get("MODE") or "naye"
+          sm = open("site/sitemap.xml", encoding="utf-8").read()
+          rows = re.findall(r"<loc>([^<]+)</loc>\s*<lastmod>([\d-]+)</lastmod>", sm)
+
+          if mode == "sabhi":
+              picked = [u for u, _ in rows]
+          else:
+              cut = (datetime.date.today() - datetime.timedelta(days=3)).isoformat()
+              picked = [u for u, d in rows if d >= cut]
+              if not picked:                      # kuch naya nahi to sabse naye 20
+                  rows.sort(key=lambda x: x[1], reverse=True)
+                  picked = [u for u, _ in rows[:20]]
+
+          picked = picked[:10000]
+          with open("urls.txt", "w", encoding="utf-8") as f:
+              f.write("\n".join(picked))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("count=%d\n" % len(picked))
+          print("Mode: %s | URL chune: %d" % (mode, len(picked)))
+          for u in picked[:10]:
+              print("  ", u)
+          EOPY
+
+      - name: Bing URL Submission API
+        id: bing
+        continue-on-error: true
+        env:
+          BING_KEY: ${{ secrets.BING_API_KEY }}
+        run: |
+          python3 - <<'EOPY'
+          import os, json, urllib.request, urllib.error
+
+          key = (os.environ.get("BING_KEY") or "").strip()
+          urls = [l.strip() for l in open("urls.txt", encoding="utf-8") if l.strip()]
+
+          def out(k, v):
+              with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                  f.write("%s=%s\n" % (k, v))
+
+          # PEHLE: bing_submit.py chupchaap `return True` kar deta tha jab key na ho.
+          # Isliye pata hi nahi chalta tha ki kuch bheja hi nahi gaya. Ab shor machta hai.
+          if not key:
+              print("BING_API_KEY secret khaali hai / mila nahi.")
+              out("status", "no-key"); out("sent", "0")
+              raise SystemExit(1)
+
+          # Bing ek request me 500 URL leta hai. Roz ka quota 10,000 URL hai.
+          # NOTE: endpoint /api.svc/json/ hai — JSON/HTTP wala.
+          # 31 Aug 2026 ko sirf SOAP aur /api.svc/pox/ band ho rahe hain, JSON nahi.
+          ep = "https://ssl.bing.com/webmaster/api.svc/json/SubmitUrlbatch?apikey=" + key
+          sent, fails, last = 0, 0, ""
+          for i in range(0, len(urls), 500):
+              chunk = urls[i:i + 500]
+              body = json.dumps({"siteUrl": "https://sabhisaab.com/",
+                                 "urlList": chunk}).encode("utf-8")
+              req = urllib.request.Request(
+                  ep, data=body,
+                  headers={"Content-Type": "application/json; charset=utf-8"})
+              try:
+                  r = urllib.request.urlopen(req, timeout=45)
+                  code = r.getcode()
+                  if code == 200:
+                      sent += len(chunk)
+                      print("Bing: %d URL -> HTTP 200 OK" % len(chunk))
+                  else:
+                      fails += 1; last = "HTTP %s" % code
+                      print("Bing: %d URL -> HTTP %s" % (len(chunk), code))
+              except urllib.error.HTTPError as e:
+                  detail = ""
+                  try: detail = e.read().decode()[:200]
+                  except Exception: pass
+                  fails += 1; last = "HTTP %s %s" % (e.code, detail)
+                  print("Bing FAIL: HTTP %s %s" % (e.code, detail))
+              except Exception as e:
+                  fails += 1; last = str(e)[:200]
+                  print("Bing FAIL: %s" % str(e)[:200])
+
+          out("sent", str(sent))
+          out("status", "ok" if fails == 0 else "partial")
+          out("last_error", last.replace("\n", " ")[:180])
+          print("Bing kul bheje: %d | fail batch: %d" % (sent, fails))
+          if sent == 0:
+              raise SystemExit(1)
+          EOPY
+
+      - name: IndexNow (Bing, Yandex, Naver, Seznam)
+        id: inow
+        continue-on-error: true
+        run: |
+          python3 - <<'EOPY'
+          import os, re, json, glob, urllib.request, urllib.error
+
+          def out(k, v):
+              with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                  f.write("%s=%s\n" % (k, v))
+
+          # key file wahi hai jo site/ me padi hai: <key>.txt jiske andar wahi key ho
+          key = ""
+          for p in glob.glob("site/*.txt"):
+              name = os.path.basename(p)[:-4]
+              try:
+                  content = open(p, encoding="utf-8").read().strip()
+              except Exception:
+                  continue
+              if name == content and len(name) >= 8:
+                  key = name
+          if not key:
+              print("IndexNow key file nahi mili — skip.")
+              out("status", "no-key"); raise SystemExit(1)
+          print("IndexNow key mil gayi (%d akshar)" % len(key))
+
+          urls = [l.strip() for l in open("urls.txt", encoding="utf-8") if l.strip()]
+          body = json.dumps({
+              "host": "sabhisaab.com",
+              "key": key,
+              "keyLocation": "https://sabhisaab.com/%s.txt" % key,
+              "urlList": urls[:10000],
+          }).encode("utf-8")
+          req = urllib.request.Request(
+              "https://api.indexnow.org/IndexNow", data=body,
+              headers={"Content-Type": "application/json; charset=utf-8"})
+          try:
+              r = urllib.request.urlopen(req, timeout=45)
+              print("IndexNow: %d URL -> HTTP %d" % (len(urls), r.getcode()))
+              out("status", "ok" if r.getcode() in (200, 202) else "http-%d" % r.getcode())
+          except Exception as e:
+              detail = ""
+              try: detail = e.read().decode()[:200]
+              except Exception: pass
+              print("IndexNow FAIL: %s %s" % (e, detail))
+              out("status", "fail"); raise SystemExit(1)
+          EOPY
+
+      - name: Telegram par natija
+        if: always()
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          MODE: ${{ github.event.inputs.mode || 'naye' }}
+          COUNT: ${{ steps.pick.outputs.count }}
+          BING_STATUS: ${{ steps.bing.outputs.status }}
+          BING_SENT: ${{ steps.bing.outputs.sent }}
+          BING_ERR: ${{ steps.bing.outputs.last_error }}
+          INOW_STATUS: ${{ steps.inow.outputs.status }}
+          SRV: ${{ github.server_url }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.run_id }}
+        run: |
+          python3 - <<'EOPY'
+          import os, json, urllib.request
+
+          g = lambda k: (os.environ.get(k) or "").strip()
+          count = g("COUNT") or "0"
+          bs, inow = g("BING_STATUS"), g("INOW_STATUS")
+
+          def mark(s, good=("ok",)):
+              if s in good: return "\u2705"
+              if s in ("", "no-key"): return "\u274C"
+              return "\u26A0\uFE0F"
+
+          bing_line = {
+              "ok":      "\u2705 Bing: %s URL bhej diye" % (g("BING_SENT") or "0"),
+              "partial": "\u26A0\uFE0F Bing: %s bheje, kuch batch fail \u2014 %s"
+                         % (g("BING_SENT") or "0", g("BING_ERR") or "?"),
+              "no-key":  "\u274C Bing: BING_API_KEY secret nahi mila",
+          }.get(bs, "\u274C Bing: nahi bhej paye \u2014 %s" % (g("BING_ERR") or "pata nahi"))
+
+          inow_line = {
+              "ok":     "\u2705 IndexNow: bhej diya (Bing, Yandex, Naver, Seznam)",
+              "no-key": "\u274C IndexNow: key file nahi mili",
+              "fail":   "\u274C IndexNow: bhejne me dikkat",
+          }.get(inow, "\u26A0\uFE0F IndexNow: %s" % (inow or "pata nahi"))
+
+          ok = (bs == "ok" and inow == "ok")
+          head = ("\U0001F4E1 <b>Search engine ko khabar bhej di</b>"
+                  if ok else "\u26A0\uFE0F <b>Khabar bhejne me dikkat</b>")
+
+          lines = [head, "",
+                   "Mode: <b>%s</b>   |   URL: <b>%s</b>" % (g("MODE"), count),
+                   "", bing_line, inow_line]
+          if not ok:
+              lines += ["", "Log: %s/%s/actions/runs/%s"
+                        % (g("SRV"), g("REPO"), g("RUN"))]
+
+          body = json.dumps({"chat_id": g("TG_CHAT"), "text": "\n".join(lines),
+                             "parse_mode": "HTML",
+                             "disable_web_page_preview": True}).encode()
+          urllib.request.urlopen(urllib.request.Request(
+              "https://api.telegram.org/bot%s/sendMessage" % g("TG_TOKEN"),
+              data=body, headers={"Content-Type": "application/json"}),
+              timeout=25).read()
+          EOPY
