@@ -61,6 +61,10 @@
   "GitHub|Track GitHub Code Quality enablement changes in the audit log": "2026-08-21",
   "GitHub|Better tools for managing blocked users": "2026-08-22",
   "GitHub|The new GitHub Copilot experience in Slack": "2026-08-22",
-  "GitHub|Shared agentic work with GitHub Copilot in Microsoft Teams": "2026-08-22"
+  "GitHub|Shared agentic work with GitHub Copilot in Microsoft Teams": "2026-08-22",
+  "GitHub|Rule insights dashboard generally available": "2026-08-26",
+  "GitHub|GitHub Copilot app Customize tab is generally available": "2026-08-26",
+  "GitHub|Block users directly from security advisories": "2026-08-26",
+  "GitHub|Push rules in rulesets now support path exceptions": "2026-08-26"
  }
 }
