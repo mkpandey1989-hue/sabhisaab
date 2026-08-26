@@ -6,6 +6,16 @@ name: Search engine ko khabar (Bing + IndexNow)
 #   bing_enabled=false thi, aur IndexNow sirf deploy.yml se manually chalti thi.
 #   Ye workflow roz apne aap dono ko khabar bhejti hai.
 #
+# v2 (26 Aug 2026) — QUOTA WALA SUDHAR:
+#   Pehla version 262 URL ek saath bhej raha tha. Bing ne poora batch thukra diya:
+#     {"ErrorCode":2,"Message":"ERROR!!! Quota remaining for today: 80, Submitted: 262"}
+#   Naye domain ka daily quota chhota hota hai (10,000 nahi). Ab:
+#     1) pehle Bing se poochhte hain ki aaj kitna quota bacha hai
+#     2) utne hi URL bhejte hain, ek bhi zyada nahi
+#     3) roz sitemap ke alag hisse se bhejte hain (rotation) — 3-4 din me poori site
+#        cover ho jaati hai, phir chakkar dobara chalta hai
+#   IndexNow par koi quota nahi, isliye usko hamesha poori list jaati hai.
+#
 # KISI PURANI WORKFLOW KO HAATH NAHI LAGAYA GAYA.
 #   notify.yml / deploy.yml / audit.yml / bot.yml / daily.yml / pending.yml /
 #   watch.yml / health.yml — sab jaise the waise hain. Ye ekdum alag file hai.
@@ -18,13 +28,18 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Kaunse URL bhejein?'
+        description: 'Bing ko kaunse URL bhejein?'
         type: choice
         required: true
-        default: naye
+        default: auto
         options:
-          - naye        # sitemap me pichhle 3 din me badle hue URL
-          - sabhi       # poore 262 URL (pehli baar isse chalao)
+          - auto        # naye/badle URL pehle, phir quota bharne tak rotation se
+          - naye        # sirf pichhle 3 din me badle hue URL
+          - rotate      # sirf rotation — aaj ka hissa
+      limit:
+        description: 'Zyada se zyada kitne URL (khaali = Bing ka quota khud puchho)'
+        required: false
+        default: ''
 
 concurrency:
   group: sabhisaab-ping
@@ -39,34 +54,115 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
 
-      - name: URL chuno (sitemap ke lastmod se)
+      - name: Bing ka aaj ka quota poochho
+        id: quota
+        continue-on-error: true
+        env:
+          BING_KEY: ${{ secrets.BING_API_KEY }}
+          MANUAL: ${{ github.event.inputs.limit }}
+        run: |
+          python3 - <<'EOPY'
+          import os, json, urllib.request, urllib.parse
+
+          def out(k, v):
+              with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                  f.write("%s=%s\n" % (k, v))
+
+          manual = (os.environ.get("MANUAL") or "").strip()
+          if manual.isdigit():
+              print("Haath se di gayi seema: %s" % manual)
+              out("daily", manual); raise SystemExit(0)
+
+          key = (os.environ.get("BING_KEY") or "").strip()
+          if not key:
+              print("BING_API_KEY nahi mili — 50 maan kar chalte hain")
+              out("daily", "50"); raise SystemExit(0)
+
+          # GetUrlSubmissionQuota — batata hai aaj kitne URL aur bhej sakte hain.
+          # Pehle version ne ye poochha hi nahi tha aur 262 bhej diye the -> HTTP 400.
+          url = ("https://ssl.bing.com/webmaster/api.svc/json/GetUrlSubmissionQuota"
+                 "?apikey=%s&siteUrl=%s"
+                 % (key, urllib.parse.quote("https://sabhisaab.com/", safe="")))
+          try:
+              raw = urllib.request.urlopen(url, timeout=30).read().decode()
+              d = json.loads(raw)
+              d = d.get("d", d) if isinstance(d, dict) else d
+              daily = int(d.get("DailyQuota", 0))
+              monthly = d.get("MonthlyQuota", "?")
+              print("Bing quota — aaj: %s | mahine ka: %s" % (daily, monthly))
+              out("daily", str(max(daily, 0)))
+              out("monthly", str(monthly))
+          except Exception as e:
+              print("Quota poochhne me dikkat: %s — 50 maan kar chalte hain" % str(e)[:150])
+              out("daily", "50")
+          EOPY
+
+      - name: URL chuno (naye pehle, phir rotation)
         id: pick
         env:
-          MODE: ${{ github.event.inputs.mode || 'naye' }}
+          MODE: ${{ github.event.inputs.mode || 'auto' }}
+          DAILY: ${{ steps.quota.outputs.daily }}
         run: |
           python3 - <<'EOPY'
           import re, os, datetime
-          mode = os.environ.get("MODE") or "naye"
+
+          mode = os.environ.get("MODE") or "auto"
+          try:
+              cap = int((os.environ.get("DAILY") or "50").strip())
+          except ValueError:
+              cap = 50
+          cap = max(cap, 0)
+
           sm = open("site/sitemap.xml", encoding="utf-8").read()
           rows = re.findall(r"<loc>([^<]+)</loc>\s*<lastmod>([\d-]+)</lastmod>", sm)
+          allurls = [u for u, _ in rows]
+          total = len(allurls)
 
-          if mode == "sabhi":
-              picked = [u for u, _ in rows]
-          else:
-              cut = (datetime.date.today() - datetime.timedelta(days=3)).isoformat()
-              picked = [u for u, d in rows if d >= cut]
-              if not picked:                      # kuch naya nahi to sabse naye 20
-                  rows.sort(key=lambda x: x[1], reverse=True)
-                  picked = [u for u, _ in rows[:20]]
+          cut = (datetime.date.today() - datetime.timedelta(days=3)).isoformat()
+          fresh = [u for u, d in rows if d >= cut]
 
-          picked = picked[:10000]
+          # ---- rotation: roz sitemap ka alag hissa ----
+          # Koi state file nahi rakhni padti — aaj ki tareekh se hi hissa nikal aata hai.
+          # cap=80 aur total=262 ho to ~4 din me poori site cover, phir chakkar dobara.
+          def slice_for_today(n):
+              if n <= 0 or total == 0: return []
+              step = max(n, 1)
+              off = (datetime.date.today().toordinal() * step) % total
+              picked = []
+              i = off
+              while len(picked) < min(n, total):
+                  picked.append(allurls[i % total]); i += 1
+              return picked
+
+          if mode == "naye":
+              bing = fresh[:cap]
+          elif mode == "rotate":
+              bing = slice_for_today(cap)
+          else:                                   # auto
+              bing = list(fresh[:cap])
+              seen = set(bing)
+              for u in slice_for_today(cap):
+                  if len(bing) >= cap: break
+                  if u not in seen:
+                      bing.append(u); seen.add(u)
+
+          # IndexNow par koi quota nahi — usko poori list jaati hai
+          with open("bing.txt", "w", encoding="utf-8") as f:
+              f.write("\n".join(bing))
           with open("urls.txt", "w", encoding="utf-8") as f:
-              f.write("\n".join(picked))
+              f.write("\n".join(allurls))
+
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write("count=%d\n" % len(picked))
-          print("Mode: %s | URL chune: %d" % (mode, len(picked)))
-          for u in picked[:10]:
-              print("  ", u)
+              f.write("count=%d\n" % len(bing))
+              f.write("total=%d\n" % total)
+              f.write("fresh=%d\n" % len(fresh[:cap]))
+              f.write("cap=%d\n" % cap)
+
+          print("Mode: %s | quota cap: %d | sitemap me: %d" % (mode, cap, total))
+          print("Bing ko ja rahe: %d  (naye: %d)" % (len(bing), len(fresh[:cap])))
+          print("IndexNow ko ja rahe: %d" % total)
+          for u in bing[:10]:
+              print("   ", u)
           EOPY
 
       - name: Bing URL Submission API
@@ -76,10 +172,10 @@ jobs:
           BING_KEY: ${{ secrets.BING_API_KEY }}
         run: |
           python3 - <<'EOPY'
-          import os, json, urllib.request, urllib.error
+          import os, re, json, urllib.request, urllib.error
 
           key = (os.environ.get("BING_KEY") or "").strip()
-          urls = [l.strip() for l in open("urls.txt", encoding="utf-8") if l.strip()]
+          urls = [l.strip() for l in open("bing.txt", encoding="utf-8") if l.strip()]
 
           def out(k, v):
               with open(os.environ["GITHUB_OUTPUT"], "a") as f:
@@ -91,44 +187,61 @@ jobs:
               print("BING_API_KEY secret khaali hai / mila nahi.")
               out("status", "no-key"); out("sent", "0")
               raise SystemExit(1)
+          if not urls:
+              print("Aaj ka quota khatam — Bing ko kuch nahi bhejna.")
+              out("status", "quota-khatam"); out("sent", "0")
+              raise SystemExit(0)
 
-          # Bing ek request me 500 URL leta hai. Roz ka quota 10,000 URL hai.
           # NOTE: endpoint /api.svc/json/ hai — JSON/HTTP wala.
           # 31 Aug 2026 ko sirf SOAP aur /api.svc/pox/ band ho rahe hain, JSON nahi.
           ep = "https://ssl.bing.com/webmaster/api.svc/json/SubmitUrlbatch?apikey=" + key
-          sent, fails, last = 0, 0, ""
-          for i in range(0, len(urls), 500):
-              chunk = urls[i:i + 500]
+
+          def push(chunk):
               body = json.dumps({"siteUrl": "https://sabhisaab.com/",
                                  "urlList": chunk}).encode("utf-8")
               req = urllib.request.Request(
                   ep, data=body,
                   headers={"Content-Type": "application/json; charset=utf-8"})
+              r = urllib.request.urlopen(req, timeout=45)
+              return r.getcode()
+
+          sent, last = 0, ""
+          batch = list(urls)
+          for attempt in range(3):
+              if not batch: break
               try:
-                  r = urllib.request.urlopen(req, timeout=45)
-                  code = r.getcode()
+                  code = push(batch)
                   if code == 200:
-                      sent += len(chunk)
-                      print("Bing: %d URL -> HTTP 200 OK" % len(chunk))
-                  else:
-                      fails += 1; last = "HTTP %s" % code
-                      print("Bing: %d URL -> HTTP %s" % (len(chunk), code))
+                      sent = len(batch)
+                      print("Bing: %d URL -> HTTP 200 OK" % sent)
+                      break
+                  last = "HTTP %s" % code
+                  print("Bing: HTTP %s" % code); break
               except urllib.error.HTTPError as e:
                   detail = ""
-                  try: detail = e.read().decode()[:200]
+                  try: detail = e.read().decode()[:300]
                   except Exception: pass
-                  fails += 1; last = "HTTP %s %s" % (e.code, detail)
-                  print("Bing FAIL: HTTP %s %s" % (e.code, detail))
+                  last = ("HTTP %s %s" % (e.code, detail)).strip()
+                  print("Bing FAIL: %s" % last)
+                  # Bing quota bata deta hai — utne par kaat kar dobara koshish
+                  m = re.search(r"Quota remaining for today:\s*(\d+)", detail) if detail else None
+                  if m:
+                      allow = int(m.group(1))
+                      if allow <= 0:
+                          last = "aaj ka quota khatam (0 bacha)"
+                          print(last); break
+                      if allow < len(batch):
+                          print("Quota %d hai — utne par kaat kar dobara bhej raha hoon" % allow)
+                          batch = batch[:allow]; continue
+                  break
               except Exception as e:
-                  fails += 1; last = str(e)[:200]
-                  print("Bing FAIL: %s" % str(e)[:200])
+                  last = str(e)[:200]
+                  print("Bing FAIL: %s" % last); break
 
           out("sent", str(sent))
-          out("status", "ok" if fails == 0 else "partial")
-          out("last_error", last.replace("\n", " ")[:180])
-          print("Bing kul bheje: %d | fail batch: %d" % (sent, fails))
-          if sent == 0:
-              raise SystemExit(1)
+          out("status", "ok" if sent else "fail")
+          out("last_error", last.replace("\n", " ").replace("\r", " ")[:180])
+          print("Bing kul bheje: %d" % sent)
           EOPY
 
       - name: IndexNow (Bing, Yandex, Naver, Seznam)
@@ -184,8 +297,12 @@ jobs:
         env:
           TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
-          MODE: ${{ github.event.inputs.mode || 'naye' }}
+          MODE: ${{ github.event.inputs.mode || 'auto' }}
+          CAP: ${{ steps.pick.outputs.cap }}
           COUNT: ${{ steps.pick.outputs.count }}
+          TOTAL: ${{ steps.pick.outputs.total }}
+          FRESH: ${{ steps.pick.outputs.fresh }}
+          MONTHLY: ${{ steps.quota.outputs.monthly }}
           BING_STATUS: ${{ steps.bing.outputs.status }}
           BING_SENT: ${{ steps.bing.outputs.sent }}
           BING_ERR: ${{ steps.bing.outputs.last_error }}
@@ -198,34 +315,33 @@ jobs:
           import os, json, urllib.request
 
           g = lambda k: (os.environ.get(k) or "").strip()
-          count = g("COUNT") or "0"
           bs, inow = g("BING_STATUS"), g("INOW_STATUS")
-
-          def mark(s, good=("ok",)):
-              if s in good: return "\u2705"
-              if s in ("", "no-key"): return "\u274C"
-              return "\u26A0\uFE0F"
+          total = g("TOTAL") or "?"
 
           bing_line = {
-              "ok":      "\u2705 Bing: %s URL bhej diye" % (g("BING_SENT") or "0"),
-              "partial": "\u26A0\uFE0F Bing: %s bheje, kuch batch fail \u2014 %s"
-                         % (g("BING_SENT") or "0", g("BING_ERR") or "?"),
-              "no-key":  "\u274C Bing: BING_API_KEY secret nahi mila",
+              "ok": "\u2705 Bing: <b>%s</b> URL bheje  (aaj ka quota: %s)"
+                    % (g("BING_SENT") or "0", g("CAP") or "?"),
+              "quota-khatam": "\u23F8 Bing: aaj ka quota khatam \u2014 kal apne aap chalega",
+              "no-key": "\u274C Bing: BING_API_KEY secret nahi mila",
           }.get(bs, "\u274C Bing: nahi bhej paye \u2014 %s" % (g("BING_ERR") or "pata nahi"))
 
           inow_line = {
-              "ok":     "\u2705 IndexNow: bhej diya (Bing, Yandex, Naver, Seznam)",
+              "ok":     "\u2705 IndexNow: poore <b>%s</b> URL (Bing, Yandex, Naver, Seznam)" % total,
               "no-key": "\u274C IndexNow: key file nahi mili",
               "fail":   "\u274C IndexNow: bhejne me dikkat",
           }.get(inow, "\u26A0\uFE0F IndexNow: %s" % (inow or "pata nahi"))
 
-          ok = (bs == "ok" and inow == "ok")
+          ok = (bs in ("ok", "quota-khatam") and inow == "ok")
           head = ("\U0001F4E1 <b>Search engine ko khabar bhej di</b>"
                   if ok else "\u26A0\uFE0F <b>Khabar bhejne me dikkat</b>")
 
           lines = [head, "",
-                   "Mode: <b>%s</b>   |   URL: <b>%s</b>" % (g("MODE"), count),
+                   "Mode: <b>%s</b>   |   Sitemap me: <b>%s</b>" % (g("MODE"), total),
                    "", bing_line, inow_line]
+          if g("FRESH") and g("FRESH") != "0":
+              lines.append("\u2192 isme %s naye/badle page the" % g("FRESH"))
+          if g("MONTHLY") and g("MONTHLY") != "?":
+              lines.append("\u2192 mahine ka quota bacha: %s" % g("MONTHLY"))
           if not ok:
               lines += ["", "Log: %s/%s/actions/runs/%s"
                         % (g("SRV"), g("REPO"), g("RUN"))]
