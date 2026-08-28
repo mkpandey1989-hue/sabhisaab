@@ -65,6 +65,14 @@
   "GitHub|Rule insights dashboard generally available": "2026-08-26",
   "GitHub|GitHub Copilot app Customize tab is generally available": "2026-08-26",
   "GitHub|Block users directly from security advisories": "2026-08-26",
-  "GitHub|Push rules in rulesets now support path exceptions": "2026-08-26"
+  "GitHub|Push rules in rulesets now support path exceptions": "2026-08-26",
+  "Google Search|Update to the Site Reputation Policy": "2026-08-28",
+  "GitHub|Better label management on issues is generally available": "2026-08-28",
+  "GitHub|Copilot code review: Resolution reasons and expanded capabilities": "2026-08-28",
+  "GitHub|Actions retention will cover checks, workflow runs, and statuses": "2026-08-28",
+  "GitHub|Close all open contributions authored by a blocked user": "2026-08-28",
+  "GitHub|Enterprise-managed settings now support autoUpdate for plugin marketplaces": "2026-08-28",
+  "GitHub|Global model policy generally available": "2026-08-28",
+  "GitHub|GitHub Apps can now access enterprise billing data": "2026-08-28"
  }
 }
