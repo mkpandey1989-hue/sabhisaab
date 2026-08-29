@@ -1,15 +1,17 @@
 {
  "down": false,
  "down_since": null,
- "lcur": 102,
+ "lcur": 108,
  "ok_links": [
   "https://agristack.gov.in/",
   "https://beeindia.gov.in/",
+  "https://cbic-gst.gov.in/",
   "https://dolr.gov.in",
   "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap",
   "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&amp;family=Inter:wght@400;500&amp;display=swap",
   "https://investor.sebi.gov.in",
   "https://investor.sebi.gov.in/",
+  "https://labour.gov.in/",
   "https://powermin.gov.in/",
   "https://ukfr.agristack.gov.in",
   "https://wa.me/?text=",
@@ -19,6 +21,7 @@
   "https://www.dicgc.org.in/",
   "https://www.epfindia.gov.in",
   "https://www.epfindia.gov.in/",
+  "https://www.gst.gov.in/",
   "https://www.incometax.gov.in",
   "https://www.incometax.gov.in/",
   "https://www.incometax.gov.in/iec/foportal/",
@@ -72,5 +75,5 @@
   "Web3Forms": "6effe5aa71bc",
   "IndexNow": "d41d8cd98f00"
  },
- "lastheavy": "2026-08-29"
+ "lastheavy": "2026-08-30"
 }
