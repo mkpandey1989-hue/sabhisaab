@@ -1,7 +1,7 @@
 {
  "down": false,
  "down_since": null,
- "lcur": 144,
+ "lcur": 150,
  "ok_links": [
   "https://agristack.gov.in/",
   "https://beeindia.gov.in/",
@@ -15,6 +15,7 @@
   "https://investor.sebi.gov.in/",
   "https://labour.gov.in",
   "https://labour.gov.in/",
+  "https://npstrust.org.in/",
   "https://powermin.gov.in/",
   "https://ukfr.agristack.gov.in",
   "https://wa.me/?text=",
@@ -32,6 +33,7 @@
   "https://www.incometax.gov.in/iec/foportal/downloads/income-tax-returns",
   "https://www.nin.res.in",
   "https://www.pfrda.org.in",
+  "https://www.pfrda.org.in/",
   "https://www.rbi.org.in",
   "https://www.rbi.org.in/",
   "https://www.sebi.gov.in/",
@@ -80,5 +82,5 @@
   "Web3Forms": "6effe5aa71bc",
   "IndexNow": "d41d8cd98f00"
  },
- "lastheavy": "2026-09-05"
+ "lastheavy": "2026-09-06"
 }
