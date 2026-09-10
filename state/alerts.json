@@ -107,6 +107,12 @@
   "Google Search|Search Central Live is coming to Bogota and Ciudad de México": "2026-09-09",
   "GitHub|GitHub Enterprise Server 3.22 is now generally available": "2026-09-09",
   "GitHub|New customer portal help.github.com": "2026-09-09",
-  "GitHub|Automatic Dependabot access to GitHub-hosted registries": "2026-09-09"
+  "GitHub|Automatic Dependabot access to GitHub-hosted registries": "2026-09-09",
+  "GitHub|CodeQL 2.27.0 adds support for Linux ARM64": "2026-09-10",
+  "GitHub|Enterprise managed permissions for GitHub Copilot agent operations": "2026-09-10",
+  "GitHub|GitHub Advanced Security expands trial availability": "2026-09-10",
+  "GitHub|Block pull requests with exposed secrets from merging": "2026-09-10",
+  "GitHub|Remediate Code Quality findings with agentic autofix": "2026-09-10",
+  "GitHub|Enterprise-managed sandbox in Copilot for JetBrains": "2026-09-10"
  }
 }
