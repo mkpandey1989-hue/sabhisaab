@@ -1,13 +1,15 @@
 {
  "down": false,
  "down_since": null,
- "lcur": 180,
+ "lcur": 186,
  "ok_links": [
   "https://agristack.gov.in/",
   "https://beeindia.gov.in/",
   "https://cbic-gst.gov.in",
   "https://cbic-gst.gov.in/",
   "https://cdnjs.cloudflare.com",
+  "https://cdnjs.com/libraries/qrcodejs",
+  "https://dictionaryapi.dev/",
   "https://dolr.gov.in",
   "https://doppw.gov.in",
   "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap",
@@ -18,16 +20,22 @@
   "https://labour.gov.in/",
   "https://npstrust.org.in",
   "https://npstrust.org.in/",
+  "https://open-meteo.com/en/terms",
   "https://parivahan.gov.in",
+  "https://policies.google.com/technologies/ads",
   "https://powermin.gov.in/",
   "https://ukfr.agristack.gov.in",
   "https://wa.me/?text=",
+  "https://web3forms.com/privacy",
+  "https://www.aboutads.info/choices/",
   "https://www.amfiindia.com",
   "https://www.amfiindia.com/",
   "https://www.cibil.com/",
   "https://www.dicgc.org.in/",
   "https://www.epfindia.gov.in",
   "https://www.epfindia.gov.in/",
+  "https://www.exchangerate-api.com/docs/free",
+  "https://www.google.com/settings/ads",
   "https://www.gst.gov.in",
   "https://www.gst.gov.in/",
   "https://www.incometax.gov.in",
@@ -47,7 +55,7 @@
  ],
  "src_hash": {
   "Income Tax": "d41d8cd98f00",
-  "RBI": "fbcda899b6ee"
+  "RBI": "edc665d51e7b"
  },
  "review": {
   "capital-gain-tax-calculator.html": "2026-08-12",
@@ -88,5 +96,5 @@
   "Web3Forms": "6effe5aa71bc",
   "IndexNow": "d41d8cd98f00"
  },
- "lastheavy": "2026-09-11"
+ "lastheavy": "2026-09-12"
 }
