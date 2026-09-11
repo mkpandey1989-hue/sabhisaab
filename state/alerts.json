@@ -113,6 +113,12 @@
   "GitHub|GitHub Advanced Security expands trial availability": "2026-09-10",
   "GitHub|Block pull requests with exposed secrets from merging": "2026-09-10",
   "GitHub|Remediate Code Quality findings with agentic autofix": "2026-09-10",
-  "GitHub|Enterprise-managed sandbox in Copilot for JetBrains": "2026-09-10"
+  "GitHub|Enterprise-managed sandbox in Copilot for JetBrains": "2026-09-10",
+  "GitHub|Refreshed repository pull requests page in public preview": "2026-09-11",
+  "GitHub|AI Scan for pull request APIs in public preview": "2026-09-11",
+  "GitHub|Control GitHub Actions cache access with cache-mode": "2026-09-11",
+  "GitHub|MAI-Code-1-Flash deprecated": "2026-09-11",
+  "GitHub|Xcode 27 runner image now runs on macOS 27": "2026-09-11",
+  "GitHub|npm extends recovery-code security holds to all accounts": "2026-09-11"
  }
 }
