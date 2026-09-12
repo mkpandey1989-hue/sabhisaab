@@ -1,7 +1,7 @@
 {
  "down": false,
  "down_since": null,
- "lcur": 186,
+ "lcur": 192,
  "ok_links": [
   "https://agristack.gov.in/",
   "https://beeindia.gov.in/",
@@ -96,5 +96,5 @@
   "Web3Forms": "6effe5aa71bc",
   "IndexNow": "d41d8cd98f00"
  },
- "lastheavy": "2026-09-12"
+ "lastheavy": "2026-09-13"
 }
