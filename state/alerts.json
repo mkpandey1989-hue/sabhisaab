@@ -133,6 +133,11 @@
   "GitHub|Enforce GitHub Advanced Security configurations": "2026-09-16",
   "GitHub|GitHub Copilot suggests custom properties definitions": "2026-09-16",
   "GitHub|SHA-1 in HTTPS on GitHub sunset": "2026-09-16",
-  "GitHub|Profiles now show your highest achievement badge tier": "2026-09-16"
+  "GitHub|Profiles now show your highest achievement badge tier": "2026-09-16",
+  "Google Search|Search Central Live Deep Dive Europe 2026: Meet the community speakers": "2026-09-17",
+  "GitHub|Automate SSO authorization for classic PATs and SSH keys": "2026-09-17",
+  "GitHub|SCIM user responses now include a profileUrl attribute": "2026-09-17",
+  "GitHub|Copilot budget increase requests are generally available": "2026-09-17",
+  "GitHub|Code scanning AI Scan no longer requires CodeQL default setup": "2026-09-17"
  }
 }
