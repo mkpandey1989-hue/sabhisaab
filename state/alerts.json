@@ -138,6 +138,10 @@
   "GitHub|Automate SSO authorization for classic PATs and SSH keys": "2026-09-17",
   "GitHub|SCIM user responses now include a profileUrl attribute": "2026-09-17",
   "GitHub|Copilot budget increase requests are generally available": "2026-09-17",
-  "GitHub|Code scanning AI Scan no longer requires CodeQL default setup": "2026-09-17"
+  "GitHub|Code scanning AI Scan no longer requires CodeQL default setup": "2026-09-17",
+  "GitHub|Copilot impact dashboard now shows feature engagement": "2026-09-18",
+  "GitHub|Agentic CLI customizations now in the usage metrics API": "2026-09-18",
+  "GitHub|Ubuntu 26 generally available and latest migration": "2026-09-18",
+  "GitHub|Workflow execution protections in GitHub Actions generally available": "2026-09-18"
  }
 }
