@@ -142,6 +142,11 @@
   "GitHub|Copilot impact dashboard now shows feature engagement": "2026-09-18",
   "GitHub|Agentic CLI customizations now in the usage metrics API": "2026-09-18",
   "GitHub|Ubuntu 26 generally available and latest migration": "2026-09-18",
-  "GitHub|Workflow execution protections in GitHub Actions generally available": "2026-09-18"
+  "GitHub|Workflow execution protections in GitHub Actions generally available": "2026-09-18",
+  "GitHub|Copilot code review: An improved review experience": "2026-09-19",
+  "GitHub|Manage the code coverage ruleset condition with the REST API": "2026-09-19",
+  "GitHub|GitHub Copilot weekly releases — September 14": "2026-09-19",
+  "GitHub|Upcoming deprecation of selected GitHub Copilot models in mid-October": "2026-09-19",
+  "GitHub|Stage-only npm tokens for safer automation": "2026-09-19"
  }
 }
