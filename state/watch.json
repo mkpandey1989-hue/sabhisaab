@@ -1,7 +1,7 @@
 {
  "down": false,
  "down_since": null,
- "lcur": 240,
+ "lcur": 246,
  "ok_links": [
   "https://agristack.gov.in/",
   "https://beeindia.gov.in/",
@@ -16,6 +16,7 @@
   "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&amp;family=Inter:wght@400;500&amp;display=swap",
   "https://investor.sebi.gov.in",
   "https://investor.sebi.gov.in/",
+  "https://irdai.gov.in/",
   "https://labour.gov.in",
   "https://labour.gov.in/",
   "https://npstrust.org.in",
@@ -55,7 +56,7 @@
  ],
  "src_hash": {
   "Income Tax": "d41d8cd98f00",
-  "RBI": "49adac90c4cc"
+  "RBI": "7916332d5eb6"
  },
  "review": {
   "capital-gain-tax-calculator.html": "2026-08-12",
@@ -96,5 +97,5 @@
   "Web3Forms": "6effe5aa71bc",
   "IndexNow": "d41d8cd98f00"
  },
- "lastheavy": "2026-09-21"
+ "lastheavy": "2026-09-22"
 }
