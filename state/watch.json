@@ -1,7 +1,7 @@
 {
  "down": false,
  "down_since": null,
- "lcur": 246,
+ "lcur": 252,
  "ok_links": [
   "https://agristack.gov.in/",
   "https://beeindia.gov.in/",
@@ -56,7 +56,7 @@
  ],
  "src_hash": {
   "Income Tax": "d41d8cd98f00",
-  "RBI": "7916332d5eb6"
+  "RBI": "ddc4f0f16e45"
  },
  "review": {
   "capital-gain-tax-calculator.html": "2026-08-12",
@@ -97,5 +97,5 @@
   "Web3Forms": "6effe5aa71bc",
   "IndexNow": "d41d8cd98f00"
  },
- "lastheavy": "2026-09-22"
+ "lastheavy": "2026-09-23"
 }
