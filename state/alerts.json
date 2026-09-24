@@ -24,6 +24,11 @@
    "text": "🔴 Mobile speed gir gaya — 98 se 81",
    "since": "2026-09-20",
    "days": 1
+  },
+  "🔴 Mobile speed gir gaya — 94 se 78": {
+   "text": "🔴 Mobile speed gir gaya — 94 se 78",
+   "since": "2026-09-24",
+   "days": 1
   }
  },
  "seen_news": {
@@ -162,6 +167,9 @@
   "GitHub|Claude Opus 5.5 is now available in GitHub Copilot": "2026-09-23",
   "GitHub|OpenAI&#8217;s GPT-6 Sol and GPT-6 Luna now available": "2026-09-23",
   "GitHub|Security improvements for SSH": "2026-09-23",
-  "GitHub|Deprecation notice: All-platform CodeQL bundle": "2026-09-23"
+  "GitHub|Deprecation notice: All-platform CodeQL bundle": "2026-09-23",
+  "GitHub|More ways to request and configure Copilot code reviews": "2026-09-24",
+  "GitHub|Node 20 is no longer available in GitHub Actions": "2026-09-24",
+  "GitHub|Local sandboxing in the GitHub Copilot app": "2026-09-24"
  }
 }
