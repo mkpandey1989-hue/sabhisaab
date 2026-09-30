@@ -184,6 +184,9 @@
   "GitHub|CodeQL 2.27.1 adds C and C++ query and Kotlin 2.4.20 support": "2026-09-26",
   "GitHub|Default Enablement of Copilot features for Copilot Business and Enterprise": "2026-09-26",
   "GitHub|Self-hosted runner version enforcement date has moved": "2026-09-29",
-  "GitHub|Claude Sonnet 5.5 in GitHub Copilot": "2026-09-29"
+  "GitHub|Claude Sonnet 5.5 in GitHub Copilot": "2026-09-29",
+  "GitHub|Repository custom runner settings for Dependabot": "2026-09-30",
+  "GitHub|Bring business context with external custom properties": "2026-09-30",
+  "GitHub|GPT-6.1 Sol in GitHub Copilot": "2026-09-30"
  }
 }
