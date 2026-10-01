@@ -187,6 +187,10 @@
   "GitHub|Claude Sonnet 5.5 in GitHub Copilot": "2026-09-29",
   "GitHub|Repository custom runner settings for Dependabot": "2026-09-30",
   "GitHub|Bring business context with external custom properties": "2026-09-30",
-  "GitHub|GPT-6.1 Sol in GitHub Copilot": "2026-09-30"
+  "GitHub|GPT-6.1 Sol in GitHub Copilot": "2026-09-30",
+  "GitHub|Opt-in dist-tag permissions for npm trusted publishing": "2026-10-01",
+  "GitHub|GitHub Advanced Security trials for GitHub Team": "2026-10-01",
+  "GitHub|HydraFusion in VS Code and the GitHub Copilot app": "2026-10-01",
+  "GitHub|X25519-only TLS ends for GHE.com on October 7": "2026-10-01"
  }
 }
