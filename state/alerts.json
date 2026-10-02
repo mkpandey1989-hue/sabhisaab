@@ -191,6 +191,16 @@
   "GitHub|Opt-in dist-tag permissions for npm trusted publishing": "2026-10-01",
   "GitHub|GitHub Advanced Security trials for GitHub Team": "2026-10-01",
   "GitHub|HydraFusion in VS Code and the GitHub Copilot app": "2026-10-01",
-  "GitHub|X25519-only TLS ends for GHE.com on October 7": "2026-10-01"
+  "GitHub|X25519-only TLS ends for GHE.com on October 7": "2026-10-01",
+  "GitHub|Rate limits for private vulnerability reports": "2026-10-02",
+  "GitHub|Structured forms for private vulnerability reports": "2026-10-02",
+  "GitHub|GitHub Copilot can now interact with desktop apps with computer use": "2026-10-02",
+  "GitHub|GitHub Actions: macOS 14 runner image retirement": "2026-10-02",
+  "GitHub|GitHub Copilot in VS Code, September 2026 releases": "2026-10-02",
+  "GitHub|Accessibility statements highlighted on repository overview": "2026-10-02",
+  "GitHub|Actions retention now covers checks, runs, and statuses": "2026-10-02",
+  "GitHub|Scheduled code scanning skips inactive repositories": "2026-10-02",
+  "GitHub|Code coverage uploads no longer fail CI for new branches": "2026-10-02",
+  "GitHub|Dynamic workflows in Copilot CLI and the Copilot app": "2026-10-02"
  }
 }
