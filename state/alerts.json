@@ -201,6 +201,12 @@
   "GitHub|Actions retention now covers checks, runs, and statuses": "2026-10-02",
   "GitHub|Scheduled code scanning skips inactive repositories": "2026-10-02",
   "GitHub|Code coverage uploads no longer fail CI for new branches": "2026-10-02",
-  "GitHub|Dynamic workflows in Copilot CLI and the Copilot app": "2026-10-02"
+  "GitHub|Dynamic workflows in Copilot CLI and the Copilot app": "2026-10-02",
+  "GitHub|Stateless GitHub App installation tokens rolled out": "2026-10-03",
+  "GitHub|Copilot code review: API support and new default effort level": "2026-10-03",
+  "GitHub|Selected models in GitHub Copilot deprecated": "2026-10-03",
+  "GitHub|New fields for SecurityAdvisory GraphQL API": "2026-10-03",
+  "GitHub|Confidential comments on repository security advisories": "2026-10-03",
+  "GitHub|Repository security advisory comments API in public preview": "2026-10-03"
  }
 }
