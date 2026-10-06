@@ -207,6 +207,9 @@
   "GitHub|Selected models in GitHub Copilot deprecated": "2026-10-03",
   "GitHub|New fields for SecurityAdvisory GraphQL API": "2026-10-03",
   "GitHub|Confidential comments on repository security advisories": "2026-10-03",
-  "GitHub|Repository security advisory comments API in public preview": "2026-10-03"
+  "GitHub|Repository security advisory comments API in public preview": "2026-10-03",
+  "GitHub|Secret scanning adds detectors for Lovable, Supabase, and more": "2026-10-06",
+  "GitHub|Unvalidated npm trusted publishing configurations now expire": "2026-10-06",
+  "GitHub|npm staged publishing now supports creating new packages": "2026-10-06"
  }
 }
