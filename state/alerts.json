@@ -210,6 +210,10 @@
   "GitHub|Repository security advisory comments API in public preview": "2026-10-03",
   "GitHub|Secret scanning adds detectors for Lovable, Supabase, and more": "2026-10-06",
   "GitHub|Unvalidated npm trusted publishing configurations now expire": "2026-10-06",
-  "GitHub|npm staged publishing now supports creating new packages": "2026-10-06"
+  "GitHub|npm staged publishing now supports creating new packages": "2026-10-06",
+  "Google Search|New learning paths: curated YouTube playlists for Search fundamentals and Technical SEO": "2026-10-07",
+  "GitHub|Update your IDE to restore agent activity in Copilot usage metrics": "2026-10-07",
+  "GitHub|Stacked pull requests generally available": "2026-10-07",
+  "GitHub|Code scanning AI Scan enablement status in security overview": "2026-10-07"
  }
 }
