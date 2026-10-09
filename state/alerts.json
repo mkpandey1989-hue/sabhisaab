@@ -218,6 +218,9 @@
   "GitHub|Claude Haiku 5.5 in GitHub Copilot": "2026-10-08",
   "GitHub|Purpose-built model for leaked secret detection": "2026-10-08",
   "GitHub|Local sandboxing for GitHub Copilot now generally available": "2026-10-08",
-  "GitHub|Discover local models in GitHub Copilot CLI": "2026-10-08"
+  "GitHub|Discover local models in GitHub Copilot CLI": "2026-10-08",
+  "GitHub|Triage role users or higher can now archive pull requests": "2026-10-09",
+  "GitHub|Screen readers can navigate timelines as lists": "2026-10-09",
+  "GitHub|Draft pull requests count toward pull request limits": "2026-10-09"
  }
 }
