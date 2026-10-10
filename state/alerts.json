@@ -29,6 +29,11 @@
    "text": "🔴 Mobile speed gir gaya — 94 se 78",
    "since": "2026-09-24",
    "days": 1
+  },
+  "🔴 Mobile speed gir gaya — 93 se 78": {
+   "text": "🔴 Mobile speed gir gaya — 93 se 78",
+   "since": "2026-10-10",
+   "days": 1
   }
  },
  "seen_news": {
@@ -221,6 +226,9 @@
   "GitHub|Discover local models in GitHub Copilot CLI": "2026-10-08",
   "GitHub|Triage role users or higher can now archive pull requests": "2026-10-09",
   "GitHub|Screen readers can navigate timelines as lists": "2026-10-09",
-  "GitHub|Draft pull requests count toward pull request limits": "2026-10-09"
+  "GitHub|Draft pull requests count toward pull request limits": "2026-10-09",
+  "GitHub|GitHub Copilot weekly releases — October 5": "2026-10-10",
+  "GitHub|CodeQL 2.27.2 improves C++, Go, Rust, and JavaScript analysis": "2026-10-10",
+  "GitHub|Copilot code review: New organization billing options and controls": "2026-10-10"
  }
 }
