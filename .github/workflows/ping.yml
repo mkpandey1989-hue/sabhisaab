@@ -20,22 +20,28 @@ name: Search engine ko khabar (Bing + IndexNow)
 #   notify.yml / deploy.yml / audit.yml / bot.yml / daily.yml / pending.yml /
 #   watch.yml / health.yml — sab jaise the waise hain. Ye ekdum alag file hai.
 #   Band karna ho to bas isi file ko delete kar dena, baaki kuch nahi bigdega.
+#
+# v3 (14 Oct 2026) — SPAM WALA SUDHAR:
+#   Roz ka cron har din POORE 262 URL IndexNow ko bhej raha tha, jabki site
+#   20 Aug ke baad badli hi nahi. ~49 din x 262 = ~12,800 bekaar submission.
+#   Bing ise spam maanta hai aur site par bharosa ghata deta hai.
+#   Ab:
+#     1) cron HATA diya — ye workflow sirf haath se chalegi
+#     2) Bing API aur IndexNow dono ko SIRF pichhle 3 din me badle URL jaate hain
+#     3) kuch nahi badla to kuch nahi bheja jaata — rotation band
 
 on:
-  schedule:
-    - cron: '53 3 * * *'      # roz ~9:30 AM IST. pending.yml 3:23 par chalti hai,
-                              # isliye 30 minute baad rakha — takraav na ho.
+  # v3: roz ka cron hata diya — bina badle URL roz bhejna Bing ke liye spam hai.
   workflow_dispatch:
     inputs:
       mode:
         description: 'Bing ko kaunse URL bhejein?'
         type: choice
         required: true
-        default: auto
+        default: naye
         options:
-          - auto        # naye/badle URL pehle, phir quota bharne tak rotation se
-          - naye        # sirf pichhle 3 din me badle hue URL
-          - rotate      # sirf rotation — aaj ka hissa
+          - naye        # sirf pichhle 3 din me badle hue URL (sahi tareeka)
+          - rotate      # sirf rotation — kabhi-kabhaar, haath se, soch kar
       limit:
         description: 'Zyada se zyada kitne URL (khaali = Bing ka quota khud puchho)'
         required: false
@@ -100,13 +106,13 @@ jobs:
       - name: URL chuno (naye pehle, phir rotation)
         id: pick
         env:
-          MODE: ${{ github.event.inputs.mode || 'auto' }}
+          MODE: ${{ github.event.inputs.mode || 'naye' }}
           DAILY: ${{ steps.quota.outputs.daily }}
         run: |
           python3 - <<'EOPY'
           import re, os, datetime
 
-          mode = os.environ.get("MODE") or "auto"
+          mode = os.environ.get("MODE") or "naye"
           try:
               cap = int((os.environ.get("DAILY") or "50").strip())
           except ValueError:
@@ -138,19 +144,14 @@ jobs:
               bing = fresh[:cap]
           elif mode == "rotate":
               bing = slice_for_today(cap)
-          else:                                   # auto
-              bing = list(fresh[:cap])
-              seen = set(bing)
-              for u in slice_for_today(cap):
-                  if len(bing) >= cap: break
-                  if u not in seen:
-                      bing.append(u); seen.add(u)
+          else:                                   # purana 'auto' bhi ab sirf naye
+              bing = fresh[:cap]
 
-          # IndexNow par koi quota nahi — usko poori list jaati hai
+          # v3: IndexNow ko bhi SIRF wahi URL jo badle hain — poori list kabhi nahi
           with open("bing.txt", "w", encoding="utf-8") as f:
               f.write("\n".join(bing))
           with open("urls.txt", "w", encoding="utf-8") as f:
-              f.write("\n".join(allurls))
+              f.write("\n".join(fresh))
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write("count=%d\n" % len(bing))
@@ -160,7 +161,7 @@ jobs:
 
           print("Mode: %s | quota cap: %d | sitemap me: %d" % (mode, cap, total))
           print("Bing ko ja rahe: %d  (naye: %d)" % (len(bing), len(fresh[:cap])))
-          print("IndexNow ko ja rahe: %d" % total)
+          print("IndexNow ko ja rahe: %d" % len(fresh))
           for u in bing[:10]:
               print("   ", u)
           EOPY
@@ -188,7 +189,7 @@ jobs:
               out("status", "no-key"); out("sent", "0")
               raise SystemExit(1)
           if not urls:
-              print("Aaj ka quota khatam — Bing ko kuch nahi bhejna.")
+              print("Koi URL nahi badla — Bing ko kuch nahi bhejna.")
               out("status", "quota-khatam"); out("sent", "0")
               raise SystemExit(0)
 
@@ -271,6 +272,9 @@ jobs:
           print("IndexNow key mil gayi (%d akshar)" % len(key))
 
           urls = [l.strip() for l in open("urls.txt", encoding="utf-8") if l.strip()]
+          if not urls:
+              print("Koi URL nahi badla — IndexNow ko kuch nahi bhejna (sahi hai).")
+              out("status", "skip"); raise SystemExit(0)
           body = json.dumps({
               "host": "sabhisaab.com",
               "key": key,
@@ -297,7 +301,7 @@ jobs:
         env:
           TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
-          MODE: ${{ github.event.inputs.mode || 'auto' }}
+          MODE: ${{ github.event.inputs.mode || 'naye' }}
           CAP: ${{ steps.pick.outputs.cap }}
           COUNT: ${{ steps.pick.outputs.count }}
           TOTAL: ${{ steps.pick.outputs.total }}
@@ -326,12 +330,13 @@ jobs:
           }.get(bs, "\u274C Bing: nahi bhej paye \u2014 %s" % (g("BING_ERR") or "pata nahi"))
 
           inow_line = {
-              "ok":     "\u2705 IndexNow: poore <b>%s</b> URL (Bing, Yandex, Naver, Seznam)" % total,
+              "ok":     "\u2705 IndexNow: sirf badle hue <b>%s</b> URL" % (g("FRESH") or "0"),
+              "skip":   "\u23F8 IndexNow: kuch nahi badla \u2014 kuch nahi bheja (sahi hai)",
               "no-key": "\u274C IndexNow: key file nahi mili",
               "fail":   "\u274C IndexNow: bhejne me dikkat",
           }.get(inow, "\u26A0\uFE0F IndexNow: %s" % (inow or "pata nahi"))
 
-          ok = (bs in ("ok", "quota-khatam") and inow == "ok")
+          ok = (bs in ("ok", "quota-khatam") and inow in ("ok", "skip"))
           head = ("\U0001F4E1 <b>Search engine ko khabar bhej di</b>"
                   if ok else "\u26A0\uFE0F <b>Khabar bhejne me dikkat</b>")
 
