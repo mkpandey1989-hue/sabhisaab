@@ -160,18 +160,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 <div style="margin-top:10px;opacity:.92">&copy; 2026 Sab Hisaab</div>
 </footer>
-<script>
-const RS=n=>'\u20B9'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:0});
-const RS2=n=>'\u20B9'+Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
-const NUM=n=>Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
-function v(id){let e=document.getElementById(id);return e?e.value:'';}
-const DISC='<div class="disc">\u26A0\uFE0F Ye anuman hai, sirf jaankari ke liye. Not SEBI registered. Nivesh/tax faisle se pehle salahkaar se milein.</div>';
-const calc=()=>{let P=+v('a'),A=P*Math.pow(1+ +v('r')/100/+v('c'),+v('c')*+v('y'));return `<div class="lbl">Maturity</div><div class="big">${RS(A)}</div><div class="rrow"><span>Byaj</span><b>${RS(A-P)}</b></div>`;};
-function run(){try{document.getElementById('res').innerHTML=calc();}catch(e){document.getElementById('res').innerHTML='<div class="hint">Sahi value daalein.</div>';}}
-document.getElementById('go').addEventListener('click',run);
-document.addEventListener('keydown',e=>{if(e.key==='Enter')run();});
-run();
-</script>
 
 <script>
 (function(){var b=document.getElementById('gShare');if(!b)return;
