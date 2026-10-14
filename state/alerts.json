@@ -37,11 +37,6 @@
   }
  },
  "seen_news": {
-  "GitHub|License data quality improvements": "2026-08-14",
-  "GitHub|Block users from comments in personal repositories": "2026-08-14",
-  "GitHub|Gemini 3.7 Flash is now available in GitHub Copilot": "2026-08-14",
-  "GitHub|Agent Plugins 1.0 in VS Code, Copilot CLI, and the Copilot app": "2026-08-14",
-  "GitHub|Rule insights for organizations in public preview": "2026-08-14",
   "GitHub|Grok 4.6 is now available in GitHub Copilot": "2026-08-15",
   "GitHub|GitHub Copilot weekly releases — August 10": "2026-08-15",
   "GitHub|Multiple redirect URIs and token refresh for OAuth apps": "2026-08-15",
@@ -217,6 +212,15 @@
   "Bing Webmaster|Supercharge Your Search Performance with Bing Webmaster Tools": "2026-10-13",
   "GitHub|Client telemetry user attribution and configurable capture": "2026-10-13",
   "GitHub|Push attribution for commits in limited public preview": "2026-10-13",
-  "GitHub|Anonymous organization-level registries for Dependabot": "2026-10-13"
+  "GitHub|Anonymous organization-level registries for Dependabot": "2026-10-13",
+  "Bing Webmaster|Introducing Topics Portfolio (Beta) in AI Performance": "2026-10-14",
+  "GitHub|GitHub App improvements for least privilege and management": "2026-10-14",
+  "GitHub|Gemini 4 Argon in GitHub Copilot": "2026-10-14",
+  "GitHub|Audit GitHub Code Quality finding dismissals and reopenings": "2026-10-14",
+  "GitHub|Secret scanning blocks Anthropic keys by default, adds Salesforce": "2026-10-14",
+  "GitHub|Enterprise managed settings enforcement updates": "2026-10-14",
+  "GitHub|Improved detection for withdrawn Dependabot alerts": "2026-10-14",
+  "GitHub|Search and filter for budgets now available": "2026-10-14",
+  "GitHub|Code scanning AI Scan metrics in security overview": "2026-10-14"
  }
 }
