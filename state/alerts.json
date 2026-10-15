@@ -37,9 +37,6 @@
   }
  },
  "seen_news": {
-  "GitHub|Grok 4.6 is now available in GitHub Copilot": "2026-08-15",
-  "GitHub|GitHub Copilot weekly releases — August 10": "2026-08-15",
-  "GitHub|Multiple redirect URIs and token refresh for OAuth apps": "2026-08-15",
   "GitHub|Enterprise managed settings in GitHub Copilot for JetBrains": "2026-08-19",
   "GitHub|Credential revocation and deauthorization by token type": "2026-08-19",
   "GitHub|Track organization code quality trends": "2026-08-19",
@@ -221,6 +218,8 @@
   "GitHub|Enterprise managed settings enforcement updates": "2026-10-14",
   "GitHub|Improved detection for withdrawn Dependabot alerts": "2026-10-14",
   "GitHub|Search and filter for budgets now available": "2026-10-14",
-  "GitHub|Code scanning AI Scan metrics in security overview": "2026-10-14"
+  "GitHub|Code scanning AI Scan metrics in security overview": "2026-10-14",
+  "GitHub|HydraFusion updates and new Max option": "2026-10-15",
+  "GitHub|GitHub Actions workflow lockfiles in public preview": "2026-10-15"
  }
 }
