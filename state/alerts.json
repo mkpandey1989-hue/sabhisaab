@@ -220,6 +220,12 @@
   "GitHub|Search and filter for budgets now available": "2026-10-14",
   "GitHub|Code scanning AI Scan metrics in security overview": "2026-10-14",
   "GitHub|HydraFusion updates and new Max option": "2026-10-15",
-  "GitHub|GitHub Actions workflow lockfiles in public preview": "2026-10-15"
+  "GitHub|GitHub Actions workflow lockfiles in public preview": "2026-10-15",
+  "GitHub|Multi-repo support and other improvements for GitHub Copilot in Slack and Microsoft Teams": "2026-10-16",
+  "GitHub|Download GitHub Code Quality license usage as a CSV": "2026-10-16",
+  "GitHub|Upcoming deprecation of selected GitHub Copilot models in mid-November": "2026-10-16",
+  "GitHub|AI Scan for pull requests generally available": "2026-10-16",
+  "GitHub|Agentic autofix for code scanning alerts general availability": "2026-10-16",
+  "GitHub|Email notifications for repository push events have been retired": "2026-10-16"
  }
 }
