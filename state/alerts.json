@@ -226,6 +226,9 @@
   "GitHub|Upcoming deprecation of selected GitHub Copilot models in mid-November": "2026-10-16",
   "GitHub|AI Scan for pull requests generally available": "2026-10-16",
   "GitHub|Agentic autofix for code scanning alerts general availability": "2026-10-16",
-  "GitHub|Email notifications for repository push events have been retired": "2026-10-16"
+  "GitHub|Email notifications for repository push events have been retired": "2026-10-16",
+  "GitHub|Open source license compliance generally available": "2026-10-17",
+  "GitHub|Xcode 27 runner image generally available": "2026-10-17",
+  "GitHub|Multi-repository support and other improvements for GitHub in Slack and Teams": "2026-10-17"
  }
 }
