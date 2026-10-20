@@ -37,7 +37,6 @@
   }
  },
  "seen_news": {
-  "GitHub|CodeQL 2.26.3 improves GitHub Actions queries and JavaScript modeling": "2026-08-20",
   "GitHub|Pinning saved views to the repository issues sidebar is generally available and more": "2026-08-21",
   "GitHub|Windows 11 arm64 VS2026 image generally available": "2026-08-21",
   "GitHub|Code scanning adds a mitigated alert dismissal reason": "2026-08-21",
@@ -226,6 +225,10 @@
   "GitHub|Email notifications for repository push events have been retired": "2026-10-16",
   "GitHub|Open source license compliance generally available": "2026-10-17",
   "GitHub|Xcode 27 runner image generally available": "2026-10-17",
-  "GitHub|Multi-repository support and other improvements for GitHub in Slack and Teams": "2026-10-17"
+  "GitHub|Multi-repository support and other improvements for GitHub in Slack and Teams": "2026-10-17",
+  "GitHub|Copilot model policy API for enterprise, orgs, and teams": "2026-10-20",
+  "GitHub|GitHub Copilot models deprecated on October 19, 2026": "2026-10-20",
+  "GitHub|Some Git over HTTPS may temporarily require authentication": "2026-10-20",
+  "GitHub|CodeQL changes for macOS 27, Xcode 27, and Swift 6.4": "2026-10-20"
  }
 }
