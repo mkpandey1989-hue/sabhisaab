@@ -6,6 +6,9 @@ on:
                               # dono ka time ek hi tha, isliye Sunday ko do report aati thin.
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
   group: sabhisaab-pending
   cancel-in-progress: false
@@ -36,6 +39,26 @@ jobs:
           TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python3 scripts/watch.py pending
+
+      # v10 (21 Oct 2026): kaun se indexing link bheje ja chuke hain, wo yaad rakhna
+      # zaroori hai (14 din tak dobara nahi). Isliye state ab yahan bhi save hoti hai.
+      - name: Yaad rakho
+        if: always()
+        run: |
+          git config user.name "Sab Hisaab bot"
+          git config user.email "contact@sabhisaab.com"
+          git add state/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "kuch nahi badla"; exit 0
+          fi
+          git commit -m "pending state $(date -u +%F)" --quiet
+          for i in 1 2 3; do
+            if git pull --rebase --autostash --quiet && git push --quiet; then
+              echo "push ho gaya (koshish $i)"; exit 0
+            fi
+            echo "push fail — koshish $i"; sleep $((i * 5))
+          done
+          echo "::warning::state push nahi ho paaya"
 
       # Pehle ye fail hone par Telegram par kuch nahi aata tha
       - name: Fail hua to Telegram par batao

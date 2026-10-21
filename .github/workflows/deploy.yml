@@ -57,6 +57,13 @@ jobs:
       - name: AUDIT - ek bhi ERROR mila to deploy yahin ruk jaayega
         run: python3 scripts/audit.py
 
+      # 14 Oct 2026: 13 calculator live par toote mile the jabki audit pass tha.
+      # Ye step har page ka calculator chala kar dekhta hai. Ek bhi toota -> deploy ruk jaayega.
+      - name: CALCULATOR TEST - har calculator chala kar dekho
+        run: |
+          npm install --no-save --no-audit --no-fund --silent --prefix /tmp/ct jsdom@24.1.3
+          NODE_PATH=/tmp/ct/node_modules python3 scripts/calc_test.py site
+
       - name: File ginti check
         run: |
           N=$(ls -1 site | wc -l)
@@ -129,15 +136,14 @@ jobs:
           if [ -z "$KEY" ]; then echo "IndexNow key file nahi mili - chhod rahe hain"; exit 0; fi
           echo "IndexNow key mil gayi (${#KEY} akshar)"
 
+          # v10 (21 Oct 2026) SURAKSHA: "sabhi" mode ab poori list NAHI bhejta.
+          # Bina badle saare URL baar-baar bhejna Bing ke liye spam hai — isi se
+          # ~12,800 submission hue the aur Bing ne bharosa gira diya tha.
+          # Ab "sabhi" chunne par bhi sirf badle hue URL hi jaate hain.
           if [ "$MODE" = "sabhi" ]; then
-            echo "Mode: SABHI URL"
-            python3 - > urls.txt <<'PY'
-          import re
-          sm = open("site/sitemap.xml", encoding="utf-8").read()
-          for u in re.findall(r"<loc>([^<]+)</loc>", sm):
-              print(u)
-          PY
-          else
+            echo "::warning::'sabhi' mode band hai (Bing spam se bachne ke liye) — sirf badle hue URL jaayenge"
+          fi
+          if true; then
             echo "Mode: sirf badle hue URL"
             # PEHLE: git diff HEAD~1 HEAD se URL chunte the.
             # Dikkat: ek deploy se pehle kai ZIP chadhti hain (kai commit), aur beech me
@@ -151,10 +157,9 @@ jobs:
           cut = (datetime.date.today() - datetime.timedelta(days=3)).isoformat()
           rows = re.findall(r"<loc>([^<]+)</loc>\s*<lastmod>([\d-]+)</lastmod>", sm)
           picked = [u for u, d in rows if d >= cut]
-          if not picked:                      # kuch naya nahi mila to sabse naye 20
-              rows.sort(key=lambda x: x[1], reverse=True)
-              picked = [u for u, _ in rows[:20]]
-          for u in picked[:10000]:
+          # v10: kuch nahi badla to KUCH NAHI bhejna (pehle "sabse naye 20" jaate the —
+          # wo bhi bina badle URL ka baar-baar submission tha). Ek baar me max 50.
+          for u in picked[:50]:
               print(u)
           PY
           fi

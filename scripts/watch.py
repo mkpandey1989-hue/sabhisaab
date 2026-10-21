@@ -134,6 +134,14 @@ SRC = {
     "India Post":  "https://www.nsiindia.gov.in/InternalPage.aspx?Id_Pk=180",
     "RBI":         "https://www.rbi.org.in/",
     "GST":         "https://www.gst.gov.in/",
+    # v10 (21 Oct 2026): naye page ke sarkari srot
+    "PM Kisan":    "https://pmkisan.gov.in/",
+    "PM Surya Ghar": "https://pmsuryaghar.gov.in/",
+}
+# Kis srot par kaunsa number dekhna hai. Jo yahan nahi, uska "%" wala number dekha jaata hai.
+SRC_PAT = {
+    "PM Kisan":      r"\b\d{1,2}\s*(?:st|nd|rd|th)\s+(?:install?ment|kist)\b|\b\d{1,2}(?:vi|vin|wi|wee)\s+kist\b",
+    "PM Surya Ghar": r"(?:Rs\.?|INR|\u20b9)\s?[\d,]{4,}",
 }
 AFFECT = {
     "Income Tax": "income-tax, tax-regime, advance-tax, capital-gain, tds, section-80c wale page",
@@ -141,6 +149,8 @@ AFFECT = {
     "India Post": "ppf, nsc, kvp, scss, sukanya, post-office-mis, mahila-samman wale page",
     "RBI":        "gold-loan, home-loan, emi, fd wale page",
     "GST":        "gst-calculator, gst-guide",
+    "PM Kisan":   "pm-kisan-calculator (LATEST aur LATEST_DATE) + tools.js me pmkisan — nayi kist aayi ho to",
+    "PM Surya Ghar": "pm-surya-ghar-solar-subsidy-calculator (subsidy ki rakam) + tools.js me solarsub",
 }
 def src_watch(st, alerts):
     h = st.get("src_hash", {})
@@ -148,7 +158,11 @@ def src_watch(st, alerts):
         code, body = get(url, 30)
         if code != 200 or not body: continue
         txt = re.sub(r"<script.*?</script>|<style.*?</style>|<[^>]+>", " ", body, flags=re.S)
-        nums = " ".join(re.findall(r"\d+(?:\.\d+)?\s*%", txt)[:60])
+        if name in SRC_PAT:            # naye srot: sirf kaam ka number, kram se — galat alarm kam
+            nums = " ".join(sorted(set(m.strip().lower() for m in re.findall(SRC_PAT[name], txt, flags=re.I)))[:60])
+            if not nums: continue      # kuch mila hi nahi (site ne block kiya / design badla)
+        else:                          # purane srot: bilkul pehle jaisa (warna sab par jhootha alarm)
+            nums = " ".join(re.findall(r"\d+(?:\.\d+)?\s*%", txt)[:60])
         key = hashlib.md5(nums.encode()).hexdigest()[:12]
         old = h.get(name)
         h[name] = key
@@ -163,6 +177,8 @@ REVIEW = {  # slug ka hissa : kitne din baad review
     "ppf": 90, "nsc": 90, "kvp": 90, "scss": 90, "sukanya": 90, "post-office": 90,
     "mahila-samman": 90, "epf": 180, "income-tax": 90, "tax-regime": 90, "gst": 120,
     "capital-gain": 90, "tds": 90, "section-80c": 90, "gold-loan": 180, "stamp-duty": 180,
+    # v10: naye page — kist/subsidy/sone ka hisaab jaldi purana hota hai
+    "pm-kisan": 45, "pm-surya-ghar": 90, "gold-jewellery": 120,
 }
 def stale(st, alerts):
     if not os.path.isdir("site"): return
@@ -217,7 +233,7 @@ def pending(st):
     idx = d.get("status", {})
     if idx:
         notok = sum(1 for v in idx.values() if not v.get("ok"))
-        if notok: out.append(("🟠", f"{notok} page abhi index nahi hue", "roz 12 dabayein"))
+        if notok: out.append(("🟠", f"{notok} page abhi index nahi hue", "roz 10 link aate hain — har ek par Request Indexing"))
     if d.get("unused"): out.append(("🟠", f"{len(d['unused'])} faltu file", "Telegram se hatayein"))
     wd = a.get("warn_detail", {})
     for k, v in list(wd.items())[:5]:
@@ -225,6 +241,35 @@ def pending(st):
     if d.get("psi_mobile", 100) < 90:
         out.append(("🟠", f"Mobile speed {d.get('psi_mobile')} — 90 chahiye", "images/JS"))
     return out
+
+# ---------------------------------------------------------------- 7. aaj ke indexing link
+PEND_MAX, PEND_GAP = 10, 14     # roz zyada se zyada 10 link; ek URL 14 din me ek hi baar
+def pending_links(st):
+    """Google me jo page index nahi hue, unme se aaj ke 10 — sabse naye/badle pehle.
+    Google "Request Indexing" ka koi jaayaz API nahi (Indexing API sirf naukri/live-event
+    pages ke liye hai), isliye bot sirf ek-tap link deta hai, dabana aapko hai.
+    Jo URL bheja ja chuka hai, wo 14 din tak dobara nahi aata (state/watch.json me yaad)."""
+    import urllib.parse
+    d = load("state/daily.json", {})
+    idx = d.get("status", {})
+    notok = [u for u, v in idx.items() if not v.get("ok")]
+    if not notok: return []
+    lm = {}
+    try:
+        sm = open("site/sitemap.xml", encoding="utf-8").read()
+        lm = dict(re.findall(r"<loc>([^<]+)</loc>\s*<lastmod>([\d-]+)</lastmod>", sm))
+    except Exception: pass
+    sent = st.get("pend_sent", {})
+    cut = (today() - datetime.timedelta(days=PEND_GAP)).isoformat()
+    sent = {u: dt for u, dt in sent.items() if dt >= cut and u in idx}   # purana hisaab saaf
+    fresh = [u for u in notok if u not in sent]
+    fresh.sort(key=lambda u: lm.get(u, ""), reverse=True)            # naye/badle page pehle
+    pick = fresh[:PEND_MAX]
+    for u in pick: sent[u] = str(today())
+    st["pend_sent"] = sent
+    prop = urllib.parse.quote("sc-domain:sabhisaab.com", safe="")
+    return [(u, "https://search.google.com/search-console/inspect?resource_id=%s&id=%s"
+             % (prop, urllib.parse.quote(u, safe=""))) for u in pick]
 
 # ---------------------------------------------------------------- main
 def main():
@@ -247,6 +292,12 @@ def main():
         if p:
             txt = "<b>📋 PENDING KAAM</b> — " + str(today()) + "\n\n"
             for ic, what, how in p: txt += f"{ic} {what}\n   <i>{how}</i>\n"
+            links = pending_links(st)
+            if links:
+                txt += "\n<b>🔗 Aaj ke indexing link</b> (kholo &rarr; Request Indexing):\n"
+                for u, g in links:
+                    txt += f'• <a href="{g}">{esc(u.replace("https://sabhisaab.com/", "/"))}</a>\n'
+                txt += "<i>Ye link 14 din tak dobara nahi aayenge.</i>\n"
             txt += f"\nKul pending: <b>{len(p)}</b>"
             tg(txt, [[{"text": "🛠 Audit chalao", "callback_data": "do:audit"},
                       {"text": "📑 Indexing", "callback_data": "m:idx"}]])

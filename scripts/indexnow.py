@@ -32,6 +32,12 @@ def submit(urls):
 if __name__ == "__main__":
     args = sys.argv[1:]
     if args and args[0] == "--all":
+        # v10 (21 Oct 2026) SURAKSHA: saare URL ek saath bhejna Bing ke liye spam hai
+        # (~12,800 submission ki galti yahin se seekhi). Ab --all tabhi chalega jab
+        # INDEXNOW_FORCE=1 ho — galti se button dabne par kuch nahi jaayega.
+        if os.environ.get("INDEXNOW_FORCE") != "1":
+            log("IndexNow --all BAND hai (Bing spam se bachne ke liye). Sirf badle URL bhejein.")
+            sys.exit(0)
         from lib import all_pages, slug_of
         u = [url_of(slug_of(f)) for f in all_pages()
              if f not in ("404.html", "googleb9a1fd91a1579ee6.html")]

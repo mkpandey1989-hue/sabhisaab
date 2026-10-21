@@ -114,7 +114,6 @@ const MENUS = {
     [{ text: "❓ Kyun index nahi hua", callback_data: "do:kyun" }],
     [{ text: "🤖 Googlebot kab aaya", callback_data: "do:crawl" }],
     [{ text: "IndexNow: badle URL", callback_data: "d:badle-hue" }],
-    [{ text: "IndexNow: sabhi URL", callback_data: "d:sabhi" }],
     back]) },
   spd: { t: "<b>⚡ Speed</b>", k: kb([
     [{ text: "Mobile", callback_data: "s:mobile" }, { text: "Desktop", callback_data: "s:desktop" }],
@@ -124,7 +123,6 @@ const MENUS = {
     [{ text: "Pichhla natija", callback_data: "do:auditlast" }], back]) },
   dep: { t: "<b>🚀 Deploy</b>", k: kb([
     [{ text: "Deploy (badle URL ping)", callback_data: "d:badle-hue" }],
-    [{ text: "Deploy + sabhi URL ping", callback_data: "d:sabhi" }],
     [{ text: "Deploy (koi ping nahi)", callback_data: "d:koi-nahi" }],
     [{ text: "Pichhle 5 run", callback_data: "do:status" }], back]) },
   cf: { t: "<b>☁️ Cloudflare</b>", k: kb([
@@ -764,8 +762,8 @@ function auditHtml(name, s) {
   if (/<input[^>]*type="number"/.test(s) && !/inputmode/.test(s)) P.push("number wale input par inputmode nahi — phone par galat keyboard khulega.");
   const ext = [...s.matchAll(/<a [^>]*href="https?:\/\/(?!sabhisaab)[^"]*"[^>]*>/g)].map((m) => m[0]);
   if (ext.some((a) => !/noopener/.test(a))) P.push("bahari link par rel=\"noopener\" nahi hai.");
-  const bad = /\b(15[0-9]|16[0-9]|17[0-9]|18[0-2])\b[^0-9]{0,20}(tool|calculator)/i.exec(s);
-  if (bad) W.push(`purani tool ginti likhi lagti hai (${bad[1]}) — abhi 183 hai.`);
+  const bad = /\b(15[0-9]|16[0-9]|17[0-9]|18[0-7])\b[^0-9]{0,20}(tool|calculator)/i.exec(s);
+  if (bad) W.push(`purani tool ginti likhi lagti hai (${bad[1]}) — abhi 188 hai (naya tool jodne par Ginti sync chalayein).`);
   if (/FY 2025-26|AY 2026-27/.test(s)) W.push("purana FY 2025-26 label hai.");
 
   return { P, W, words };
@@ -1075,7 +1073,7 @@ async function doKyun(env, mid, arg) {
   const patla = info.filter((o) => o.mila && o.shabd < 900);
   const facts = info.map((o) => `${o.slug} | ${o.state} | ${o.shabd} shabd | ${o.table} table | ${o.faq} FAQ`).join("\n");
   const ai = await think(env,
-    "Tum Manoj ke SEO sahayak ho. Site sabhisaab.com — Hinglish calculator site, 264 page, 183 tool.\n" +
+    "Tum Manoj ke SEO sahayak ho. Site sabhisaab.com — Hinglish calculator site, 270 page, 188 tool.\n" +
     "Neeche un page ka asli Google data hai jo index nahi hue.\n\n" +
     "NIYAM:\n" +
     "1. Hinglish me, 5-7 line se zyada nahi.\n" +
@@ -1757,7 +1755,7 @@ async function aiTalk(env, mid, t) {
   const out = await (halki ? thinkSasta : think)(env,
       "Tum 'Sab Hisaab' ke maalik Manoj ke apne sahayak ho. Unki website sabhisaab.com hai.\n\n" +
       "SITE KA SACH:\n" +
-      "- Hinglish calculator site: 264 page, 183 tool, 38 guide, 24 lekh. Cloudflare Pages par, GitHub Actions se deploy.\n" +
+      "- Hinglish calculator site: 270 page, 188 tool, 39 guide, 24 lekh. Cloudflare Pages par, GitHub Actions se deploy.\n" +
       "- Sab kuch pehle se laga hua hai: sitemap, schema (FAQ/Breadcrumb/WebApplication), canonical, IndexNow, " +
       "security headers grade A, consent banner, internal linking, hub pages, GSC aur GA4 juda hua.\n" +
       "- " + f.indexed + " page Google me index hain, " + f.pending + " baaki. Audit me ERROR " + f.err + ", WARNING " + f.warn + ".\n" +
