@@ -37,11 +37,6 @@
   }
  },
  "seen_news": {
-  "GitHub|Pinning saved views to the repository issues sidebar is generally available and more": "2026-08-21",
-  "GitHub|Windows 11 arm64 VS2026 image generally available": "2026-08-21",
-  "GitHub|Code scanning adds a mitigated alert dismissal reason": "2026-08-21",
-  "GitHub|Separate GitHub Actions path for GitHub Code Quality": "2026-08-21",
-  "GitHub|Track GitHub Code Quality enablement changes in the audit log": "2026-08-21",
   "GitHub|Better tools for managing blocked users": "2026-08-22",
   "GitHub|The new GitHub Copilot experience in Slack": "2026-08-22",
   "GitHub|Shared agentic work with GitHub Copilot in Microsoft Teams": "2026-08-22",
@@ -229,6 +224,11 @@
   "GitHub|Copilot model policy API for enterprise, orgs, and teams": "2026-10-20",
   "GitHub|GitHub Copilot models deprecated on October 19, 2026": "2026-10-20",
   "GitHub|Some Git over HTTPS may temporarily require authentication": "2026-10-20",
-  "GitHub|CodeQL changes for macOS 27, Xcode 27, and Swift 6.4": "2026-10-20"
+  "GitHub|CodeQL changes for macOS 27, Xcode 27, and Swift 6.4": "2026-10-20",
+  "GitHub|Bulk migrate branch protections to rulesets for a repository": "2026-10-21",
+  "GitHub|Updates to GitHub secret scanning": "2026-10-21",
+  "GitHub|Dependabot alerts REST API now includes dependency versions": "2026-10-21",
+  "GitHub|GitHub package firewall in public preview": "2026-10-21",
+  "GitHub|Dependabot now supports npm 12, pnpm 11 and 12, and Bun 1.4": "2026-10-21"
  }
 }
