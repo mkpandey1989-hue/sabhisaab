@@ -28,7 +28,7 @@
   "🔴 Mobile speed gir gaya — 94 se 78": {
    "text": "🔴 Mobile speed gir gaya — 94 se 78",
    "since": "2026-09-24",
-   "days": 1
+   "days": 2
   },
   "🔴 Mobile speed gir gaya — 93 se 78": {
    "text": "🔴 Mobile speed gir gaya — 93 se 78",
@@ -37,9 +37,6 @@
   }
  },
  "seen_news": {
-  "GitHub|Better tools for managing blocked users": "2026-08-22",
-  "GitHub|The new GitHub Copilot experience in Slack": "2026-08-22",
-  "GitHub|Shared agentic work with GitHub Copilot in Microsoft Teams": "2026-08-22",
   "GitHub|Rule insights dashboard generally available": "2026-08-26",
   "GitHub|GitHub Copilot app Customize tab is generally available": "2026-08-26",
   "GitHub|Block users directly from security advisories": "2026-08-26",
@@ -229,6 +226,7 @@
   "GitHub|Updates to GitHub secret scanning": "2026-10-21",
   "GitHub|Dependabot alerts REST API now includes dependency versions": "2026-10-21",
   "GitHub|GitHub package firewall in public preview": "2026-10-21",
-  "GitHub|Dependabot now supports npm 12, pnpm 11 and 12, and Bun 1.4": "2026-10-21"
+  "GitHub|Dependabot now supports npm 12, pnpm 11 and 12, and Bun 1.4": "2026-10-21",
+  "GitHub|GitHub CLI: Opt in to expiring, auto-refreshing OAuth tokens": "2026-10-22"
  }
 }
