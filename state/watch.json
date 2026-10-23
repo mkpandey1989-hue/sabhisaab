@@ -1,9 +1,10 @@
 {
  "down": false,
  "down_since": null,
- "lcur": 168,
+ "lcur": 174,
  "ok_links": [
   "https://agristack.gov.in/",
+  "https://agriwelfare.gov.in",
   "https://beeindia.gov.in/",
   "https://cbic-gst.gov.in",
   "https://cbic-gst.gov.in/",
@@ -58,7 +59,7 @@
  ],
  "src_hash": {
   "Income Tax": "d41d8cd98f00",
-  "RBI": "17fd5e41eded"
+  "RBI": "42951b19bf8e"
  },
  "review": {
   "capital-gain-tax-calculator.html": "2026-08-12",
@@ -103,7 +104,7 @@
   "Web3Forms": "6effe5aa71bc",
   "IndexNow": "d41d8cd98f00"
  },
- "lastheavy": "2026-10-23",
+ "lastheavy": "2026-10-24",
  "pend_sent": {
   "https://sabhisaab.com/fire-number-calculator": "2026-10-22",
   "https://sabhisaab.com/buy-vs-rent-guide": "2026-10-22",
