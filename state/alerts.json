@@ -227,6 +227,13 @@
   "GitHub|Dependabot alerts REST API now includes dependency versions": "2026-10-21",
   "GitHub|GitHub package firewall in public preview": "2026-10-21",
   "GitHub|Dependabot now supports npm 12, pnpm 11 and 12, and Bun 1.4": "2026-10-21",
-  "GitHub|GitHub CLI: Opt in to expiring, auto-refreshing OAuth tokens": "2026-10-22"
+  "GitHub|GitHub CLI: Opt in to expiring, auto-refreshing OAuth tokens": "2026-10-22",
+  "GitHub|GitHub Copilot in Visual Studio — September update": "2026-10-23",
+  "GitHub|Custom skills, agents, and MCP servers in usage metrics API": "2026-10-23",
+  "GitHub|Global default for Copilot features generally available": "2026-10-23",
+  "GitHub|Meta API endpoints updated for Actions blob storage": "2026-10-23",
+  "GitHub|Public monitoring now available with data residency": "2026-10-23",
+  "GitHub|Pull requests: Saved whitespace preferences and improved split view": "2026-10-23",
+  "GitHub|Industry comparisons in the Copilot impact dashboard": "2026-10-23"
  }
 }
