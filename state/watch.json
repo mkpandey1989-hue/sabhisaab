@@ -1,7 +1,7 @@
 {
  "down": false,
  "down_since": null,
- "lcur": 174,
+ "lcur": 180,
  "ok_links": [
   "https://agristack.gov.in/",
   "https://agriwelfare.gov.in",
@@ -21,10 +21,12 @@
   "https://irdai.gov.in/",
   "https://labour.gov.in",
   "https://labour.gov.in/",
+  "https://mnre.gov.in",
   "https://npstrust.org.in",
   "https://npstrust.org.in/",
   "https://open-meteo.com/en/terms",
   "https://parivahan.gov.in",
+  "https://pmsuryaghar.gov.in",
   "https://policies.google.com/technologies/ads",
   "https://powermin.gov.in/",
   "https://ukfr.agristack.gov.in",
@@ -104,7 +106,7 @@
   "Web3Forms": "6effe5aa71bc",
   "IndexNow": "d41d8cd98f00"
  },
- "lastheavy": "2026-10-24",
+ "lastheavy": "2026-10-25",
  "pend_sent": {
   "https://sabhisaab.com/fire-number-calculator": "2026-10-22",
   "https://sabhisaab.com/buy-vs-rent-guide": "2026-10-22",
