@@ -234,6 +234,11 @@
   "GitHub|Meta API endpoints updated for Actions blob storage": "2026-10-23",
   "GitHub|Public monitoring now available with data residency": "2026-10-23",
   "GitHub|Pull requests: Saved whitespace preferences and improved split view": "2026-10-23",
-  "GitHub|Industry comparisons in the Copilot impact dashboard": "2026-10-23"
+  "GitHub|Industry comparisons in the Copilot impact dashboard": "2026-10-23",
+  "GitHub|Usage metrics API adds usage from tools like OpenCode": "2026-10-24",
+  "GitHub|Turn notifications into code with GitHub Copilot in Teams": "2026-10-24",
+  "GitHub|EMU deletions fix": "2026-10-24",
+  "GitHub|Public monitoring adds triage, validity, API, and webhooks": "2026-10-24",
+  "GitHub|Enterprise installations for GitHub Apps generally available": "2026-10-24"
  }
 }
