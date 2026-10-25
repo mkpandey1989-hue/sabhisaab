@@ -1,7 +1,7 @@
 {
  "down": false,
  "down_since": null,
- "lcur": 180,
+ "lcur": 186,
  "ok_links": [
   "https://agristack.gov.in/",
   "https://agriwelfare.gov.in",
@@ -106,7 +106,7 @@
   "Web3Forms": "6effe5aa71bc",
   "IndexNow": "d41d8cd98f00"
  },
- "lastheavy": "2026-10-25",
+ "lastheavy": "2026-10-26",
  "pend_sent": {
   "https://sabhisaab.com/fire-number-calculator": "2026-10-22",
   "https://sabhisaab.com/buy-vs-rent-guide": "2026-10-22",
