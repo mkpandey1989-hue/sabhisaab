@@ -1,4 +1,4 @@
-/* Sab Hisaab — "App jaisa install karein" button (v1)
+/* Sab Hisaab — "App jaisa install karein" button + footer social links (v2)
    Har page par bas ye ek line <body> ke end se pehle daalein:
    <script src="/install-app.js" defer></script>
 
@@ -18,6 +18,38 @@
       navigator.serviceWorker.register('/sw.js').catch(function () {});
     });
   }
+
+
+  // 0) Footer me hamare social channel (v2, 28 Oct 2026) - ek jagah se, saare page par
+  try {
+    var SOCIAL = [["Suno Natak", [["YouTube", "https://www.youtube.com/@sunonatak"], ["Facebook", "https://www.facebook.com/sunonatak"], ["Instagram", "https://www.instagram.com/sunonatak"], ["Threads", "https://www.threads.net/@sunonatak"]]], ["Sab Hisaab Money", [["YouTube", "https://www.youtube.com/@sabhisaabmoney"], ["Facebook", "https://www.facebook.com/sabhisaabmoney"], ["Instagram", "https://www.instagram.com/sabhisaabmoney"], ["Threads", "https://www.threads.net/@sabhisaabmoney"]]], ["Labh Lo Deals", [["YouTube", "https://www.youtube.com/@labhlodeals"], ["Facebook", "https://www.facebook.com/labhlodeals"], ["Instagram", "https://www.instagram.com/labhlodeals"], ["Threads", "https://www.threads.net/@labhlodeals"]]], ["Pahadi Hisaab", [["YouTube", "https://www.youtube.com/@pahadihisaab"], ["Facebook", "https://www.facebook.com/pahadihisaab"], ["Instagram", "https://www.instagram.com/pahadihisaab"], ["Threads", "https://www.threads.net/@pahadihisaab"]]], ["WhatsApp", [["Sab Hisaab", "https://whatsapp.com/channel/0029Vb8rHA5EFeXmREHFHk3n"]]], ["Telegram", [["t.me/sabhisaab", "https://t.me/sabhisaab"]]], ["Pinterest", [["sabhisaabcom", "https://www.pinterest.com/sabhisaabcom/"]]]];
+    var footer = document.querySelector('footer');
+    if (footer && !document.getElementById('shSocial') && !document.getElementById('shSocialStatic')) {
+      var box = document.createElement('div');
+      box.id = 'shSocial';
+      box.style.cssText = 'max-width:1100px;margin:10px auto 0;padding:10px 16px;font-size:.85rem;line-height:1.9;text-align:center';
+      var head = document.createElement('b');
+      head.textContent = 'Hamare channel: ';
+      box.appendChild(head);
+      SOCIAL.forEach(function (b) {
+        var s = document.createElement('span');
+        s.style.cssText = 'display:inline-block;margin:0 8px';
+        s.appendChild(document.createTextNode(b[0] + ' '));
+        b[1].forEach(function (x) {
+          var a = document.createElement('a');
+          a.href = x[1]; a.textContent = x[0]; a.target = '_blank'; a.rel = 'noopener';
+          a.style.cssText = 'margin:0 3px';
+          s.appendChild(a);
+        });
+        box.appendChild(s);
+      });
+      var all = document.createElement('a');
+      all.href = '/links'; all.textContent = 'Saare link';
+      all.style.cssText = 'margin-left:8px;font-weight:600';
+      box.appendChild(all);
+      footer.appendChild(box);
+    }
+  } catch (e) {}
 
   // Pehle se app-mode me chal raha hai? To button ki zaroorat nahi.
   var standalone =

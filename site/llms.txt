@@ -11,14 +11,14 @@ Zaroori baat: ye site jaankari deti hai, salah nahi. Hum SEBI-registered investm
 ## Mukhya hisse
 
 - [Saare tools](https://sabhisaab.com/): 188 calculator, category ke hisaab se
-- [Nivesh calculators](https://sabhisaab.com/nivesh-calculators): 40 tools — SIP, lumpsum, PPF, NPS, FD, RD, retirement
-- [Loan aur Tax](https://sabhisaab.com/loan-tax-calculators): 33 tools — EMI, prepayment, income tax, GST, HRA, TDS
+- [Nivesh calculators](https://sabhisaab.com/nivesh-calculators): 51 tools — SIP, lumpsum, PPF, NPS, FD, RD, retirement
+- [Loan aur Tax](https://sabhisaab.com/loan-tax-calculators): 53 tools — EMI, prepayment, income tax, GST, HRA, TDS
 - [Trading](https://sabhisaab.com/trading-calculators): 9 tools — intraday P&L, position size, brokerage, risk-reward
 - [Sehat](https://sabhisaab.com/sehat-calculators): 11 tools — BMI, BMR, TDEE, body fat, ideal weight
 - [Converter](https://sabhisaab.com/converter-tools): 9 tools — bigha, nali-mutthi, hectare, unit, temperature
-- [Rozana](https://sabhisaab.com/rozana-calculators): 27 tools — bijli bill, fuel cost, bill split, tile, paint
-- [Utility](https://sabhisaab.com/utility-tools): 25 tools — word counter, password, QR code, number to words
-- [Guides](https://sabhisaab.com/guides): 38 vistaar se likhi gayi guides
+- [Rozana](https://sabhisaab.com/rozana-calculators): 29 tools — bijli bill, fuel cost, bill split, tile, paint
+- [Utility](https://sabhisaab.com/utility-tools): 26 tools — word counter, password, QR code, number to words
+- [Guides](https://sabhisaab.com/guides): 39 vistaar se likhi gayi guides
 - [Articles](https://sabhisaab.com/articles): 24 lekh, asli sawaalon par
 
 ## Khaas jaankari jo kahin aur kam milti hai
@@ -36,3 +36,15 @@ Zaroori baat: ye site jaankari deti hai, salah nahi. Hum SEBI-registered investm
 - [Sampark](https://sabhisaab.com/contact)
 - [Privacy Policy](https://sabhisaab.com/privacy)
 - [Disclaimer](https://sabhisaab.com/disclaimer)
+- [Terms](https://sabhisaab.com/terms)
+- [Hamare channel](https://sabhisaab.com/links)
+
+## Hamare social channel (brand)
+
+- Suno Natak (Paise ki kahaniyan — loan, EMI aur bachat ke sabak): [YouTube](https://www.youtube.com/@sunonatak), [Facebook](https://www.facebook.com/sunonatak), [Instagram](https://www.instagram.com/sunonatak), [Threads](https://www.threads.net/@sunonatak)
+- Sab Hisaab Money (SIP, bachat aur nivesh ki aam jaankari): [YouTube](https://www.youtube.com/@sabhisaabmoney), [Facebook](https://www.facebook.com/sabhisaabmoney), [Instagram](https://www.instagram.com/sabhisaabmoney), [Threads](https://www.threads.net/@sabhisaabmoney)
+- Labh Lo Deals (Bachat, tax aur deals ki aasaan jaankari): [YouTube](https://www.youtube.com/@labhlodeals), [Facebook](https://www.facebook.com/labhlodeals), [Instagram](https://www.instagram.com/labhlodeals), [Threads](https://www.threads.net/@labhlodeals)
+- Pahadi Hisaab (Nali, mutthi, bigha, kheti aur Uttarakhand ki yojana): [YouTube](https://www.youtube.com/@pahadihisaab), [Facebook](https://www.facebook.com/pahadihisaab), [Instagram](https://www.instagram.com/pahadihisaab), [Threads](https://www.threads.net/@pahadihisaab)
+- WhatsApp channel: https://whatsapp.com/channel/0029Vb8rHA5EFeXmREHFHk3n
+- Telegram channel: https://t.me/sabhisaab
+- Pinterest: https://www.pinterest.com/sabhisaabcom/

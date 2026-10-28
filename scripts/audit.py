@@ -5,7 +5,7 @@ Har check ka jawab ZERO aana chahiye. Exit code 0 = pass, 1 = fail.
 Usage:  python3 scripts/audit.py            (poori site)
         python3 scripts/audit.py page.html  (sirf ek page)
 """
-import re, os, sys, json, glob, html as H, difflib, collections, subprocess
+import re, os, sys, json, glob, html as H, difflib, collections, subprocess, shutil
 
 TYPOS = {
     "kholha": "khola", "tootа": "toota", "bharне": "bharne",
@@ -29,10 +29,14 @@ def p_slugsafe(x):
     return re.sub(r"[^a-z0-9]+", "_", x.lower())
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lib import cfg, site_dir, read, log
+# 29 Oct 2026: VM (sabhinet bot) par node na ho to audit crash hota tha (khali "Audit fail").
+# Ab: node mile to poori JS jaanch; na mile to sirf WARNING - GitHub deploy (jahan node hai) par JS jaanch phir bhi hoti hai.
+NODE = shutil.which("node")
+_NODE_WARN = []
 
 SKIP_ALL = {"googleb9a1fd91a1579ee6.html"}
 SKIP_SEO = {"404.html"}
-LEGAL = {"about", "contact", "privacy", "terms", "disclaimer", "services", "author", "index"}
+LEGAL = {"about", "contact", "privacy", "terms", "disclaimer", "services", "author", "index", "links"}
 ENT = re.compile(r"&(?:[a-zA-Z][a-zA-Z0-9]{1,31};|#\d{1,7};|#[xX][0-9a-fA-F]{1,6};)")
 
 P = collections.OrderedDict()   # ERROR — deploy rok deta hai
@@ -191,7 +195,12 @@ def main(only=None):
             if not js.strip() or '"@context"' in js: continue
             fn = "/tmp/_js_%s_%d.js" % (p_slugsafe(f), i)
             open(fn, "w", encoding="utf-8").write(js)
-            r = subprocess.run(["node", "--check", fn], capture_output=True, text=True)
+            if not NODE:
+                if not _NODE_WARN:
+                    _NODE_WARN.append(1)
+                    warn("Code: node nahi mila - JS jaanch GitHub deploy par hogi", "VM par: sudo apt install nodejs")
+                continue
+            r = subprocess.run([NODE, "--check", fn], capture_output=True, text=True)
             if r.returncode != 0:
                 bad("Code: JavaScript toota hai", (f, r.stderr.strip().split("\n")[0][:90]))
         # 5. paragraph ka dohraav isi page par
@@ -334,7 +343,12 @@ def main(only=None):
 
         # site/ ki alag .js file ka syntax bhi jaancho (tools.js, install-app.js, sw.js)
         for jf in sorted(glob.glob(os.path.join(d, "*.js"))):
-            r = subprocess.run(["node", "--check", jf], capture_output=True, text=True)
+            if not NODE:
+                if not _NODE_WARN:
+                    _NODE_WARN.append(1)
+                    warn("Code: node nahi mila - JS jaanch GitHub deploy par hogi", "VM par: sudo apt install nodejs")
+                continue
+            r = subprocess.run([NODE, "--check", jf], capture_output=True, text=True)
             if r.returncode != 0:
                 bad("Code: JS file tooti hai", (os.path.basename(jf), r.stderr.strip().split("\n")[0][:90]))
         # har page par jo .js file link hai, wo maujood hai ya nahi
