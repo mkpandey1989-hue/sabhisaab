@@ -196,8 +196,10 @@ jobs:
               print("Bing ko khabar NAHI gayi. Key file jaanchein: https://sabhisaab.com/<key>.txt")
           PY
 
+      # 28 Oct 2026: sabhinet bot hamesha 'koi-nahi' bhejta hai (IndexNow bot khud karta hai).
+      # Pehle ye step bhi 'koi-nahi' par ruk jaata tha -> Google ko sitemap jaana band ho gaya tha.
+      # Google sitemap submit ab HAR deploy par chalta hai (ye spam nahi, Google ka sahi tareeka hai).
       - name: Google ko sitemap — har deploy par apne aap
-        if: ${{ github.event.inputs.indexnow != 'koi-nahi' }}
         env:
           GOOGLE_SA_JSON_B64: ${{ secrets.GOOGLE_SA_JSON_B64 }}
           GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
