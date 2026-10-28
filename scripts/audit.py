@@ -115,6 +115,15 @@ def main(only=None):
         if "?t=" in body: bad("SEO: ?t= link", f)
         if "/img/" in s: bad("SEO: purana /img/ path", f)
         if "max-image-preview:large" not in s: bad("SEO: robots meta adhoora", f)
+        # 29 Oct 2026: "Free X Calculator kholein" jaisa link homepage (/) par jaata tha jabki asli page maujood tha
+        # (30 jagah pakda gaya) - user ko galat jagah + internal link ka faayda bekaar. Ab har baar pakdo.
+        for m in re.finditer(r'<a [^>]*href="/"[^>]*>([^<]{2,80})</a>', body):
+            a = H.unescape(m.group(1)).strip()
+            if re.search(r"(calculator|converter|kholein|generator)", a, re.I) and not re.search(r"(saare|sabhi|\d{3})", a, re.I):
+                warn("SEO: tool ka naam wala link homepage (/) par", (f, a[:40]))
+        # 29 Oct 2026: ek hi vaakya lagataar do baar (template galti) - 21 page par mila tha
+        for m in re.finditer(r"([A-Z][^.<>]{30,200}\.)\s*\1", text_of(body)):
+            warn("Content: ek hi vaakya lagataar do baar", (f, m.group(1)[:50])); break
 
         # ---- 30.3 Schema ----
         tys = []
