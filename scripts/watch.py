@@ -233,7 +233,7 @@ def pending(st):
     idx = d.get("status", {})
     if idx:
         notok = sum(1 for v in idx.values() if not v.get("ok"))
-        if notok: out.append(("🟠", f"{notok} page abhi index nahi hue", "roz 10 link aate hain — har ek par Request Indexing"))
+        if notok: out.append(("🟠", f"{notok} page abhi index nahi hue", "roz sirf 1-2 par Request Indexing (subah ki report ke 2 link)"))
     if d.get("unused"): out.append(("🟠", f"{len(d['unused'])} faltu file", "Telegram se hatayein"))
     wd = a.get("warn_detail", {})
     for k, v in list(wd.items())[:5]:

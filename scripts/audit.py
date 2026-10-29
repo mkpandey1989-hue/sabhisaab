@@ -81,6 +81,11 @@ def main(only=None):
         body = body[body.find("</head>"):]
 
         # ---- 30.1 HTML validity ----
+        # W4 (29 Oct 2026): koi bhi badlaav Home/menu/app-button na hataye
+        if f != "index.html" and f.startswith("google") is False:
+            if not re.search(r'<a href="/" class="logo"', s): bad("NAV: Home (logo) link gayab", f)
+            if 'class="hnav"' not in s and f != "index.html": warn("NAV: header menu gayab", f)
+            if "install-app.js" not in s: bad("NAV: install-app.js (Home screen button + channel links) gayab", f)
         if s.count("</html>") != 1: bad("HTML: </html> ek baar nahi", f)
         if s.count("</body>") != 1: bad("HTML: </body> ek baar nahi", f)
         if "<style" in s[s.find("</head>"):]: bad("HTML: <style> body ke andar", f)

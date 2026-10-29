@@ -1,4 +1,4 @@
-/* Sab Hisaab — "App jaisa install karein" button + footer social links (v2)
+/* Sab Hisaab — "App jaisa install karein" button + footer social links (v3, 29 Oct 2026: footer me hamesha "📲 App / Home screen" button)
    Har page par bas ye ek line <body> ke end se pehle daalein:
    <script src="/install-app.js" defer></script>
 
@@ -51,6 +51,32 @@
     }
   } catch (e) {}
 
+  // v3: footer me HAMESHA ek "📲 App / Home screen par" button (✕ dabane ya Chrome ke prompt na dene par bhi)
+  var _early = null;
+  window.addEventListener('beforeinstallprompt', function (e) { _early = e; });
+  try {
+    var ft = document.querySelector('footer');
+    var isApp = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (ft && !isApp && !document.getElementById('shInstallFoot')) {
+      var fb = document.createElement('div');
+      fb.id = 'shInstallFoot';
+      fb.style.cssText = 'text-align:center;margin:12px auto 4px';
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = '📲 Sab Hisaab ko Home screen par lagayein (app jaisa)';
+      b.style.cssText = 'background:#0F766E;color:#fff;border:none;border-radius:100px;padding:9px 16px;font-weight:600;cursor:pointer;font-size:.88rem';
+      b.addEventListener('click', function () {
+        var ev = deferredPrompt || _early;
+        if (ev && ev.prompt) { ev.prompt(); return; }
+        var ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+        alert(ios ? 'Safari me neeche Share (⬆️) dabayein → "Add to Home Screen".'
+                  : 'Browser ke menu (⋮) me "Add to Home screen" / "Install app" dabayein.');
+      });
+      fb.appendChild(b);
+      ft.appendChild(fb);
+    }
+  } catch (e) {}
+
   // Pehle se app-mode me chal raha hai? To button ki zaroorat nahi.
   var standalone =
     window.matchMedia('(display-mode: standalone)').matches ||
@@ -60,10 +86,10 @@
   // User ne pehle band kiya tha? 14 din tak dobara na dikhao.
   try {
     var dismissed = localStorage.getItem('sh_a2hs_dismissed');
-    if (dismissed && Date.now() - parseInt(dismissed, 10) < 14 * 24 * 60 * 60 * 1000) return;
+    if (dismissed && Date.now() - parseInt(dismissed, 10) < 3 * 24 * 60 * 60 * 1000) return;   // v3: 14 -> 3 din
   } catch (e) {}
 
-  var deferredPrompt = null;
+  var deferredPrompt = _early || null;
 
   function makeBtn(label) {
     var wrap = document.createElement('div');
