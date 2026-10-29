@@ -1,4 +1,4 @@
-/* Sab Hisaab — "App jaisa install karein" button + footer social links (v3, 29 Oct 2026: footer me hamesha "📲 App / Home screen" button)
+/* Sab Hisaab — "App jaisa install karein" button + footer social links (v4, 29 Oct 2026: page ki video link + footer me hamesha "📲 App / Home screen" button)
    Har page par bas ye ek line <body> ke end se pehle daalein:
    <script src="/install-app.js" defer></script>
 
@@ -74,6 +74,28 @@
       });
       fb.appendChild(b);
       ft.appendChild(fb);
+    }
+  } catch (e) {}
+
+  // v4 (29 Oct 2026): is page ke vishay ki hamari YouTube video (bot roz /videos.json likhta hai). Sirf link - speed par asar nahi.
+  try {
+    var path = location.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+    if (path !== '/' && window.fetch) {
+      fetch('/videos.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : {}; }).then(function (m) {
+        var x = m && m[path];
+        var main = document.querySelector('main') || document.querySelector('footer');
+        if (!x || !x.v || !main || document.getElementById('shVideo')) return;
+        var box = document.createElement('div');
+        box.id = 'shVideo';
+        box.style.cssText = 'margin:22px 0;padding:14px 16px;border:1px solid #CFE3DF;border-radius:12px;background:#F2FAF8;font-size:.92rem;line-height:1.6';
+        var b = document.createElement('b'); b.textContent = '📺 Is hisaab ki video: ';
+        var a = document.createElement('a');
+        a.href = 'https://www.youtube.com/shorts/' + encodeURIComponent(x.v);
+        a.target = '_blank'; a.rel = 'noopener'; a.textContent = x.t || 'YouTube par dekhein';
+        box.appendChild(b); box.appendChild(a);
+        if (x.c) { var c = document.createElement('div'); c.style.cssText = 'font-size:.82rem;color:#4F5D64'; c.textContent = 'Channel: ' + x.c + ' · Kahaniyan/udaharan kalpanik, hisaab asli'; box.appendChild(c); }
+        if (main.tagName === 'MAIN') main.appendChild(box); else main.parentNode.insertBefore(box, main);
+      }).catch(function () {});
     }
   } catch (e) {}
 
