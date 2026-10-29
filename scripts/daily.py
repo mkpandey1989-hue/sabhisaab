@@ -79,11 +79,27 @@ def _chunks(text, limit=3500):
 TG_FAILS = []
 PEND_MSG = []
 
+_HELD = []
+
+def _hold():
+    """W4 (29 Oct 2026): bot TG_HOLD_UNTIL (epoch) deta hai - report pehle taiyaar, Telegram par theek tay samay par.
+    Report der se bane to turant jaati hai (kabhi rukti nahi)."""
+    if _HELD: return
+    _HELD.append(1)
+    try:
+        wait = float(os.environ.get("TG_HOLD_UNTIL") or 0) - time.time()
+        if 0 < wait < 3 * 3600:
+            print("report taiyaar, %d sec baad bhejunga" % wait)
+            time.sleep(wait)
+    except Exception:
+        pass
+
 def tg(text, buttons=None):
     """Report kabhi gayab nahi honi chahiye: HTML fail ho to plain text me bhejta hai."""
     tok, chat = os.environ.get("TG_TOKEN"), os.environ.get("TG_CHAT")
     if not tok or not chat:
         print(text); return
+    _hold()
     parts = _chunks(text)
     for k, part in enumerate(parts):
         btn = buttons if (buttons and k == len(parts) - 1) else None
@@ -249,7 +265,15 @@ def ga4_rows(r):
              [m["value"] for m in row.get("metricValues", [])]) for row in r["rows"]]
 
 def ga4_total(r, idx=0):
+    """W4: GA4 'totals' tabhi deta hai jab metricAggregations maange - warna bina dimension wali report ki
+    pehli row hi total hai (isi wajah se 'Users : 0' aa raha tha jabki log aaye the)."""
     try: return float(r["totals"][0]["metricValues"][idx]["value"])
+    except Exception: pass
+    try:
+        rows = r.get("rows") or []
+        if rows and not rows[0].get("dimensionValues"):
+            return float(rows[0]["metricValues"][idx]["value"])
+        return float(sum(float(x["metricValues"][idx]["value"]) for x in rows))
     except Exception: return 0.0
 
 # ---------------------------------------------------------------- 6. speed
@@ -495,8 +519,9 @@ def main():
             PEND_MSG.append("\n".join(pend))
 
             top = list(cov.items())[0]
-            day.append(f"\n<b>Aaj ye {min(12,len(top[1]))} dabaayein</b> — <i>{esc(top[0])}</i>")
-            for u in top[1][:12]:
+            # W4: niyam - roz sirf 1-2 Request Indexing (zyada se Google ka bharosa nahi badhta)
+            day.append(f"\n<b>Aaj sirf ye {min(2,len(top[1]))} dabaayein</b> (GSC → URL Inspection → Request Indexing) — <i>{esc(top[0])}</i>")
+            for u in top[1][:2]:
                 day.append(f"<code>{u}</code>")
             st["todo"] = top[1][:12]
 
@@ -529,11 +554,9 @@ def main():
     if not m:
         # ---- Bing / IndexNow ka haal ----
         try:
-            r = run_gh("actions/workflows/deploy.yml/runs?per_page=1")
-            x = (r.get("workflow_runs") or [{}])[0]
-            ok = x.get("conclusion") == "success"
             day.append("\n<b>🅱️ Bing aur doosre search engine</b>")
-            day.append(("✅" if ok else "❌") + " IndexNow — aakhri deploy par URL bheje gaye")
+            day.append("✅ IndexNow — sirf badle URL, din me max 10 (bot VM se bhejta hai). "
+                       "Bing support ne 29 Oct 2026 ko mudda hal kiya; 2-3 hafte me wapas dikhega.")
             day.append("<i>Bing ka sitemap ping band hai (2022 se). Roz ki khabar IndexNow se hi jaati hai.</i>")
         except Exception:
             pass
