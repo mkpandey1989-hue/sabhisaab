@@ -1,0 +1,153 @@
+name: Daily report
+
+on:
+  schedule:
+    # Pehli koshish — roz 05:47 IST
+    - cron: '17 0 * * *'
+    # DOOSRI KOSHISH — 10:17 IST. GitHub ke schedule kabhi-kabhi chhoot jaate hain
+    # ya 2-3 ghante late chalte hain. Ye run neeche wale guard se rukta hai agar
+    # aaj ki report pehle hi ban chuki ho — isliye do report kabhi nahi aayengi.
+    - cron: '47 4 * * *'
+  workflow_dispatch:
+    inputs:
+      ack:
+        description: 'Purane alert band kar dein?'
+        required: false
+        default: 'no'
+
+permissions:
+  contents: write
+
+# Do daily report ek saath chalein to dono ek doosre ka state mita deti hain.
+# cancel-in-progress: false — naya run purane ko maarta nahi, line me lagta hai.
+concurrency:
+  group: sabhisaab-daily
+  cancel-in-progress: false
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60        # pehle koi seema nahi thi — atka run 6 ghante chalta tha.
+                               # 30 rakha tha to asli scan hi kat gaya — 262 URL Google se
+                               # poochne me 25-40 minute lagte hain. Ab 60.
+    steps:
+      - uses: actions/checkout@v4
+
+      # Doosri koshish wale run ke liye — aaj ki report ban chuki ho to yahin ruk jao
+      - name: Aaj ki report ban chuki hai kya
+        id: guard
+        run: |
+          python3 - <<'PY'
+          import json, os, datetime
+          IST = datetime.timezone(datetime.timedelta(hours=5, minutes=30))
+          aaj = datetime.datetime.now(IST).date().isoformat()
+          try: d = json.load(open("state/daily.json"))
+          except Exception: d = {}
+          skip = "yes" if d.get("day") == aaj else "no"
+          print("aaj ki report:", d.get("day"), "-> skip =", skip)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("skip=" + skip + "\n")
+          PY
+
+      - uses: actions/setup-python@v5
+        if: steps.guard.outputs.skip != 'yes'
+        with: { python-version: '3.11' }
+
+      - name: Packages
+        if: steps.guard.outputs.skip != 'yes'
+        run: pip install -q google-auth google-auth-httplib2 google-api-python-client
+
+      - name: Audit (report ke liye)
+        if: steps.guard.outputs.skip != 'yes'
+        continue-on-error: true
+        run: |
+          cat > config.json <<'EOF'
+          {"site_url":"https://sabhisaab.com","site_dir":"site","incoming_dir":"/tmp",
+           "gsc_property":"sc-domain:sabhisaab.com","ga4_id":"G-QX5MWV42TR",
+           "adsense_approved":false,"git_branch":"main","indexnow_key":"x",
+           "bing_api_key":"x","bing_enabled":false,"google_sa_json":"/tmp/x.json",
+           "gsc_enabled":false,"gsc_daily_budget":150,
+           "telegram_token":"x","telegram_chat_id":"x","telegram_enabled":false}
+          EOF
+          python3 scripts/audit.py || true
+
+      - name: Purane alert band karein
+        if: ${{ github.event.inputs.ack == 'yes' }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          p = "state/alerts.json"
+          try: d = json.load(open(p))
+          except Exception: d = {}
+          d["open"] = {}
+          os.makedirs("state", exist_ok=True)
+          json.dump(d, open(p, "w"), indent=1)
+          print("alerts band")
+          PY
+
+      - name: Poora scan aur report
+        if: steps.guard.outputs.skip != 'yes'
+        # 22 minute bahut kam tha — 25 Aug ko isi wajah se run #44 kata tha (23m 28s).
+        # Ye seema sirf ATKE hue run ke liye hai, dheeme ke liye nahi.
+        timeout-minutes: 50
+        env:
+          GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
+          GOOGLE_SA_JSON_B64: ${{ secrets.GOOGLE_SA_JSON_B64 }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GSC_PROPERTY: sc-domain:sabhisaab.com
+          GSC_BUDGET: '300'   # site 262 URL ki hai — ek hi run me sab jaanch lo
+          PSI_KEY: ${{ secrets.PSI_KEY }}
+          BOT_GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: python3 scripts/daily.py
+
+      # Pehle `git push || true` tha — push fail hone par state gayab, par job
+      # phir bhi "success". Agle din ki report purane record par ban jaati thi.
+      - name: State yaad rakho
+        if: always()
+        run: |
+          git config user.name "Sab Hisaab bot"
+          git config user.email "contact@sabhisaab.com"
+          git add state/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "kuch nahi badla"; exit 0
+          fi
+          git commit -m "daily state $(date +%F)" --quiet
+          for i in 1 2 3; do
+            if git pull --rebase --autostash --quiet && git push --quiet; then
+              echo "push ho gaya (koshish $i)"; exit 0
+            fi
+            echo "push fail — koshish $i"; sleep $((i * 5))
+          done
+          echo "::warning::daily state push nahi ho paaya"
+
+      # SABSE ZAROORI: pehle daily report fail hone par Telegram par KUCH NAHI aata tha.
+      # notify.yml sirf "Audit aur Deploy" aur "Telegram bot deploy" sunta hai.
+      # Isliye report chup-chaap gayab ho jaati thi aur wajah kabhi pata nahi chalti thi.
+      - name: Fail hua to Telegram par batao
+        if: failure()
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SRV: ${{ github.server_url }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.run_id }}
+        run: |
+          python3 - <<'PY'
+          import os, json, urllib.request
+          msg = ("\u274C <b>Daily report fail ho gayi.</b>\n\n"
+                 "Isi wajah se aaj ki report nahi aayi. Site ko koi khatra nahi hai.\n\n"
+                 "<b>Kya kariye</b>\n"
+                 "\u2022 Telegram par likhiye: <i>poora scan karo</i>\n"
+                 "\u2022 Wajah dekhni ho to log: %s/%s/actions/runs/%s"
+                 % (os.environ["SRV"], os.environ["REPO"], os.environ["RUN"]))
+          body = json.dumps({"chat_id": os.environ["TG_CHAT"], "text": msg,
+                             "parse_mode": "HTML", "disable_web_page_preview": True}).encode()
+          urllib.request.urlopen(urllib.request.Request(
+              "https://api.telegram.org/bot%s/sendMessage" % os.environ["TG_TOKEN"],
+              data=body, headers={"Content-Type": "application/json"}), timeout=25).read()
+          PY

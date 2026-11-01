@@ -1,0 +1,4 @@
+# Sab Hisaab - ads.txt
+# AdSense approval milne ke baad neeche wali line ko uncomment karke apna asli
+# publisher ID (pub-XXXXXXXXXXXXXXXX) daalein. Tab tak koi entry nahi honi chahiye.
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0

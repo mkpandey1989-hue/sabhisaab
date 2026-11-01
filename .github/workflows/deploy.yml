@@ -1,0 +1,280 @@
+name: Audit aur Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      indexnow:
+        description: 'IndexNow par kaunse URL bhejein?'
+        required: true
+        default: 'badle-hue'
+        type: choice
+        options:
+          - badle-hue
+          - sabhi
+          - koi-nahi
+
+concurrency:
+  group: sabhisaab-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo lao
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Python taiyaar karo
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Audit ke liye config banao
+        run: |
+          cat > config.json <<'EOF'
+          {
+            "site_url": "https://sabhisaab.com",
+            "site_dir": "site",
+            "incoming_dir": "/tmp/incoming",
+            "gsc_property": "sc-domain:sabhisaab.com",
+            "ga4_id": "G-QX5MWV42TR",
+            "adsense_approved": false,
+            "git_branch": "main",
+            "indexnow_key": "x",
+            "bing_api_key": "x",
+            "bing_enabled": false,
+            "google_sa_json": "/tmp/x.json",
+            "gsc_enabled": false,
+            "gsc_daily_budget": 150,
+            "telegram_token": "x",
+            "telegram_chat_id": "x",
+            "telegram_enabled": false
+          }
+          EOF
+
+      - name: AUDIT - ek bhi ERROR mila to deploy yahin ruk jaayega
+        run: python3 scripts/audit.py
+
+      # 14 Oct 2026: 13 calculator live par toote mile the jabki audit pass tha.
+      # Ye step har page ka calculator chala kar dekhta hai. Ek bhi toota -> deploy ruk jaayega.
+      - name: CALCULATOR TEST - har calculator chala kar dekho
+        run: |
+          npm install --no-save --no-audit --no-fund --silent --prefix /tmp/ct jsdom@24.1.3
+          NODE_PATH=/tmp/ct/node_modules python3 scripts/calc_test.py site
+
+      - name: File ginti check
+        run: |
+          N=$(ls -1 site | wc -l)
+          echo "site/ me files: $N"
+          if [ "$N" -lt 300 ]; then echo "BAHUT KAM FILES - ruk rahe hain"; exit 1; fi
+
+      - name: Account ID check karo aur project dhundo
+        id: cf
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys, urllib.request, urllib.error
+          TOK = os.environ["CF_TOKEN"].strip()
+          ACC = os.environ["CF_ACCT"].strip()
+          if len(ACC) != 32:
+              print("CLOUDFLARE_ACCOUNT_ID galat hai (32 akshar hona chahiye), abhi:", len(ACC)); sys.exit(1)
+          def api(path):
+              req = urllib.request.Request("https://api.cloudflare.com/client/v4" + path,
+                    headers={"Authorization": "Bearer " + TOK})
+              try: return json.load(urllib.request.urlopen(req))
+              except urllib.error.HTTPError as ex: return json.load(ex)
+          pr = api("/accounts/%s/pages/projects" % ACC)
+          if not pr.get("success"):
+              print("Cloudflare errors:", pr.get("errors")); sys.exit(1)
+          found = None
+          for p in pr["result"]:
+              doms = p.get("domains") or []
+              print("   PROJECT:", p["name"], "| branch:", p.get("production_branch"), "| domains:", doms)
+              if p["name"] == "sabhisaab" or any("sabhisaab.com" in d for d in doms):
+                  found = (p["name"], p.get("production_branch") or "main")
+          if not found:
+              print("sabhisaab project nahi mila"); sys.exit(1)
+          name, br = found
+          print("MIL GAYA -> project=%s | branch=%s" % (name, br))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("project=%s\nbranch=%s\n" % (name, br))
+          PY
+
+      - name: Cloudflare Pages par deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx --yes wrangler@4 pages deploy site \
+            --project-name="${{ steps.cf.outputs.project }}" \
+            --branch="${{ steps.cf.outputs.branch }}" \
+            --commit-dirty=true
+
+      - name: Live site check
+        run: |
+          sleep 30
+          for u in / /percentage-calculator /nsc-calculator /sitemap.xml /contact; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "https://sabhisaab.com$u")
+            echo "$u -> $code"
+          done
+
+      - name: IndexNow - Bing, Yandex, Naver, Seznam ko khabar
+        if: ${{ github.event.inputs.indexnow != 'koi-nahi' }}
+        env:
+          MODE: ${{ github.event.inputs.indexnow }}
+        run: |
+          KEY=""
+          for f in site/*.txt; do
+            n=$(basename "$f" .txt)
+            c=$(tr -d '[:space:]' < "$f")
+            if [ "$n" = "$c" ] && [ ${#n} -ge 8 ]; then KEY="$n"; fi
+          done
+          if [ -z "$KEY" ]; then echo "IndexNow key file nahi mili - chhod rahe hain"; exit 0; fi
+          echo "IndexNow key mil gayi (${#KEY} akshar)"
+
+          # v10 (21 Oct 2026) SURAKSHA: "sabhi" mode ab poori list NAHI bhejta.
+          # Bina badle saare URL baar-baar bhejna Bing ke liye spam hai — isi se
+          # ~12,800 submission hue the aur Bing ne bharosa gira diya tha.
+          # Ab "sabhi" chunne par bhi sirf badle hue URL hi jaate hain.
+          if [ "$MODE" = "sabhi" ]; then
+            echo "::warning::'sabhi' mode band hai (Bing spam se bachne ke liye) — sirf badle hue URL jaayenge"
+          fi
+          if true; then
+            echo "Mode: sirf badle hue URL"
+            # PEHLE: git diff HEAD~1 HEAD se URL chunte the.
+            # Dikkat: ek deploy se pehle kai ZIP chadhti hain (kai commit), aur beech me
+            # "daily state" jaisa commit bhi aa jaata hai. Tab HEAD~1..HEAD me koi HTML
+            # hoti hi nahi thi -> 0 URL -> IndexNow skip. Isi wajah se Bing ko kabhi
+            # khabar nahi pahunchi.
+            # AB: sitemap ke lastmod se chunte hain — kitne bhi commit hon, farak nahi padta.
+            python3 - > urls.txt <<'PY'
+          import re, datetime
+          sm = open("site/sitemap.xml", encoding="utf-8").read()
+          cut = (datetime.date.today() - datetime.timedelta(days=3)).isoformat()
+          rows = re.findall(r"<loc>([^<]+)</loc>\s*<lastmod>([\d-]+)</lastmod>", sm)
+          picked = [u for u, d in rows if d >= cut]
+          # v10: kuch nahi badla to KUCH NAHI bhejna (pehle "sabse naye 20" jaate the —
+          # wo bhi bina badle URL ka baar-baar submission tha). Ek baar me max 50.
+          for u in picked[:50]:
+              print(u)
+          PY
+          fi
+
+          N=$(wc -l < urls.txt)
+          echo "Bhejne wale URL: $N"
+          if [ "$N" -eq 0 ]; then echo "Kuch nahi badla - IndexNow skip"; exit 0; fi
+          head -10 urls.txt
+
+          python3 - <<PY
+          import json, urllib.request
+          key = "$KEY"
+          urls = [l.strip() for l in open("urls.txt") if l.strip()][:10000]
+          body = json.dumps({
+              "host": "sabhisaab.com",
+              "key": key,
+              "keyLocation": "https://sabhisaab.com/%s.txt" % key,
+              "urlList": urls,
+          }).encode()
+          req = urllib.request.Request("https://api.indexnow.org/IndexNow", data=body,
+                headers={"Content-Type": "application/json; charset=utf-8"})
+          try:
+              r = urllib.request.urlopen(req)
+              print("IndexNow: %d URL bheje -> HTTP %d" % (len(urls), r.status))
+              if r.status in (200, 202):
+                  print("SAFAL — Bing, Yandex, Naver, Seznam ko khabar chali gayi.")
+              else:
+                  print("CHETAVNI: HTTP", r.status, "— Bing ko shayad khabar na mile.")
+          except Exception as e:
+              body = ""
+              try: body = e.read().decode()[:200]
+              except Exception: pass
+              print("IndexNow FAIL:", e, body)
+              print("Bing ko khabar NAHI gayi. Key file jaanchein: https://sabhisaab.com/<key>.txt")
+          PY
+
+      # 28 Oct 2026: sabhinet bot hamesha 'koi-nahi' bhejta hai (IndexNow bot khud karta hai).
+      # Pehle ye step bhi 'koi-nahi' par ruk jaata tha -> Google ko sitemap jaana band ho gaya tha.
+      # Google sitemap submit ab HAR deploy par chalta hai (ye spam nahi, Google ka sahi tareeka hai).
+      - name: Google ko sitemap — har deploy par apne aap
+        env:
+          GOOGLE_SA_JSON_B64: ${{ secrets.GOOGLE_SA_JSON_B64 }}
+          GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
+        run: |
+          python3 - <<'PY'
+          # Pehle sirf IndexNow chalta tha (Bing, Yandex, Naver, Seznam).
+          # Google IndexNow nahi maanta — usse sitemap alag se bhejna padta hai.
+          # Ab ye kaam har deploy par apne aap hota hai.
+          import os, json, base64, time, urllib.request, urllib.parse, hmac, hashlib
+
+          raw = os.environ.get("GOOGLE_SA_JSON_B64") or ""
+          if raw:
+              try: raw = base64.b64decode(raw).decode()
+              except Exception: pass
+          raw = raw or os.environ.get("GOOGLE_SA_JSON") or ""
+          if not raw.strip():
+              print("Google key nahi mili — sitemap submit chhod rahe hain."); raise SystemExit(0)
+          sa = json.loads(raw)
+
+          def b64u(b): return base64.urlsafe_b64encode(b).decode().rstrip("=")
+          try:
+              from cryptography.hazmat.primitives import hashes, serialization
+              from cryptography.hazmat.primitives.asymmetric import padding
+          except Exception:
+              os.system("pip install --quiet cryptography")
+              from cryptography.hazmat.primitives import hashes, serialization
+              from cryptography.hazmat.primitives.asymmetric import padding
+
+          now = int(time.time())
+          hdr = b64u(json.dumps({"alg": "RS256", "typ": "JWT"}).encode())
+          cl = b64u(json.dumps({
+              "iss": sa["client_email"],
+              "scope": "https://www.googleapis.com/auth/webmasters",
+              "aud": "https://oauth2.googleapis.com/token",
+              "iat": now, "exp": now + 3600}).encode())
+          key = serialization.load_pem_private_key(sa["private_key"].encode(), None)
+          sig = b64u(key.sign(f"{hdr}.{cl}".encode(), padding.PKCS1v15(), hashes.SHA256()))
+          data = urllib.parse.urlencode({
+              "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+              "assertion": f"{hdr}.{cl}.{sig}"}).encode()
+          tok = json.load(urllib.request.urlopen(
+              urllib.request.Request("https://oauth2.googleapis.com/token", data=data)))["access_token"]
+
+          site = urllib.parse.quote("sc-domain:sabhisaab.com", safe="")
+          feed = urllib.parse.quote("https://sabhisaab.com/sitemap.xml", safe="")
+          url = f"https://searchconsole.googleapis.com/webmasters/v3/sites/{site}/sitemaps/{feed}"
+
+          req = urllib.request.Request(url, method="PUT", headers={"Authorization": "Bearer " + tok})
+          try:
+              r = urllib.request.urlopen(req)
+              print("Google ko sitemap submit -> HTTP %d — SAFAL" % r.status)
+          except Exception as e:
+              print("Google sitemap FAIL:", e); raise SystemExit(0)
+
+          # natija bhi dikha do
+          try:
+              g = json.load(urllib.request.urlopen(urllib.request.Request(
+                  url, headers={"Authorization": "Bearer " + tok})))
+              c = (g.get("contents") or [{}])[0]
+              print("  URL sitemap me : %s" % c.get("submitted", "?"))
+              print("  Aakhri baar padha: %s" % g.get("lastDownloaded", "abhi tak nahi"))
+              print("  Warning: %s   Error: %s" % (g.get("warnings", 0), g.get("errors", 0)))
+          except Exception as e:
+              print("  (haal nahi mil paaya:", e, ")")
+          PY
+
+      - name: Bing ka natija saaf batao
+        if: ${{ github.event.inputs.indexnow != 'koi-nahi' }}
+        run: |
+          # Bing ne sitemap ka "ping" 2022 me hi band kar diya tha (410 Gone).
+          # Google ne bhi June 2023 me band kiya. Ab dono ka sirf ek hi tareeka hai:
+          #   Google -> Search Console API (upar wala step)
+          #   Bing   -> IndexNow (pehla step) + robots.txt me sitemap ki line
+          # Isliye ping ka step hata diya gaya — wo kabhi kaam karta hi nahi tha.
+          echo "Bing ko URL IndexNow se ja chuke hain (upar dekhein)."
+          echo "Bing ka sitemap ping band ho chuka hai — wo ab kaam hi nahi karta."
+          echo "Bing me sitemap ek baar haath se submit karna hota hai, phir wo khud padhta rehta hai."
+          echo "Jaanchne ki jagah: bing.com/webmasters -> IndexNow"
