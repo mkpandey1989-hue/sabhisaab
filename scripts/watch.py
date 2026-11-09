@@ -114,8 +114,11 @@ def link_check(st, alerts, limit=40):
     for f in batch:
         try: h = open("site/" + f, encoding="utf-8").read()
         except Exception: continue
-        for u in re.findall(r'href="(https?://[^"]+)"', h):
+        # v11 (10 Nov 2026): sirf <a> wale link. <link rel="preconnect" href="https://fonts.googleapis.com"> jaise
+        # tag click hone wale link nahi - unka khaali root 404 deta hai (jhootha 'toota link' alarm).
+        for u in re.findall(r'<a\b[^>]*?href="(https?://[^"]+)"', h, flags=re.I):
             if "sabhisaab.com" in u or u in seen: continue
+            if re.match(r"https?://fonts\.(googleapis|gstatic)\.com/?$", u): continue
             ext.append((f, u))
     dead = []
     for f, u in ext[:limit]:
@@ -140,6 +143,9 @@ SRC = {
 }
 # Kis srot par kaunsa number dekhna hai. Jo yahan nahi, uska "%" wala number dekha jaata hai.
 SRC_PAT = {
+    # v11: RBI homepage par roz badalne wale % (bond/forex/khabar) - sirf neeti dar ginni hai, warna roz jhootha alarm
+    "RBI":           r"(?:policy\s+repo|repo|standing\s+deposit\s+facility|sdf|marginal\s+standing\s+facility|msf|bank\s+rate|crr|slr)"
+                     r"[^%]{0,40}?\d{1,2}\.\d{1,2}\s*%",
     "PM Kisan":      r"\b\d{1,2}\s*(?:st|nd|rd|th)\s+(?:install?ment|kist)\b|\b\d{1,2}(?:vi|vin|wi|wee)\s+kist\b",
     "PM Surya Ghar": r"(?:Rs\.?|INR|\u20b9)\s?[\d,]{4,}",
 }
@@ -164,8 +170,9 @@ def src_watch(st, alerts):
         else:                          # purane srot: bilkul pehle jaisa (warna sab par jhootha alarm)
             nums = " ".join(re.findall(r"\d+(?:\.\d+)?\s*%", txt)[:60])
         key = hashlib.md5(nums.encode()).hexdigest()[:12]
-        old = h.get(name)
-        h[name] = key
+        hk = name + "#v11" if name == "RBI" else name     # v11: RBI ka naya pattern - pehli baar sirf aadhaar, alarm nahi
+        old = h.get(hk)
+        h[hk] = key
         if old and old != key:
             alerts.append(("IMP",
                 f"📋 <b>{name}</b> ki site par dar/niyam badla lagta hai\n{url}\n\n"
@@ -180,6 +187,20 @@ REVIEW = {  # slug ka hissa : kitne din baad review
     # v10: naye page — kist/subsidy/sone ka hisaab jaldi purana hota hai
     "pm-kisan": 45, "pm-surya-ghar": 90, "gold-jewellery": 120,
 }
+def _page_reviewed(f):
+    """v11: page ki apni dateModified (content sach me badla = jaancha gaya) aur bot ki pakki jaanch (state/review_ok.json:
+    sarkari srot se dar milaane par bot likhta hai). Inme se jo naya ho wahi 'aakhri review'."""
+    best = None
+    try:
+        h = open("site/" + f, encoding="utf-8").read()
+        m = re.search(r'"dateModified":\s*"(\d{4}-\d{2}-\d{2})"', h)
+        if m: best = m.group(1)
+    except Exception: pass
+    ok = load("state/review_ok.json", {})
+    for k, d in ok.items():
+        if k and k in f and (not best or d > best): best = d
+    return best
+
 def stale(st, alerts):
     if not os.path.isdir("site"): return
     last = st.get("review", {})
@@ -191,6 +212,9 @@ def stale(st, alerts):
                 d = last.get(f)
                 if not d:
                     last[f] = str(today()); break
+                pr = _page_reviewed(f)
+                if pr and pr > d:
+                    last[f] = d = pr
                 age = (today() - datetime.date.fromisoformat(d)).days
                 if age >= days: due.append((f, age, days))
                 break
