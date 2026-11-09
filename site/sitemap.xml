@@ -23,7 +23,7 @@
 </url>
 <url>
 <loc>https://sabhisaab.com/about</loc>
-<lastmod>2026-10-28</lastmod>
+<lastmod>2026-11-09</lastmod>
 <changefreq>yearly</changefreq>
 <priority>0.3</priority>
 <image:image><image:loc>https://sabhisaab.com/sab-hisaab-og.png</image:loc></image:image>
@@ -821,7 +821,7 @@
 </url>
 <url>
 <loc>https://sabhisaab.com/income-tax-calculator</loc>
-<lastmod>2026-08-18</lastmod>
+<lastmod>2026-11-09</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.8</priority>
 <image:image><image:loc>https://sabhisaab.com/sab-hisaab-og.png</image:loc></image:image>
@@ -882,6 +882,7 @@
 <priority>0.7</priority>
 <image:image><image:loc>https://sabhisaab.com/sab-hisaab-og.png</image:loc></image:image>
 </url>
+  <url><loc>https://sabhisaab.com/jawab</loc><lastmod>2026-11-09</lastmod><changefreq>daily</changefreq></url>
 <url>
 <loc>https://sabhisaab.com/kisan-credit-card-kaise-banwaye</loc>
 <lastmod>2026-08-19</lastmod>
@@ -1101,7 +1102,7 @@
 </url>
 <url>
 <loc>https://sabhisaab.com/old-vs-new-tax-regime-calculator</loc>
-<lastmod>2026-08-19</lastmod>
+<lastmod>2026-11-09</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.8</priority>
 <image:image><image:loc>https://sabhisaab.com/sab-hisaab-og.png</image:loc></image:image>
@@ -1675,7 +1676,7 @@
 </url>
 <url>
 <loc>https://sabhisaab.com/tax-regime-compare-calculator</loc>
-<lastmod>2026-10-14</lastmod>
+<lastmod>2026-11-09</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.8</priority>
 <image:image><image:loc>https://sabhisaab.com/sab-hisaab-og.png</image:loc></image:image>
@@ -1876,5 +1877,4 @@
 <priority>0.8</priority>
 <image:image><image:loc>https://sabhisaab.com/sab-hisaab-og.png</image:loc></image:image>
 </url>
-  <url><loc>https://sabhisaab.com/jawab</loc><lastmod>2026-11-09</lastmod><changefreq>daily</changefreq></url>
 </urlset>

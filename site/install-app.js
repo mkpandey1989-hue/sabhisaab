@@ -99,13 +99,66 @@
     }
   } catch (e) {}
 
+  // v5 (9 Nov 2026): 'Aaj ka sawal' - bot /jawab.json likhta hai (sirf naye sawal + code; jawab nahi, taaki jigyasa bani rahe).
+  // Homepage par #shJawabList mein 3 sawal; tool/guide page ke neeche ek chhota dabba. Niyam/parichay page par nahi. Koi data bahar nahi jaata.
+  try {
+    var jp = location.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+    var skipJ = /^\/(jawab|privacy|terms|contact|about|author|links|404|disclaimer|services|editorial-policy)$/.test(jp);
+    if (!skipJ && window.fetch) {
+      fetch('/jawab.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : {}; }).then(function (m) {
+        var items = (m && m.items) || [];
+        if (!items.length) return;
+        function link(x) {
+          var a = document.createElement('a');
+          a.href = '/jawab#c' + encodeURIComponent(x.a || x.c);
+          a.textContent = x.q;
+          return a;
+        }
+        var list = document.getElementById('shJawabList');
+        if (list) {
+          list.innerHTML = '';
+          items.slice(0, 3).forEach(function (x) {
+            var li = document.createElement('li');
+            li.appendChild(link(x));
+            var s = document.createElement('span');
+            s.style.cssText = 'color:#4F5D64;font-size:.82rem';
+            s.textContent = ' · ' + (x.b || '') + ' · code #' + x.c;
+            li.appendChild(s);
+            list.appendChild(li);
+          });
+          return;
+        }
+        if (jp === '/' || document.getElementById('shJawab')) return;
+        var main = document.querySelector('main') || document.querySelector('footer');
+        if (!main) return;
+        var x = items[0];
+        var box = document.createElement('div');
+        box.id = 'shJawab';
+        box.style.cssText = 'margin:22px 0;padding:14px 16px;border:1px solid #E8DDB5;border-radius:12px;background:#FFFBEA;font-size:.92rem;line-height:1.6';
+        var b = document.createElement('b'); b.textContent = '🧩 Aaj ka sawal (' + (x.b || 'Sab Hisaab') + '): ';
+        box.appendChild(b);
+        box.appendChild(document.createTextNode(x.q + ' '));
+        var go = link(x); go.textContent = 'Sahi jawab aur wajah dekhein →';
+        box.appendChild(go);
+        var t = document.createElement('div');
+        t.style.cssText = 'font-size:.82rem;color:#4F5D64;margin-top:4px';
+        t.appendChild(document.createTextNode('Roz naye sawal: '));
+        var tg = document.createElement('a'); tg.href = 'https://t.me/sabhisaab'; tg.rel = 'noopener'; tg.textContent = 'Telegram';
+        var wa = document.createElement('a'); wa.href = 'https://whatsapp.com/channel/0029Vb8rHA5EFeXmREHFHk3n'; wa.rel = 'noopener'; wa.textContent = 'WhatsApp channel';
+        t.appendChild(tg); t.appendChild(document.createTextNode(' · ')); t.appendChild(wa);
+        box.appendChild(t);
+        if (main.tagName === 'MAIN') main.appendChild(box); else main.parentNode.insertBefore(box, main);
+      }).catch(function () {});
+    }
+  } catch (e) {}
+
   // Pehle se app-mode me chal raha hai? To button ki zaroorat nahi.
   var standalone =
     window.matchMedia('(display-mode: standalone)').matches ||
     window.navigator.standalone === true;
   if (standalone) return;
 
-  // User ne pehle band kiya tha? 14 din tak dobara na dikhao.
+  // User ne pehle band kiya tha? 3 din tak dobara na dikhao.
   try {
     var dismissed = localStorage.getItem('sh_a2hs_dismissed');
     if (dismissed && Date.now() - parseInt(dismissed, 10) < 3 * 24 * 60 * 60 * 1000) return;   // v3: 14 -> 3 din
