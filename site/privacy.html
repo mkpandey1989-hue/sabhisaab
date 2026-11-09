@@ -70,14 +70,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <meta property="og:type" content="website">
 <meta name="twitter:description" content="Sab Hisaab ki privacy policy — website, YouTube/Instagram/Facebook channel aur automation me kaunsa data, kitne din, aur use kaise hatwayein.">
 <meta name="twitter:image" content="https://sabhisaab.com/sab-hisaab-og.png">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "Privacy Policy", "url": "https://sabhisaab.com/privacy", "description": "Sab Hisaab ki privacy policy — website, YouTube/Instagram/Facebook channel aur automation me kaunsa data, kitne din, aur use kaise hatwayein.", "inLanguage": "hi-Latn", "isPartOf": {"@type": "WebSite", "name": "Sab Hisaab", "url": "https://sabhisaab.com/"}, "publisher": {"@type": "Organization", "name": "Sab Hisaab", "url": "https://sabhisaab.com/", "logo": {"@type": "ImageObject", "url": "https://sabhisaab.com/icon-512.png", "width": 512, "height": 512}}, "author": {"@type": "Person", "name": "Manoj Kumar Pandey", "url": "https://sabhisaab.com/author"}, "datePublished": "2026-07-21", "dateModified": "2026-10-28"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "Privacy Policy", "url": "https://sabhisaab.com/privacy", "description": "Sab Hisaab ki privacy policy — website, YouTube/Instagram/Facebook channel aur automation me kaunsa data, kitne din, aur use kaise hatwayein.", "inLanguage": "hi-Latn", "isPartOf": {"@type": "WebSite", "name": "Sab Hisaab", "url": "https://sabhisaab.com/"}, "publisher": {"@type": "Organization", "name": "Sab Hisaab", "url": "https://sabhisaab.com/", "logo": {"@type": "ImageObject", "url": "https://sabhisaab.com/icon-512.png", "width": 512, "height": 512}}, "author": {"@type": "Person", "name": "Manoj Kumar Pandey", "url": "https://sabhisaab.com/author"}, "datePublished": "2026-07-21", "dateModified": "2026-11-09"}</script>
 </head>
 <body>
 <header><div class="hrow"><a href="/" class="logo">Sab<span>Hisaab</span></a>
 <nav class="hnav"><a href="/">Tools</a><a href="/about">About</a><a href="/author">Author</a><a href="/services">Services</a><a href="/contact">Contact</a></nav></div></header>
 <main><div class="wrap"><div class="card">
 <div class="crumb"><a href="/">Home</a> &rsaquo; Privacy Policy</div>
-<h1>Privacy Policy</h1><div class="upd">Aakhri update: <time datetime="2026-10-28">28 October 2026</time></div>
+<h1>Privacy Policy</h1><div class="upd">Aakhri update: <time datetime="2026-11-09">9 November 2026</time></div>
 <p>Sab Hisaab ("hum") aapki privacy ki izzat karta hai. Ye policy saaf batati hai ki hum kaunsa data lete hain (bahut kam), kyun lete hain, kitne din rakhte hain aur aap use kaise hatwa sakte hain. Website ke saath-saath ye policy hamare social channel aur unhe chalane wale automation par bhi laagu hoti hai.</p>
 
 <h2 id="kis-par-laagu">1. Ye policy kis-kis par laagu hai</h2>
@@ -95,7 +95,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <h2 id="browser-me">3. Aapke browser me kya save hota hai</h2>
 <ul>
 <li><b>sh_consent</b> — cookie banner par aapka chunav (sab cookies ya sirf zaroori). Ye localStorage me rehta hai.</li>
-<li><b>sh_a2hs_dismissed</b> — agar aapne "App jaisa install karein" wala button band kiya, to us samay ki tareekh, taaki 14 din tak wo button dobara na dikhe.</li>
+<li><b>sh_a2hs_dismissed</b> — agar aapne "App jaisa install karein" wala button band kiya, to us samay ki tareekh, taaki 3 din tak wo button dobara na dikhe.</li>
 <li><b>Offline cache</b> — site ka service worker aapke dekhe hue page ki copy aapke phone/computer me rakhta hai, taaki net na hone par bhi page khul jaye. Ye copy kahin bheji nahi jaati.</li>
 </ul>
 <p>Ye teeno cheezein sirf aapke device par hain. Browser ki settings me "site data saaf karein" chunne se sab hat jaata hai.</p>
@@ -156,8 +156,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 </ul>
 <h3>Ye data kahan jaata hai</h3>
 <ul>
-<li><b>Google Gemini (AI):</b> comment ka text (bina aapki profile ke) Google ke Gemini API ko bheja jaata hai, taaki wo comment ka prakaar samjhe aur vinamra jawab ka draft banaye.</li>
-<li><b>Telegram:</b> kuch comment aur report channel chalane wale ke apne private Telegram par soochna ke roop me aate hain.</li>
+<li><b>Google Gemini (AI):</b> sirf comment ka text Google ke Gemini API ko bheja jaata hai — commenter ka naam, username ya profile nahi — taaki wo comment ka prakaar samjhe aur vinamra jawab ka draft banaye. Hum Gemini API ka free tier istemaal karte hain; Google ki shart ke hisaab se is tier me bheja gaya text Google apni sevaayein behtar banane ke liye bhi istemaal kar sakta hai. Isliye hum AI ko kabhi kisi ka naam, phone, email ya koi niji jaankari nahi bhejte.</li>
+<li><b>Cloudflare Workers AI (backup AI):</b> Gemini kabhi na chale to wahi comment text (bina naam ke) hamare apne Cloudflare account ke Workers AI se samjha jaata hai. Cloudflare ki policy: <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Cloudflare Privacy Policy</a>.</li>
+<li><b>Telegram:</b> kuch comment aur report channel chalane wale ke apne private Telegram par soochna ke roop me aate hain. Telegram ka seedha raasta band ho to ye soochna hamare apne Cloudflare account ke zariye Telegram tak pahunchti hai. Ek backup notification seva (ntfy) par sirf system ki soochna jaati hai — kisi ka comment ya naam nahi.</li>
 <li><b>Platform khud:</b> jawab, hide ya delete ka kaam YouTube, Facebook, Instagram ya Threads ke apne system se hota hai.</li>
 </ul>
 <p>Hum ye data <b>na bechte hain, na kiraye par dete hain, na vigyapan ke liye kisi ko dete hain.</b></p>
@@ -172,11 +173,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <ul>
 <li><b>Facebook, Instagram, Threads:</b> hum Meta ke official API ka upyog karte hain. Meta ki apni policy: <a href="https://www.facebook.com/privacy/policy/" target="_blank" rel="noopener">Meta Privacy Policy</a>.</li>
 <li><b>Pinterest:</b> hamare pin ek manzoor Pinterest app se jaate hain. Pinterest ki policy: <a href="https://policy.pinterest.com/privacy-policy" target="_blank" rel="noopener">Pinterest Privacy Policy</a>.</li>
-<li><b>Telegram aur WhatsApp channel:</b> ye ek-tarfa broadcast channel hain. Hum subscriber ki list ya phone number apne system me save nahi karte. WhatsApp channel me follower ka phone number channel chalane wale ko dikhta bhi nahi.</li>
+<li><b>Telegram aur WhatsApp channel:</b> ye ek-tarfa broadcast channel hain. Hum subscriber ki list ya phone number apne system me save nahi karte. WhatsApp channel me follower ka phone number channel chalane wale ko dikhta bhi nahi. Telegram channel par kabhi-kabhi quiz poll hota hai — channel ke poll me vote anonymous hota hai, hum kisi voter ki pehchaan nahi dekhte.</li>
+<li><b>Jawab page (sabhisaab.com/jawab):</b> code se jawab dhoondhna aur filter aapke browser me hi chalta hai; aap kya khojte hain wo hamare paas nahi aata. "WhatsApp par bhejein" dabane par sirf WhatsApp khulta hai — hum koi data collect nahi karte.</li>
 </ul>
 
 <h2 id="ai-affiliate">11. AI se bani video aur affiliate link</h2>
-<p>Hamari zyadatar video me awaaz aur kuch drishya AI ki madad se bante hain. Aisi har video par platform ka AI label aur description me saaf soochna hoti hai. Kisi asli insaan ki awaaz ya chehra copy nahi kiya jaata.</p>
+<p>Hamari zyadatar video me awaaz aur kuch drishya AI ki madad se bante hain. Aisi har video ki description/caption me saaf likha hota hai ki awaaz AI se bani hai, aur jahan platform suvidha deta hai (jaise YouTube ka "altered or synthetic content") wahan platform ka AI label bhi lagaya jaata hai. Kisi asli insaan ki awaaz ya chehra copy nahi kiya jaata.</p>
 <p>Labh Lo Deals ki kuch post me affiliate link ho sakte hain, jin par "#ad" likha hota hai. Aise link par click karne ke baad wo dukaan (jaise koi online store) apni cookies laga sakti hai — wo unki apni policy ke hisaab se hota hai, hamare paas aapki khareed ki koi jaankari nahi aati.</p>
 
 <h2 id="data-deletion">12. Apna data hatwana (Data Deletion)</h2>
