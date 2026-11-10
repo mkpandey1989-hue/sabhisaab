@@ -34,3 +34,7 @@
 
 /manifest.json
   Cache-Control: public, max-age=86400
+
+/stories/*
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.ampproject.org https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://cdn.ampproject.org https://www.google-analytics.com; frame-ancestors 'self'; base-uri 'self'; object-src 'none'
