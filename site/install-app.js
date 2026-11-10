@@ -152,6 +152,19 @@
     }
   } catch (e) {}
 
+
+  // v2.9.2: notification - sirf button dabane par (koi popup nahi). OneSignal subscription unke paas, hamare paas kuch nahi.
+  try { var bt0 = document.getElementById('shJawabList') || document.getElementById('jwStreak');
+    if (bt0 && !document.getElementById('shPush')) { var pb = document.createElement('button'); pb.id = 'shPush';
+      pb.type = 'button'; pb.textContent = '🔔 Roz ka naya sawal notification par'; pb.style.cssText = 'margin:8px 0;padding:8px 14px;border-radius:999px;border:1px solid #0F766E;background:#fff;color:#0F766E;cursor:pointer;font-size:.9rem';
+      bt0.parentNode.insertBefore(pb, bt0.nextSibling);
+      pb.addEventListener('click', function () { var s = document.createElement('script');
+        s.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js'; s.defer = true;
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(function (OS) { OS.init({ appId: '7f1f483a-3d96-4e27-b0e6-1c787ad8c0e1' }).then(function () {
+          return OS.Notifications.requestPermission(); }).then(function () { pb.textContent = '✅ Notification chalu (band: browser setting)'; }); });
+        document.head.appendChild(s); }); } } catch (e) {}
+
   // Pehle se app-mode me chal raha hai? To button ki zaroorat nahi.
   var standalone =
     window.matchMedia('(display-mode: standalone)').matches ||
