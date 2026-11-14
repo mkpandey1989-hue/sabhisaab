@@ -1,0 +1,50 @@
+name: Ginti sync (naye tool ke baad)
+
+# Naya tool jodne ke baad "Saare 183 Tools" jaisi ginti 265 page par likhi rehti hai.
+# Ye workflow tools.js gin kar har page par sahi ginti likh deta hai aur commit karta hai.
+# Page ki tareekh nahi badalti, isliye Bing/IndexNow par koi spam nahi jaata.
+# Kram: saari ZIP chadhao -> YE workflow chalao -> phir deploy.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ginti-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Ginti theek karo
+        run: python3 scripts/ginti_sync.py
+      - name: Commit
+        run: |
+          if git diff --quiet; then echo "Kuch nahi badla"; exit 0; fi
+          git config user.name "sabhisaab-bot"
+          git config user.email "bot@sabhisaab.com"
+          git add site
+          git commit -m "ginti sync: $(grep -o "{id:'" site/tools.js | wc -l) tools" --quiet
+          for i in 1 2 3; do
+            if git pull --rebase --autostash --quiet && git push --quiet; then echo "Push ho gaya"; exit 0; fi
+            sleep 5
+          done
+          echo "Push nahi hua"; exit 1
+      - name: Telegram par khabar
+        if: always()
+        env:
+          TG: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          OK: ${{ job.status }}
+        run: |
+          N=$(grep -o "{id:'" site/tools.js | wc -l)
+          if [ "$OK" = "success" ]; then M="✅ Ginti sync ho gaya — ab har page par $N tools. Ab Deploy karein (IndexNow: badle-hue)."; else M="❌ Ginti sync fail hua — GitHub Actions me dekhein."; fi
+          curl -s -o /dev/null "https://api.telegram.org/bot$TG/sendMessage" --data-urlencode "chat_id=$CHAT" --data-urlencode "text=$M" || true

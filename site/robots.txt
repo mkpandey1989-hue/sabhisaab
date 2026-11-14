@@ -1,0 +1,31 @@
+# Sab Hisaab - https://sabhisaab.com
+# Poori site crawl ke liye khuli hai.
+# ?t= wale purane URL ko block NAHI kiya gaya: unka canonical homepage par jaata hai,
+# isliye Google unhe khud consolidate kar leta hai. Block karne par Google canonical
+# padh hi nahi paata aur wo "Blocked by robots.txt" me hamesha atke rehte hain.
+
+User-agent: *
+Allow: /
+Disallow: /googleb9a1fd91a1579ee6.html
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# AI agents ke liye site ka saaransh: https://sabhisaab.com/llms.txt
+
+Sitemap: https://sabhisaab.com/sitemap.xml
