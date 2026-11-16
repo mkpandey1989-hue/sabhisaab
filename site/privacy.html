@@ -3,8 +3,8 @@
 <script>
 window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
 try{var _h=location.hash,_s=location.search,_ok=false;if(_h==='#owner-on'||/[?&]owner=on(&|$)/.test(_s)){try{localStorage.setItem('sh_owner','1');}catch(e){}document.cookie='sh_owner=1;path=/;max-age=63072000;SameSite=Lax;Secure';}else if(_h==='#owner-off'||/[?&]owner=off(&|$)/.test(_s)){try{localStorage.removeItem('sh_owner');}catch(e){}document.cookie='sh_owner=;path=/;max-age=0';}document.addEventListener('click',function(ev){var t=ev.target;if(!t||!t.closest||!t.closest('h1'))return;var n=Date.now();window._shT=(window._shT||[]).filter(function(x){return n-x<4000;});window._shT.push(n);if(window._shT.length>=7){window._shT=[];if(confirm('Owner mode: is browser ki visit Analytics mein na gine?')){location.href=location.pathname+'?owner=on';}}});try{_ok=localStorage.getItem('sh_owner')==='1';}catch(e){}if(_ok||/(^|; )sh_owner=1/.test(document.cookie)){window['ga-disable-G-QX5MWV42TR']=true;document.addEventListener('DOMContentLoaded',function(){var d=document.createElement('div');d.textContent='Owner mode: ye visit Analytics me nahi gini jaati';d.style.cssText='position:fixed;left:8px;bottom:8px;z-index:99999;background:#111;color:#fff;font:12px sans-serif;padding:6px 10px;border-radius:8px;opacity:.85';document.body.appendChild(d);});}}catch(e){}
-gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});
-try{var _c=localStorage.getItem('sh_consent');if(_c==='all'){gtag('consent','update',{ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted',analytics_storage:'granted'});}}catch(e){}
+gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500,region:['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB','CH']});gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'granted'});
+try{var _c=localStorage.getItem('sh_consent');if(_c==='all'){gtag('consent','update',{ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted',analytics_storage:'granted'});}else if(_c==='essential'){gtag('consent','update',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied'});}}catch(e){}
 </script>
 <!-- Google Analytics (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX5MWV42TR"></script>
@@ -126,8 +126,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <h2 id="analytics">5. Analytics — Google Analytics 4</h2>
 <p>Website par <b>Google Analytics 4</b> chalta hai, taaki hum samajh sakein ki kaunse tool aur page kaam aate hain. Isse hamein sirf jod-kar bane aankde milte hain — jaise kitne log aaye, kis desh/rajya se, kaunsa page dekha, aur kis link se aaye. Aapka naam, email ya phone hamare paas nahi aata.</p>
 <ul>
-<li><b>Sahmati se pehle:</b> Google Consent Mode v2 ki wajah se analytics cookie band rehti hai. Is dauran Google ko bina cookie aur bina pehchaan wale saadharan signal (jaise page khula) ja sakte hain, jinse Google sirf andaaze wale kul aankde banata hai.</li>
-<li><b>Sahmati ke baad:</b> analytics cookie chalu hoti hai aur visit ka hisaab theek se judta hai.</li>
+<li><b>Europe, UK aur Switzerland:</b> Google Consent Mode v2 ki wajah se analytics cookie tab tak band rehti hai jab tak aap banner par sahmati na dein. Is dauran Google ko bina cookie aur bina pehchaan wale saadharan signal (jaise page khula) ja sakte hain.</li>
+<li><b>India aur baaki desh:</b> sirf ginti wali analytics cookie shuru se chalti hai (vigyapan wali cookie nahi). Banner par <b>"Sirf zaroori cookies"</b> dabate hi ye bhi band ho jaati hai aur aage har page par band rehti hai.</li>
+<li><b>"Sab cookies theek hain" ke baad:</b> analytics ke saath vigyapan wali cookie bhi chalu ho sakti hai (jab site par ads lagenge).</li>
 <li><b>Hamare social post ke link:</b> unme "utm" naam ke chhote tag hote hain (jaise utm_source=youtube). Inse sirf ye pata chalta hai ki visit kis channel se aaya — kisi vyakti ki pehchaan nahi.</li>
 </ul>
 <p>Google is data ko kaise sambhalta hai, ye <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a> me likha hai.</p>
