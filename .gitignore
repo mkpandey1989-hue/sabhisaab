@@ -1,0 +1,11 @@
+config.json
+secrets/
+*.log
+state.json
+audit_result.json
+last_report.txt
+backup/
+venv/
+__pycache__/
+*.pyc
+*.rejected

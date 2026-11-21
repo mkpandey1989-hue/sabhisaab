@@ -1,0 +1,23 @@
+{
+  "site_url": "https://sabhisaab.com",
+  "site_dir": "/opt/sabhisaab/site",
+  "incoming_dir": "/opt/sabhisaab/incoming",
+  "gsc_property": "sc-domain:sabhisaab.com",
+  "ga4_id": "G-QX5MWV42TR",
+  "adsense_approved": false,
+
+  "git_branch": "main",
+
+  "indexnow_key": "YAHAN-32-CHAR-KEY-DAALEIN",
+
+  "bing_api_key": "BING-WEBMASTER-API-KEY",
+  "bing_enabled": true,
+
+  "google_sa_json": "/opt/sabhisaab/secrets/gsc-service-account.json",
+  "gsc_enabled": true,
+  "gsc_daily_budget": 150,
+
+  "telegram_token": "TELEGRAM-BOT-TOKEN",
+  "telegram_chat_id": "AAPKA-CHAT-ID",
+  "telegram_enabled": true
+}
