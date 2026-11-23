@@ -65,7 +65,7 @@
 </url>
 <url>
 <loc>https://sabhisaab.com/almora-kaise-pahunche</loc>
-<lastmod>2026-11-18</lastmod>
+<lastmod>2026-11-23</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.7</priority>
 <image:image><image:loc>https://sabhisaab.com/ghati-mein-basa-pahadi-kasba.webp</image:loc></image:image>
@@ -1648,7 +1648,7 @@
 </url>
 <url>
 <loc>https://sabhisaab.com/privacy</loc>
-<lastmod>2026-11-17</lastmod>
+<lastmod>2026-11-23</lastmod>
 <changefreq>yearly</changefreq>
 <priority>0.3</priority>
 <image:image><image:loc>https://sabhisaab.com/sab-hisaab-og.png</image:loc></image:image>
@@ -1941,6 +1941,12 @@
 <image:image><image:loc>https://sabhisaab.com/sab-hisaab-og.png</image:loc></image:image>
 </url>
 <url>
+<loc>https://sabhisaab.com/services-demo</loc>
+<lastmod>2026-11-23</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.4</priority>
+</url>
+<url>
 <loc>https://sabhisaab.com/services-list</loc>
 <lastmod>2026-11-23</lastmod>
 <changefreq>monthly</changefreq>
@@ -2209,7 +2215,7 @@
 </url>
 <url>
 <loc>https://sabhisaab.com/terms</loc>
-<lastmod>2026-11-10</lastmod>
+<lastmod>2026-11-23</lastmod>
 <changefreq>yearly</changefreq>
 <priority>0.3</priority>
 <image:image><image:loc>https://sabhisaab.com/sab-hisaab-og.png</image:loc></image:image>
