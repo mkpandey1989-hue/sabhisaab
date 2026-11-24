@@ -189,13 +189,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <input type="checkbox" name="botcheck" style="display:none">
 
 <label class="f">Aapka naam *</label>
-<input type="text" name="naam" required placeholder="Poora naam">
+<input type="text" name="naam" required placeholder="jaise: Ramesh Kumar" autocomplete="name">
 
 <label class="f">Email *</label>
-<input type="email" name="email" required placeholder="jahan jawab bhej sakein">
+<input type="email" name="email" required placeholder="jaise: naam@gmail.com" autocomplete="email">
 
 <label class="f">Mobile (optional)</label>
-<input type="text" name="mobile" placeholder="WhatsApp number">
+<input type="tel" name="mobile" inputmode="tel" maxlength="16" autocomplete="tel-national" placeholder="jaise: 98XXXXXXXX (10 ank)">
 
 <label class="f">Kis tarah ka kaam hai? *</label>
 <select name="kaam" required>
@@ -277,12 +277,14 @@ if(r)r.addEventListener('click',function(){set('essential');});
 })();
 </script>
 <script src="/svc-cfg.js" defer></script>
+<script src="/svc-kit.js" defer></script>
+<script>document.addEventListener('DOMContentLoaded',function(){var f=document.querySelector('#form form');if(f&&window.SVCKIT)SVCKIT.enhance(f,{labels:false,f:{naam:[0,null,'name'],email:[0,null,'email'],mobile:[0,null,'phone?'],kaam:[0,null,'need'],vivran:[0,null,'msg']}})});</script>
 <script>
 (function(){var f=document.querySelector('#form form');if(!f)return;
 f.addEventListener('submit',function(){try{if(!window.SVC_API)return;var d=new FormData(f);
 var q=new URLSearchParams(location.search);
 fetch(window.SVC_API+'/lead',{method:'POST',keepalive:true,headers:{'content-type':'application/json'},body:JSON.stringify({
-name:d.get('naam'),phone:d.get('mobile')||'',message:(d.get('kaam')||'')+' | '+(d.get('vivran')||'')+' | samay: '+(d.get('samay')||'')+' | email: '+(d.get('email')||''),
+name:d.get('naam'),phone:d.get('mobile')||'',email:d.get('email')||'',message:(d.get('kaam')||'')+' | '+(d.get('vivran')||'')+' | samay: '+(d.get('samay')||'')+' | email: '+(d.get('email')||''),
 service:'',consent:!!d.get('consent'),code:q.get('code')||'',src:q.get('utm_source')||document.referrer.slice(0,100),page:'services'})});}catch(e){}});})();
 </script>
 <script src="/install-app.js" defer></script>
