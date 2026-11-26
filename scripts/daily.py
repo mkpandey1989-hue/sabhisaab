@@ -392,6 +392,12 @@ def audit_summary():
 def main():
     st = load(S_MAIN, {})
     alerts = load(S_ALERT, {"open": {}, "seen_news": {}})
+    # v3.9.7: bot ka purana "band karo" button har dict mein "ack": True daalta tha -> bool se crash. Load par hi saaf.
+    alerts = alerts if isinstance(alerts, dict) else {}
+    _op = alerts.get("open") if isinstance(alerts.get("open"), dict) else {}
+    _sn = alerts.get("seen_news") if isinstance(alerts.get("seen_news"), dict) else {}
+    alerts["open"] = {k: v for k, v in _op.items() if isinstance(v, dict) and isinstance(v.get("text"), str)}
+    alerts["seen_news"] = {k: v for k, v in _sn.items() if isinstance(v, str)}
     hi, imp, day = [], [], []
     y  = today() - datetime.timedelta(days=1)
     d3 = today() - datetime.timedelta(days=3)     # GSC 2-3 din peeche rehta hai
@@ -526,6 +532,11 @@ def main():
                 day.append(f"<code>{u}</code>")
             st["todo"] = top[1][:12]
 
+    # v3.9.7: index ka nateeja TURANT save - aage ka koi hissa gire to bhi Google jaanch kabhi na khoye (24-26 Nov khoyi thi)
+    if svc and urls:
+        st["day"] = dstr(today())
+        save(S_MAIN, st)
+
     # ---------- GA4 ----------
     if GA4:
         r7  = ga4_simple(7, 1, [], ["activeUsers", "sessions", "screenPageViews"])
@@ -600,8 +611,12 @@ def main():
         st["unused"] = uf
 
     # ---------- khabar ----------
-    hot, seen = news(alerts.get("seen_news", {}))
-    alerts["seen_news"] = seen
+    try:
+        hot, seen = news(alerts.get("seen_news", {}))
+        alerts["seen_news"] = seen
+    except Exception as e:
+        hot = []
+        print("khabar hissa fail:", str(e)[:150])
     for src, title, link in hot[:6]:
         imp.append(f"📰 <b>{esc(src)}</b>\n{esc(title)}\n{link}")
 
@@ -610,12 +625,12 @@ def main():
         day.append(f"\n{esc(a1)} : {esc(a2)} ({esc(a3)})")
 
     # ---------- khule alert dohrao ----------
-    op = alerts.get("open", {})
+    op = alerts.get("open", {}) if isinstance(alerts.get("open"), dict) else {}
     for line in hi:
         key = line[:70]
         op.setdefault(key, {"text": line, "since": dstr(today()), "days": 0})
         op[key]["days"] += 1
-    old_open = [v for k, v in op.items() if v["text"] not in hi]
+    old_open = [v for k, v in op.items() if isinstance(v, dict) and v.get("text") not in hi]
     alerts["open"] = op
 
     # ---------- bhejo ----------
