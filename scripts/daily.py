@@ -316,7 +316,8 @@ HOT = ("deprecat", "retir", "shut down", "sunset", "breaking", "policy", "spam",
        "search console", "guideline", "requirement")
 
 def news(seen):
-    out, new_seen = [], dict(seen)
+    seen = seen if isinstance(seen, dict) else {}
+    out, new_seen = [], {k: (v if isinstance(v, str) else dstr(today())) for k, v in seen.items()}
     for name, url in FEEDS:
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 SabHisaabBot"})
@@ -338,7 +339,7 @@ def news(seen):
                 out.append((name, title, link))
     # purani yaad 60 din baad hata do
     cut = dstr(today() - datetime.timedelta(days=60))
-    new_seen = {k: v for k, v in new_seen.items() if v >= cut}
+    new_seen = {k: v for k, v in new_seen.items() if isinstance(v, str) and v >= cut}
     return out, new_seen
 
 # ---------------------------------------------------------------- 9. limits

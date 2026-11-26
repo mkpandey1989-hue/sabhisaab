@@ -278,7 +278,7 @@ if(r)r.addEventListener('click',function(){set('essential');});
 </script>
 <script src="/svc-cfg.js" defer></script>
 <script src="/svc-kit.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded',function(){var f=document.querySelector('#form form');if(f&&window.SVCKIT)SVCKIT.enhance(f,{labels:false,f:{naam:[0,null,'name'],email:[0,null,'email'],mobile:[0,null,'phone?'],kaam:[0,null,'need'],vivran:[0,null,'msg']}})});</script>
+<script>document.addEventListener('DOMContentLoaded',function(){var f=document.querySelector('#form form');if(f&&window.SVCKIT&&SVCKIT.enhance)SVCKIT.enhance(f,{labels:false,f:{naam:[0,null,'name'],email:[0,null,'email'],mobile:[0,null,'phone?'],kaam:[0,null,'need'],vivran:[0,null,'msg']}})});</script>
 <script>
 (function(){var f=document.querySelector('#form form');if(!f)return;
 f.addEventListener('submit',function(){try{if(!window.SVC_API)return;var d=new FormData(f);
