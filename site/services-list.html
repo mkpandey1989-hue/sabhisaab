@@ -215,9 +215,9 @@ if(a)a.addEventListener('click',function(){set('all');});
 if(r)r.addEventListener('click',function(){set('essential');});
 })();
 </script>
-<script src="/svc-cfg.js" defer></script>
-<script src="/svc-kit.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded',function(){var f=document.querySelector('#form form');if(f&&window.SVCKIT)SVCKIT.enhance(f,{labels:false,f:{naam:[0,null,'name'],email:[0,null,'email'],mobile:[0,null,'phone?'],kaam:[0,null,'need'],vivran:[0,null,'msg']}})});</script>
+
+
+<script>document.addEventListener('DOMContentLoaded',function(){var f=document.querySelector('#form form');if(f&&window.SVCKIT&&SVCKIT.enhance)SVCKIT.enhance(f,{labels:false,f:{naam:[0,null,'name'],email:[0,null,'email'],mobile:[0,null,'phone?'],kaam:[0,null,'need'],vivran:[0,null,'msg']}})});</script>
 <script>
 (function(){var f=document.querySelector('#form form');if(!f)return;
 f.addEventListener('submit',function(){try{if(!window.SVC_API)return;var d=new FormData(f);
@@ -279,7 +279,7 @@ document.getElementById('offer').innerHTML=h})();
 if(window.SVCKIT){kit('custom');SVCKIT.help($('help'),'Namaste, services ke baare mein poochna hai')}
 if(window.SVC_TG){$('tgf').href='https://t.me/'+window.SVC_TG;$('tgf').style.display=''}
 try{var LU=localStorage.getItem('svclast');if(LU)$('lastk').innerHTML='Is phone se bheja kaam: <a href="'+LU+'">Mera page kholein</a><br>'}catch(e){}
-if(window.SVCKIT){SVCKIT.enhance($('fm'),{labels:false,f:{name:[0,null,'name'],phone:[0,null,'phone'],message:[0,null,'msg']}});SVCKIT.enhance($('findb'),{labels:false,f:{fid:[0,null,'id'],fl4:[0,null,'l4']}})}
+if(window.SVCKIT){SVCKIT.enhance($('fm'),{labels:false,f:{name:[0,null,'name'],phone:[0,null,'phone'],message:[0,null,'msg']}});if(SVCKIT.enhance)SVCKIT.enhance($('findb'),{labels:false,f:{fid:[0,null,'id'],fl4:[0,null,'l4']}})}
 $('findb').onsubmit=function(e){e.preventDefault();var id=$('fid').value.trim().toUpperCase(),l4=$('fl4').value.replace(/\D/g,'');if(!/^SH[A-Z0-9]{3,}$/.test(id)||l4.length!==4){$('fmsg').textContent='Kaam number (SH...) aur mobile ke aakhri 4 ank likhiye';return}
 $('fmsg').textContent='Dhoondh rahe hain…';api('/find',{id:id,last4:l4},10000).then(function(j){location.href='/q?id='+j.id+'&k='+j.k}).catch(function(e){$('fmsg').textContent=e.message})};
 $('waf').addEventListener('click',function(){ev('wa','c')});draw();if(Q.get('svc')&&IT.some(function(x){return x.id===Q.get('svc')}))pick(Q.get('svc'));
